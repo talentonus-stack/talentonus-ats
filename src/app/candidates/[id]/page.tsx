@@ -1,0 +1,155 @@
+import { getServerSession } from "next-auth/next"
+import { redirect } from "next/navigation"
+import prisma from "@/lib/prisma"
+import { authOptions } from "@/lib/auth"
+
+export default async function CandidateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user as any).role !== "ADMIN") {
+    redirect("/login")
+  }
+
+  const { id } = await params;
+
+  const candidate = await prisma.candidate.findUnique({
+    where: { id },
+    include: {
+      recruiter: true,
+      applications: {
+        include: { job: true },
+        orderBy: { createdAt: "desc" }
+      }
+    }
+  })
+
+  if (!candidate) {
+    redirect("/candidates")
+  }
+
+  const latestApp = candidate.applications[0];
+
+  return (
+    <div className="max-w-5xl mx-auto text-black">
+      <div className="flex justify-between items-end mb-6 border-b pb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{candidate.firstName} {candidate.lastName || ''}</h1>
+          <p className="text-sm text-gray-500 mt-1">Candidate Profile Details</p>
+        </div>
+        <div className="flex space-x-3">
+          <a href={`/candidates/${id}/edit`} className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 font-medium text-sm">
+            Edit
+          </a>
+          <a href="/candidates" className="text-sm font-medium text-blue-600 hover:text-blue-800 py-2">
+            &larr; Back
+          </a>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Personal Information */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Personal Information</h2>
+          <div className="space-y-4">
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Full Name</span>
+              <p className="text-sm font-medium">{candidate.firstName} {candidate.lastName || ''}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Email</span>
+              <p className="text-sm font-medium">{candidate.email}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Phone</span>
+              <p className="text-sm font-medium">{candidate.phone || 'N/A'}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Current Location</span>
+              <p className="text-sm font-medium">{candidate.currentLocation || 'N/A'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Professional Information */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Professional Information</h2>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="block text-xs font-semibold text-gray-500 uppercase">Experience</span>
+                <p className="text-sm font-medium">{candidate.experience || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="block text-xs font-semibold text-gray-500 uppercase">Notice Period</span>
+                <p className="text-sm font-medium">{candidate.noticePeriod || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="block text-xs font-semibold text-gray-500 uppercase">Current Salary</span>
+                <p className="text-sm font-medium">{candidate.currentSalary || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="block text-xs font-semibold text-gray-500 uppercase">Expected Salary</span>
+                <p className="text-sm font-medium">{candidate.expectedSalary || 'N/A'}</p>
+              </div>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Skills</span>
+              <div className="mt-1 bg-gray-50 p-3 rounded border text-sm">{candidate.skills || 'N/A'}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Application Information */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Application Information</h2>
+          <div className="space-y-4">
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Applied Job</span>
+              <p className="text-sm font-medium">{latestApp ? latestApp.job.title : 'No active applications'}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Application Status</span>
+              <p className="text-sm mt-1">
+                {latestApp ? (
+                  <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 font-semibold leading-5 text-blue-800">
+                    {latestApp.status.replace(/_/g, ' ')}
+                  </span>
+                ) : 'N/A'}
+              </p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Submitted By (Recruiter)</span>
+              <p className="text-sm font-medium">{candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase">Submitted Date</span>
+              <p className="text-sm font-medium">{new Date(candidate.createdAt).toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Additional Information */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">Additional Information</h2>
+          <div className="space-y-6">
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase mb-2">Remarks</span>
+              <div className="bg-yellow-50 p-4 rounded border border-yellow-100 text-sm text-yellow-900 whitespace-pre-wrap">
+                {candidate.remarks || 'No remarks provided.'}
+              </div>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase mb-2">Resume URL</span>
+              {candidate.resumeUrl ? (
+                <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-800 underline break-all">
+                  {candidate.resumeUrl}
+                </a>
+              ) : (
+                <p className="text-sm text-gray-500">No resume uploaded.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -17,14 +17,8 @@ export const authOptions: AuthOptions = {
           return null
         }
 
-        // Check if it's an email or mobile
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { email: credentials.email },
-              { mobile: credentials.email }
-            ]
-          }
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
         })
 
         if (!user || user.status !== 'ACTIVE') {
@@ -32,7 +26,7 @@ export const authOptions: AuthOptions = {
         }
 
         // Logic for Admin standard login
-        if (credentials.password && user.password) {
+        if (credentials.password && user.password && user.role === 'ADMIN') {
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
           if (isPasswordValid) {
             return { id: user.id, email: user.email, name: user.name, role: user.role }
@@ -40,7 +34,7 @@ export const authOptions: AuthOptions = {
         }
 
         // Logic for Recruiter OTP login
-        if (credentials.otp && user.otp === credentials.otp) {
+        if (credentials.otp && user.otp === credentials.otp && user.role === 'RECRUITER') {
           // Verify expiry
           if (user.otpExpiry && new Date() < user.otpExpiry) {
             // clear OTP

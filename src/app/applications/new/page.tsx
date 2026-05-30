@@ -8,6 +8,9 @@ export default async function NewApplicationPage() {
   if (!session) {
     redirect("/login")
   }
+  if ((session.user as any).role !== "ADMIN") {
+    redirect("/recruiter")
+  }
 
   let jobs: any[] = []
   let candidates: any[] = []

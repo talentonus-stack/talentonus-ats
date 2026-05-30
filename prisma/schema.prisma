@@ -16,13 +16,50 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+enum JobTiming {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+enum JobPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum JobStatus {
+  OPEN
+  ON_HOLD
+  CLOSED
+}
+
+enum JobGender {
+  MALE
+  FEMALE
+  BOTH
+}
+
 model Job {
   id           String        @id @default(cuid())
   title        String
   department   String
   location     String
-  status       String        @default("OPEN") // OPEN, CLOSED
+  status       JobStatus     @default(OPEN)
   description  String?
+
+  postedDate   DateTime      @default(now())
+  experience   String?
+  skills       String?
+  salaryRange  String?
+  industry     String?
+  jobTiming    JobTiming     @default(FULL_TIME)
+  workingDays  String?
+  priority     JobPriority   @default(MEDIUM)
+  gender       JobGender     @default(BOTH)
+  vacancies    Int           @default(1)
+  education    String?
+
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   applications Application[]

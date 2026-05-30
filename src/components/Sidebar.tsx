@@ -32,23 +32,19 @@ export default function Sidebar() {
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white text-gray-800">
       <div className="flex h-36 items-center justify-center border-b px-4 py-4">
-        {role === "RECRUITER" ? (
-          <div className="flex flex-col items-center w-full">
-            <Image
-              src="/logo.png"
-              alt="Talentonus Logo"
-              width={240}
-              height={120}
-              className="object-contain w-full max-w-[200px] h-auto"
-              priority
-            />
-            <span className="text-[10px] font-medium text-gray-500 mt-2 uppercase tracking-widest">Recruiter Portal</span>
-          </div>
-        ) : (
-          <span className="text-xl font-bold tracking-tight text-blue-600">
-            ATS Admin
+        <div className="flex flex-col items-center w-full">
+          <Image
+            src="/logo.png"
+            alt="Talentonus Logo"
+            width={240}
+            height={120}
+            className="object-contain w-full max-w-[200px] h-auto"
+            priority
+          />
+          <span className="text-[10px] font-medium text-gray-500 mt-2 uppercase tracking-widest">
+            {role === "RECRUITER" ? "Recruiter Portal" : "ATS Admin"}
           </span>
-        )}
+        </div>
       </div>
       <nav className="flex-1 space-y-1 px-4 py-4">
         {navigation.map((item) => {

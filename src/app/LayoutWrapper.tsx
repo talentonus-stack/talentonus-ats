@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation"
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isLoginPage = pathname === "/login"
+  const isAuthPage = pathname === "/login" || pathname === "/recruiter-login"
 
-  if (isLoginPage) {
+  if (isAuthPage) {
     return <main className="flex-1 overflow-y-auto">{children}</main>
   }
 

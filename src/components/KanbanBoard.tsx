@@ -3,12 +3,21 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-const PIPELINE_STATUSES = ["NEW", "SCREENING", "INTERVIEW", "OFFER", "HIRED", "REJECTED"]
+const PIPELINE_STATUSES = [
+  "SUBMITTED",
+  "SCREENING",
+  "INTERVIEW_SCHEDULED",
+  "L1_CLEARED",
+  "L2_CLEARED",
+  "SELECTED",
+  "REJECTED",
+  "JOINED"
+]
 
 type Application = {
   id: string
   status: string
-  candidate: { firstName: string; lastName: string }
+  candidate: { firstName: string; lastName: string | null }
   job: { title: string }
 }
 
@@ -34,7 +43,6 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
       router.refresh()
     } catch(e) {
       console.error(e)
-      // Revert on error (could implement full revert logic here)
       router.refresh()
     }
   }
@@ -43,20 +51,20 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     <div className="flex h-[calc(100vh-12rem)] space-x-4 overflow-x-auto pb-4">
       {PIPELINE_STATUSES.map(status => (
         <div key={status} className="flex w-80 flex-shrink-0 flex-col rounded-md bg-gray-100 p-4">
-          <h3 className="mb-4 text-sm font-semibold text-gray-700">{status}</h3>
+          <h3 className="mb-4 text-sm font-semibold text-gray-700">{status.replace(/_/g, ' ')}</h3>
           <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
             {applications.filter(app => app.status === status).map(app => (
-              <div key={app.id} className="rounded-md bg-white p-4 shadow-sm text-black">
-                <p className="font-medium text-sm">{app.candidate.firstName} {app.candidate.lastName}</p>
-                <p className="text-xs text-gray-500 mb-3">{app.job.title}</p>
+              <div key={app.id} className="rounded-md bg-white p-4 shadow-sm text-black border border-gray-200">
+                <p className="font-medium text-sm">{app.candidate.firstName} {app.candidate.lastName || ''}</p>
+                <p className="text-xs text-gray-500 mb-3 font-semibold">{app.job.title}</p>
 
                 <select
-                  className="block w-full rounded-md border-gray-300 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="block w-full rounded-md border-gray-300 bg-gray-50 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   value={app.status}
                   onChange={(e) => handleStatusChange(app.id, e.target.value)}
                 >
                   {PIPELINE_STATUSES.map(s => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
                   ))}
                 </select>
               </div>

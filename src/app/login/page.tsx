@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -29,6 +30,7 @@ export default function LoginPage() {
   return (
     <div className="flex h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        <p className="mb-6 text-center text-sm text-gray-500">Admin Portal</p>
         <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">ATS Login</h1>
         {error && <p className="mb-4 text-center text-red-500">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -59,6 +61,9 @@ export default function LoginPage() {
             Sign In
           </button>
         </form>
+        <div className="mt-6 text-center text-sm">
+          <Link href="/recruiter-login" className="text-gray-500 hover:text-gray-900">Recruiter Login</Link>
+        </div>
       </div>
     </div>
   )

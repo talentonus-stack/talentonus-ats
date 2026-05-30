@@ -1,5 +1,7 @@
-import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
+import { getServerSession } from "next-auth/next"
+
+
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
@@ -8,6 +10,9 @@ export default async function CandidatesPage() {
   const session = await getServerSession(authOptions)
   if (!session) {
     redirect("/login")
+  }
+  if ((session.user as any).role !== "ADMIN") {
+    redirect("/recruiter")
   }
 
   let candidates: any[] = []

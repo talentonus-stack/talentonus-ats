@@ -25,7 +25,7 @@ export default async function NewApplicationPage() {
         data: {
           jobId: formData.get("jobId") as string,
           candidateId: formData.get("candidateId") as string,
-          status: "NEW",
+          status: "SUBMITTED",
         }
       })
     } catch(e) {

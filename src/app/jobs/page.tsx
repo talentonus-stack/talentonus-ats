@@ -13,6 +13,9 @@ export default async function JobsPage({
   if (!session) {
     redirect("/login")
   }
+  if ((session.user as any).role !== "ADMIN") {
+    redirect("/recruiter")
+  }
 
   const { q, status, priority, location } = await searchParams;
 

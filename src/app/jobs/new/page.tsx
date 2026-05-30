@@ -8,6 +8,9 @@ export default async function NewJobPage() {
   if (!session) {
     redirect("/login")
   }
+  if ((session.user as any).role !== "ADMIN") {
+    redirect("/recruiter")
+  }
 
   async function createJob(formData: FormData) {
     "use server"

@@ -9,12 +9,15 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/login")
   }
+  if ((session.user as any).role === "RECRUITER") {
+    redirect("/recruiter")
+  }
 
   const [totalJobs, totalCandidates, totalApplications, hiredApplications] = await Promise.all([
     prisma.job.count(),
     prisma.candidate.count(),
     prisma.application.count(),
-    prisma.application.count({ where: { status: "HIRED" } }),
+    prisma.application.count({ where: { status: "JOINED" } }),
   ])
 
   const stats = [

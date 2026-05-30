@@ -8,6 +8,9 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
   if (!session) {
     redirect("/login")
   }
+  if ((session.user as any).role !== "ADMIN") {
+    redirect("/recruiter")
+  }
 
   const { id } = await params;
   const job = await prisma.job.findUnique({

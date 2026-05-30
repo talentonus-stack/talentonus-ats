@@ -8,32 +8,70 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+        otp: { label: "OTP", type: "text" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email) {
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+        // Check if it's an email or mobile
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: credentials.email },
+              { mobile: credentials.email }
+            ]
+          }
         })
 
-        if (!user) {
+        if (!user || user.status !== 'ACTIVE') {
           return null
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-
-        if (!isPasswordValid) {
-          return null
+        // Logic for Admin standard login
+        if (credentials.password && user.password) {
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          if (isPasswordValid) {
+            return { id: user.id, email: user.email, name: user.name, role: user.role }
+          }
         }
 
-        return { id: user.id, email: user.email, name: user.name }
+        // Logic for Recruiter OTP login
+        if (credentials.otp && user.otp === credentials.otp) {
+          // Verify expiry
+          if (user.otpExpiry && new Date() < user.otpExpiry) {
+            // clear OTP
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { otp: null, otpExpiry: null }
+            })
+            return { id: user.id, email: user.email, name: user.name, role: user.role }
+          }
+        }
+
+        return null
       }
     })
   ],
   session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+        (session.user as any).id = token.id;
+      }
+      return session
+    }
+  },
   pages: { signIn: "/login" }
 }

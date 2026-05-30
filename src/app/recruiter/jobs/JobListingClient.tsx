@@ -19,10 +19,20 @@ type Job = {
   vacancies: number
   description: string | null
   jobTiming: string
+  postedDate: Date | string
 }
 
 export default function JobListingClient({ jobs }: { jobs: Job[] }) {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+
+  const isNewJob = (date: Date | string) => {
+    if (!date) return false
+    const jobDate = new Date(date)
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - jobDate.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays <= 7
+  }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -44,12 +54,19 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
           <div key={job.id} className="bg-primary-lighter rounded-lg shadow-sm border border-border p-5 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
               <div>
-                <button
-                  onClick={() => setSelectedJob(job)}
-                  className="text-lg font-bold text-accent hover:text-accent-hover hover:underline text-left"
-                >
-                  {job.title}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedJob(job)}
+                    className="text-lg font-bold text-accent hover:text-accent-hover hover:underline text-left"
+                  >
+                    {job.title}
+                  </button>
+                  {isNewJob(job.postedDate) && (
+                    <span className="bg-accent text-primary px-2 py-0.5 rounded text-[10px] font-bold tracking-wider animate-pulse">
+                      NEW
+                    </span>
+                  )}
+                </div>
                 <div className="mt-2 flex flex-wrap gap-y-2 gap-x-6 text-sm text-muted">
                   <div className="flex items-center gap-1">
                     <Briefcase className="h-4 w-4 text-muted" />

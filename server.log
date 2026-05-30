@@ -1,0 +1,16 @@
+
+> ats-temp@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+- Environments: .env
+✓ Ready in 605ms
+
+○ Compiling / ...
+[next-auth][warn][NEXTAUTH_URL]
+https://next-auth.js.org/warnings#nextauth_url
+ GET / 307 in 4.9s (next.js: 4.4s, application-code: 447ms)
+ GET /recruiter-login 200 in 746ms (next.js: 655ms, application-code: 91ms)
+ GET /recruiter-login 200 in 85ms (next.js: 6ms, application-code: 78ms)

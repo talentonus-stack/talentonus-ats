@@ -24,8 +24,8 @@ export default async function RecruiterJobsPage() {
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8 border-b pb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Active Job Openings</h1>
-        <p className="text-sm text-gray-600 mt-1">Browse current open positions to submit candidates.</p>
+        <h1 className="text-2xl font-bold text-light">Active Job Openings</h1>
+        <p className="text-sm text-muted mt-1">Browse current open positions to submit candidates.</p>
       </div>
 
       <JobListingClient jobs={jobs} />

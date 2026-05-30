@@ -25,11 +25,11 @@ export default async function UsersPage() {
   }
 
   return (
-    <div>
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Users</h1>
-          <p className="mt-2 text-sm text-gray-700">
+    <div className="animate-fade-in max-w-7xl mx-auto">
+      <div className="sm:flex sm:items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-light">Users</h1>
+          <p className="mt-2 text-sm text-muted">
             A list of all users in the ATS system.
           </p>
         </div>
@@ -39,24 +39,24 @@ export default async function UsersPage() {
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
               <table className="min-w-full divide-y divide-gray-300 text-black">
-                <thead className="bg-gray-50">
+                <thead className="bg-primary-lighter/50">
                   <tr>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
-                    <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created At</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Email</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created At</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
+                <tbody className="divide-y divide-border bg-primary-lighter">
                   {users.map((user) => (
-                    <tr key={user.id}>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.name || "N/A"}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{user.email}</td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{new Date(user.createdAt).toLocaleDateString()}</td>
+                    <tr key={user.id} className="hover:bg-primary/50 transition-colors group">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{user.name || "N/A"}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{user.email}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{new Date(user.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                   {users.length === 0 && (
                     <tr>
-                      <td colSpan={3} className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No users found.</td>
+                      <td colSpan={3} className="whitespace-nowrap px-6 py-12 text-sm text-muted text-center">No users found.</td>
                     </tr>
                   )}
                 </tbody>

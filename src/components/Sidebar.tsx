@@ -30,38 +30,42 @@ export default function Sidebar() {
   const navigation = role === "RECRUITER" ? recruiterNavigation : adminNavigation
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-white text-gray-800">
-      <div className="flex h-36 items-center justify-center border-b px-4 py-4">
+    <div className="flex h-screen w-64 flex-col border-r border-border bg-primary text-light relative overflow-hidden">
+      {/* Subtle top glow */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-accent opacity-5 blur-[80px] pointer-events-none"></div>
+
+      <div className="flex h-36 items-center justify-center border-b border-border px-4 py-4 relative z-10">
         <div className="flex flex-col items-center w-full">
           <Image
             src="/logo.png"
             alt="Talentonus Logo"
             width={240}
             height={120}
-            className="object-contain w-full max-w-[200px] h-auto"
+            className="object-contain w-full max-w-[180px] h-auto brightness-0 invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             priority
           />
-          <span className="text-[10px] font-medium text-gray-500 mt-2 uppercase tracking-widest">
+          <span className="text-[10px] font-medium text-accent mt-2 uppercase tracking-[0.2em] shadow-accent">
             {role === "RECRUITER" ? "Recruiter Portal" : "ATS Admin"}
           </span>
         </div>
       </div>
-      <nav className="flex-1 space-y-1 px-4 py-4">
+
+      <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto relative z-10 custom-scrollbar">
         {navigation.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && item.href !== "/recruiter" && pathname?.startsWith(item.href))
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`group flex items-center rounded-md px-2 py-2 text-sm font-medium ${
+              className={`group flex items-center rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-accent text-primary shadow-[0_0_15px_rgba(170,255,0,0.3)] scale-[1.02]"
+                  : "text-muted hover:bg-primary-lighter hover:text-light"
               }`}
             >
               <item.icon
-                className={`mr-3 h-5 w-5 flex-shrink-0 ${
-                  isActive ? "text-blue-700" : "text-gray-400 group-hover:text-gray-500"
+                className={`mr-3 h-5 w-5 flex-shrink-0 transition-colors duration-200 ${
+                  isActive ? "text-primary" : "text-muted group-hover:text-light"
                 }`}
                 aria-hidden="true"
               />
@@ -70,12 +74,13 @@ export default function Sidebar() {
           )
         })}
       </nav>
-      <div className="border-t p-4">
+
+      <div className="border-t border-border p-4 relative z-10">
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
-          className="group flex w-full items-center rounded-md px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          className="group flex w-full items-center rounded-xl px-3 py-3 text-sm font-medium text-muted hover:bg-primary-lighter hover:text-light transition-all duration-200"
         >
-          <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500" />
+          <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-muted group-hover:text-light transition-colors" />
           Logout
         </button>
       </div>

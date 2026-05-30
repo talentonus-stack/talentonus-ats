@@ -15,7 +15,8 @@ export default async function NewCandidatePage() {
 
   async function createCandidate(formData: FormData) {
     "use server"
-
+    const authSession = await getServerSession(authOptions)
+    if (!authSession) throw new Error("Unauthorized")
     try {
       await prisma.candidate.create({
         data: {
@@ -33,28 +34,28 @@ export default async function NewCandidatePage() {
   }
 
   return (
-    <div className="max-w-2xl text-black">
-      <h1 className="mb-6 text-xl font-semibold text-gray-900">Add New Candidate</h1>
-      <form action={createCandidate} className="space-y-6 bg-white p-6 rounded-lg shadow">
+    <div className="max-w-2xl animate-fade-in mx-auto">
+      <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Add New Candidate</h1>
+      <form action={createCandidate} className="space-y-6 bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">First Name</label>
-            <input required type="text" name="firstName" className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">First Name</label>
+            <input required type="text" name="firstName" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Last Name</label>
-            <input required type="text" name="lastName" className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Last Name</label>
+            <input required type="text" name="lastName" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <input required type="email" name="email" className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+          <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email</label>
+          <input required type="email" name="email" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Phone</label>
-          <input type="tel" name="phone" className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+          <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Phone</label>
+          <input type="tel" name="phone" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
         </div>
-        <button type="submit" className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
           Save Candidate
         </button>
       </form>

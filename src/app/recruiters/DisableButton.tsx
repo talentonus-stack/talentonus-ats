@@ -18,7 +18,7 @@ export default function DisableButton({ id, status }: { id: string, status: stri
   return (
     <button
       onClick={handleDisable}
-      className="text-red-600 hover:text-red-900 text-sm font-medium"
+      className="text-red-400 hover:text-red-300 transition-colors text-sm font-medium"
     >
       Disable
     </button>

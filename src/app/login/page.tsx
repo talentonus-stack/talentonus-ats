@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -28,41 +29,62 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <p className="mb-6 text-center text-sm text-gray-500">Admin Portal</p>
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">ATS Login</h1>
-        {error && <p className="mb-4 text-center text-red-500">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-            />
+    <div className="flex h-screen items-center justify-center bg-primary relative overflow-hidden">
+      {/* Background glow effects */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent opacity-10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600 opacity-5 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="w-full max-w-md animate-fade-in z-10">
+        <div className="glass rounded-2xl p-10 shadow-2xl">
+          <div className="flex justify-center mb-6">
+             <Image
+                src="/logo.png"
+                alt="Talentonus Logo"
+                width={200}
+                height={80}
+                className="brightness-0 invert opacity-90"
+             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-            />
+          <p className="mb-8 text-center text-sm font-medium tracking-widest uppercase text-accent">Admin Portal</p>
+
+          {error && <div className="mb-6 p-3 rounded-lg bg-red-900/30 border border-red-800 text-red-400 text-sm text-center">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full rounded-lg bg-primary-lighter border border-border px-4 py-3 text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+                placeholder="admin@talentonus.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full rounded-lg bg-primary-lighter border border-border px-4 py-3 text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200"
+            >
+              Sign In to Workspace
+            </button>
+          </form>
+
+          <div className="mt-8 text-center text-sm">
+            <Link href="/recruiter-login" className="text-muted hover:text-accent transition-colors duration-200 border-b border-transparent hover:border-accent pb-1">
+              Switch to Recruiter Login
+            </Link>
           </div>
-          <button
-            type="submit"
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Sign In
-          </button>
-        </form>
-        <div className="mt-6 text-center text-sm">
-          <Link href="/recruiter-login" className="text-gray-500 hover:text-gray-900">Recruiter Login</Link>
         </div>
       </div>
     </div>

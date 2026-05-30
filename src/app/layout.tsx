@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="flex h-screen bg-gray-50 text-gray-900">
+          <div className="flex h-screen bg-primary text-light">
             <LayoutWrapper>{children}</LayoutWrapper>
           </div>
         </Providers>

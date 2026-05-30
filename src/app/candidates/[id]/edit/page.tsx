@@ -21,6 +21,8 @@ export default async function EditCandidatePage({ params }: { params: Promise<{ 
 
   async function updateCandidate(formData: FormData) {
     "use server"
+    const authSession = await getServerSession(authOptions)
+    if (!authSession) throw new Error("Unauthorized")
     try {
       await prisma.candidate.update({
         where: { id },
@@ -46,74 +48,74 @@ export default async function EditCandidatePage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="max-w-4xl text-black">
-      <h1 className="mb-6 text-xl font-semibold text-gray-900">Edit Candidate: {candidate.firstName}</h1>
+    <div className="max-w-4xl animate-fade-in mx-auto">
+      <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Edit Candidate: {candidate.firstName}</h1>
 
-      <form action={updateCandidate} className="bg-white p-6 rounded-lg shadow border border-gray-200">
+      <form action={updateCandidate} className="bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border">
 
-        <h2 className="text-lg font-medium text-gray-900 mb-4 border-b pb-2">Candidate Details</h2>
+        <h2 className="text-xl font-bold text-light mb-6 border-b border-border pb-4">Candidate Details</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">First Name</label>
-            <input required type="text" name="firstName" defaultValue={candidate.firstName} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">First Name</label>
+            <input required type="text" name="firstName" defaultValue={candidate.firstName} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Last Name</label>
-            <input type="text" name="lastName" defaultValue={candidate.lastName || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Last Name</label>
+            <input type="text" name="lastName" defaultValue={candidate.lastName || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email Address</label>
-            <input required type="email" name="email" defaultValue={candidate.email} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address</label>
+            <input required type="email" name="email" defaultValue={candidate.email} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
-            <input type="text" name="phone" defaultValue={candidate.phone || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Mobile Number</label>
+            <input type="text" name="phone" defaultValue={candidate.phone || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Current Location</label>
-            <input type="text" name="currentLocation" defaultValue={candidate.currentLocation || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Current Location</label>
+            <input type="text" name="currentLocation" defaultValue={candidate.currentLocation || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Total Experience</label>
-            <input type="text" name="experience" defaultValue={candidate.experience || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Total Experience</label>
+            <input type="text" name="experience" defaultValue={candidate.experience || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Current Salary</label>
-            <input type="text" name="currentSalary" defaultValue={candidate.currentSalary || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Current Salary</label>
+            <input type="text" name="currentSalary" defaultValue={candidate.currentSalary || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Expected Salary</label>
-            <input type="text" name="expectedSalary" defaultValue={candidate.expectedSalary || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Expected Salary</label>
+            <input type="text" name="expectedSalary" defaultValue={candidate.expectedSalary || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Notice Period</label>
-            <input type="text" name="noticePeriod" defaultValue={candidate.noticePeriod || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Notice Period</label>
+            <input type="text" name="noticePeriod" defaultValue={candidate.noticePeriod || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Resume URL</label>
-            <input type="text" name="resumeUrl" defaultValue={candidate.resumeUrl || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Key Skills</label>
-            <input type="text" name="skills" defaultValue={candidate.skills || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Resume URL</label>
+            <input type="text" name="resumeUrl" defaultValue={candidate.resumeUrl || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Remarks</label>
-            <textarea name="remarks" rows={4} defaultValue={candidate.remarks || ""} className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Key Skills</label>
+            <input type="text" name="skills" defaultValue={candidate.skills || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Remarks</label>
+            <textarea name="remarks" rows={4} defaultValue={candidate.remarks || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-3 border-t pt-6">
-          <a href={`/candidates/${id}`} className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+        <div className="mt-8 flex justify-end gap-4 border-t border-border pt-8">
+          <a href={`/candidates/${id}`} className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">
             Cancel
           </a>
-          <button type="submit" className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          <button type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
             Save Changes
           </button>
         </div>

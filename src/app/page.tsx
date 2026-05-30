@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
+import { authOptions } from "@/lib/auth"
 import { Users, Briefcase, FileText, CheckCircle } from "lucide-react"
 
 export default async function DashboardPage() {
@@ -21,34 +21,38 @@ export default async function DashboardPage() {
   ])
 
   const stats = [
-    { name: "Total Jobs", value: totalJobs, icon: Briefcase, color: "text-blue-600", bg: "bg-blue-100" },
-    { name: "Total Candidates", value: totalCandidates, icon: Users, color: "text-green-600", bg: "bg-green-100" },
-    { name: "Total Applications", value: totalApplications, icon: FileText, color: "text-purple-600", bg: "bg-purple-100" },
-    { name: "Hired Candidates", value: hiredApplications, icon: CheckCircle, color: "text-indigo-600", bg: "bg-indigo-100" },
+    { name: "Total Jobs", value: totalJobs, icon: Briefcase },
+    { name: "Total Candidates", value: totalCandidates, icon: Users },
+    { name: "Total Applications", value: totalApplications, icon: FileText },
+    { name: "Hired Candidates", value: hiredApplications, icon: CheckCircle },
   ]
 
   return (
-    <div>
-      <h1 className="mb-8 text-2xl font-bold text-gray-900">Dashboard</h1>
+    <div className="animate-fade-in max-w-7xl mx-auto">
+      <div className="mb-10">
+        <h1 className="text-3xl font-bold tracking-tight text-light">Welcome back, Admin</h1>
+        <p className="mt-2 text-muted">Here's a quick overview of your recruitment pipeline today.</p>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <div
             key={stat.name}
-            className="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
+            className="group relative overflow-hidden rounded-2xl bg-primary-lighter border border-border p-6 hover:border-accent transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(170,255,0,0.1)]"
           >
-            <div className="flex items-center">
-              <div className={`flex-shrink-0 rounded-md p-3 ${stat.bg}`}>
-                <stat.icon className={`h-6 w-6 ${stat.color}`} aria-hidden="true" />
+            <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-accent/5 group-hover:bg-accent/10 transition-colors duration-300 blur-xl"></div>
+
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-primary border border-border group-hover:border-accent/30 transition-colors">
+                <stat.icon className="h-5 w-5 text-accent" aria-hidden="true" />
               </div>
-              <div className="ml-5 w-0 flex-1 text-black">
-                <dl>
-                  <dt className="truncate text-sm font-medium text-gray-500">{stat.name}</dt>
-                  <dd>
-                    <div className="text-lg font-medium text-gray-900">{stat.value}</div>
-                  </dd>
-                </dl>
-              </div>
+            </div>
+
+            <div>
+              <dt className="text-sm font-medium text-muted">{stat.name}</dt>
+              <dd className="mt-1 flex items-baseline">
+                <div className="text-3xl font-bold text-light">{stat.value}</div>
+              </dd>
             </div>
           </div>
         ))}

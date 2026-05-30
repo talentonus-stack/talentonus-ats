@@ -32,64 +32,64 @@ export default async function CandidatesPage() {
   }
 
   return (
-    <div>
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">Candidates</h1>
-          <p className="mt-2 text-sm text-gray-700">A comprehensive list of all candidates across the system.</p>
+    <div className="animate-fade-in max-w-7xl mx-auto">
+      <div className="sm:flex sm:items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-light">Candidates</h1>
+          <p className="mt-2 text-sm text-muted">A comprehensive list of all candidates across the system.</p>
         </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+        <div className="mt-4 sm:mt-0">
           <Link
             href="/candidates/new"
-            className="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-500"
+            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
           >
             Add candidate
           </Link>
         </div>
       </div>
 
-      <div className="mt-8 overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+      <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-300">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="px-3 py-3.5 text-left text-xs font-semibold text-gray-900">Candidate Info</th>
-                <th className="px-3 py-3.5 text-left text-xs font-semibold text-gray-900">Experience</th>
-                <th className="px-3 py-3.5 text-left text-xs font-semibold text-gray-900">Salary Info (C/E)</th>
-                <th className="px-3 py-3.5 text-left text-xs font-semibold text-gray-900">Notice</th>
-                <th className="px-3 py-3.5 text-left text-xs font-semibold text-gray-900">Applied Job</th>
-                <th className="px-3 py-3.5 text-left text-xs font-semibold text-gray-900">Recruiter</th>
-                <th className="px-3 py-3.5 text-right text-xs font-semibold text-gray-900">Actions</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate Info</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Salary Info (C/E)</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Notice</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Applied Job</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
+            <tbody className="divide-y divide-border bg-primary-lighter">
               {candidates.map((candidate) => {
                 const latestApp = candidate.applications[0];
                 return (
-                  <tr key={candidate.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-3 py-4 text-sm">
-                      <Link href={`/candidates/${candidate.id}`} className="font-semibold text-blue-600 hover:text-blue-800 hover:underline">
+                  <tr key={candidate.id} className="hover:bg-primary/50 transition-colors group">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm">
+                      <Link href={`/candidates/${candidate.id}`} className="font-semibold text-light group-hover:text-accent transition-colors">
                         {candidate.firstName} {candidate.lastName || ''}
                       </Link>
                       <div className="text-gray-500 text-xs mt-1">{candidate.email}</div>
                       <div className="text-gray-500 text-xs">{candidate.phone || 'No phone'}</div>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
                       {candidate.experience || 'N/A'}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-xs text-gray-600">
-                      <div>Cur: <span className="font-medium text-gray-900">{candidate.currentSalary || 'N/A'}</span></div>
-                      <div>Exp: <span className="font-medium text-gray-900">{candidate.expectedSalary || 'N/A'}</span></div>
+                    <td className="whitespace-nowrap px-6 py-4 text-xs text-muted">
+                      <div>Cur: <span className="font-medium text-light">{candidate.currentSalary || 'N/A'}</span></div>
+                      <div>Exp: <span className="font-medium text-light">{candidate.expectedSalary || 'N/A'}</span></div>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
                       {candidate.noticePeriod || 'N/A'}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
                       {latestApp ? (
                         <div>
                           <span className="font-medium">{latestApp.job.title}</span>
                           <div className="mt-1">
-                            <span className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
+                            <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent border-accent/20">
                               {latestApp.status.replace(/_/g, ' ')}
                             </span>
                           </div>
@@ -98,11 +98,11 @@ export default async function CandidatesPage() {
                         <span className="text-gray-400">Not applied</span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-right text-sm font-medium space-x-3">
-                      <Link href={`/candidates/${candidate.id}/edit`} className="text-indigo-600 hover:text-indigo-900">
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
+                      <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors">
                         Edit
                       </Link>
                       <DeleteButton id={candidate.id} />
@@ -112,7 +112,7 @@ export default async function CandidatesPage() {
               })}
               {candidates.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-4 text-sm text-gray-500 text-center">No candidates found.</td>
+                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">No candidates found.</td>
                 </tr>
               )}
             </tbody>

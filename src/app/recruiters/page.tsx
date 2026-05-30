@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
+import DisableButton from "./DisableButton"
 
 export default async function RecruitersPage() {
   const session = await getServerSession(authOptions)
@@ -45,6 +46,7 @@ export default async function RecruitersPage() {
               <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Mobile</th>
               <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Location</th>
               <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+              <th className="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
@@ -59,11 +61,20 @@ export default async function RecruitersPage() {
                     {r.status}
                   </span>
                 </td>
+                <td className="whitespace-nowrap px-3 py-4 text-right text-sm font-medium space-x-3">
+                  <Link href={`/recruiters/${r.id}`} className="text-indigo-600 hover:text-indigo-900">
+                    View
+                  </Link>
+                  <Link href={`/recruiters/${r.id}/edit`} className="text-blue-600 hover:text-blue-900">
+                    Edit
+                  </Link>
+                  <DisableButton id={r.id} status={r.status} />
+                </td>
               </tr>
             ))}
             {recruiters.length === 0 && (
               <tr>
-                <td colSpan={5} className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No recruiters found.</td>
+                <td colSpan={6} className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">No recruiters found.</td>
               </tr>
             )}
           </tbody>

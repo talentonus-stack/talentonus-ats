@@ -18,6 +18,7 @@ const recruiterNavigation = [
   { name: "Dashboard", href: "/recruiter", icon: LayoutDashboard },
   { name: "Job Openings", href: "/recruiter/jobs", icon: Briefcase },
   { name: "My Candidates", href: "/recruiter/candidates", icon: Users },
+  { name: "My Profile", href: "/recruiter/profile", icon: UserCheck },
 ]
 
 export default function Sidebar() {

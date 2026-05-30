@@ -26,8 +26,6 @@ model User {
   mobile     String?    @unique
   location   String?
   status     UserStatus @default(ACTIVE)
-  otp        String?
-  otpExpiry  DateTime?
 
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt

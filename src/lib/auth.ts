@@ -8,12 +8,11 @@ export const authOptions: AuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        otp: { label: "OTP", type: "text" }
       },
       async authorize(credentials) {
-        if (!credentials?.email) {
+        if (!credentials?.email || !credentials?.password) {
           return null
         }
 
@@ -21,29 +20,15 @@ export const authOptions: AuthOptions = {
           where: { email: credentials.email }
         })
 
-        if (!user || user.status !== 'ACTIVE') {
+        if (!user || user.status !== 'ACTIVE' || !user.password) {
           return null
         }
 
-        // Logic for Admin standard login
-        if (credentials.password && user.password && user.role === 'ADMIN') {
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-          if (isPasswordValid) {
-            return { id: user.id, email: user.email, name: user.name, role: user.role }
-          }
-        }
+        // Validate password for both Admin and Recruiter
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
-        // Logic for Recruiter OTP login
-        if (credentials.otp && user.otp === credentials.otp && user.role === 'RECRUITER') {
-          // Verify expiry
-          if (user.otpExpiry && new Date() < user.otpExpiry) {
-            // clear OTP
-            await prisma.user.update({
-              where: { id: user.id },
-              data: { otp: null, otpExpiry: null }
-            })
-            return { id: user.id, email: user.email, name: user.name, role: user.role }
-          }
+        if (isPasswordValid) {
+          return { id: user.id, email: user.email, name: user.name, role: user.role }
         }
 
         return null

@@ -65,8 +65,10 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-3 hidden sm:flex">
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
+
+              {/* Desktop action buttons */}
+              <div className="flex items-center gap-3 hidden sm:flex">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
                   {job.priority} PRIORITY
                 </span>
                 <Link
@@ -84,15 +86,13 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
             </div>
 
             {/* Mobile action buttons */}
-            <div className="mt-5 sm:hidden flex flex-col gap-3">
-              <div className="flex items-center">
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
-                  {job.priority} PRIORITY
-                </span>
-              </div>
+            <div className="mt-5 sm:hidden flex flex-row items-center gap-3">
+              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
+                {job.priority} PRIORITY
+              </span>
               <Link
                 href={`/recruiter/candidates/new?jobId=${job.id}`}
-                className="block text-center w-full bg-blue-50 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-100 font-medium text-sm border border-blue-200"
+                className="flex-1 text-center bg-blue-50 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-100 font-medium text-sm border border-blue-200"
               >
                 Submit Candidate
               </Link>
@@ -180,7 +180,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t bg-gray-50 flex justify-end gap-4 rounded-b-lg">
+            <div className="p-6 border-t bg-gray-50 flex justify-end items-center gap-4 rounded-b-lg">
               <button
                 onClick={() => setSelectedJob(null)}
                 className="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"

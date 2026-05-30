@@ -31,17 +31,17 @@ export default function Sidebar() {
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white text-gray-800">
-      <div className="flex h-20 items-center justify-center border-b px-4 py-2">
+      <div className="flex h-28 items-center justify-center border-b px-4 py-2">
         {role === "RECRUITER" ? (
           <div className="flex flex-col items-center">
             <Image
               src="/logo.png"
               alt="Talentonus Logo"
-              width={160}
-              height={50}
-              className="object-contain h-10 w-auto"
+              width={200}
+              height={80}
+              className="object-contain h-16 w-auto"
             />
-            <span className="text-xs font-medium text-gray-500 mt-1 uppercase tracking-wide">Recruiter Portal</span>
+            <span className="text-[10px] font-medium text-gray-500 mt-1 uppercase tracking-widest">Recruiter Portal</span>
           </div>
         ) : (
           <span className="text-xl font-bold tracking-tight text-blue-600">

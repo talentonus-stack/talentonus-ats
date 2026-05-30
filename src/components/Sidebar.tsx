@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
@@ -30,10 +31,23 @@ export default function Sidebar() {
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white text-gray-800">
-      <div className="flex h-16 items-center border-b px-6">
-        <span className="text-xl font-bold tracking-tight text-blue-600">
-          {role === "RECRUITER" ? "ATS Recruiter" : "ATS Admin"}
-        </span>
+      <div className="flex h-20 items-center justify-center border-b px-4 py-2">
+        {role === "RECRUITER" ? (
+          <div className="flex flex-col items-center">
+            <Image
+              src="/logo.png"
+              alt="Talentonus Logo"
+              width={160}
+              height={50}
+              className="object-contain h-10 w-auto"
+            />
+            <span className="text-xs font-medium text-gray-500 mt-1 uppercase tracking-wide">Recruiter Portal</span>
+          </div>
+        ) : (
+          <span className="text-xl font-bold tracking-tight text-blue-600">
+            ATS Admin
+          </span>
+        )}
       </div>
       <nav className="flex-1 space-y-1 px-4 py-4">
         {navigation.map((item) => {

@@ -24,6 +24,19 @@ type Job = {
 export default function JobListingClient({ jobs }: { jobs: Job[] }) {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "HIGH":
+        return "bg-red-100 text-red-800 border-red-200"
+      case "MEDIUM":
+        return "bg-orange-100 text-orange-800 border-orange-200"
+      case "LOW":
+        return "bg-green-100 text-green-800 border-green-200"
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200"
+    }
+  }
+
   return (
     <>
       <div className="grid gap-4 grid-cols-1">
@@ -52,10 +65,13 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                   </div>
                 </div>
               </div>
-              <div>
+              <div className="flex flex-col items-end gap-3 hidden sm:flex">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
+                  {job.priority} PRIORITY
+                </span>
                 <Link
                   href={`/recruiter/candidates/new?jobId=${job.id}`}
-                  className="bg-blue-50 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-100 font-medium text-sm border border-blue-200 hidden sm:inline-block"
+                  className="bg-blue-50 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-100 font-medium text-sm border border-blue-200"
                 >
                   Submit Candidate
                 </Link>
@@ -67,8 +83,13 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
               <p className="text-sm text-gray-800 font-medium">{job.skills || 'Not specified'}</p>
             </div>
 
-            {/* Mobile action button */}
-            <div className="mt-4 sm:hidden">
+            {/* Mobile action buttons */}
+            <div className="mt-5 sm:hidden flex flex-col gap-3">
+              <div className="flex items-center">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
+                  {job.priority} PRIORITY
+                </span>
+              </div>
               <Link
                 href={`/recruiter/candidates/new?jobId=${job.id}`}
                 className="block text-center w-full bg-blue-50 text-blue-700 px-4 py-2 rounded-md hover:bg-blue-100 font-medium text-sm border border-blue-200"
@@ -94,7 +115,12 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
             {/* Modal Header */}
             <div className="flex justify-between items-center p-6 border-b">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-gray-900">{selectedJob.title}</h2>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${getPriorityColor(selectedJob.priority)}`}>
+                    {selectedJob.priority}
+                  </span>
+                </div>
                 <p className="text-sm text-gray-500 mt-1">{selectedJob.department} • {selectedJob.location}</p>
               </div>
               <button

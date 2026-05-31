@@ -29,7 +29,10 @@ export async function POST(req: NextRequest) {
 
     if (!supabaseUrl || !supabaseKey) {
       console.error("Missing Supabase environment variables")
-      return NextResponse.json({ error: "Storage unavailable: Configuration missing on server." }, { status: 500 })
+      const missingVars = []
+      if (!supabaseUrl) missingVars.push("NEXT_PUBLIC_SUPABASE_URL")
+      if (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) missingVars.push("SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY")
+      return NextResponse.json({ error: `Storage unavailable: Missing environment variable(s): ${missingVars.join(", ")}` }, { status: 500 })
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey)

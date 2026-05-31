@@ -141,87 +141,88 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
 
       {/* Modal */}
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6">
-          <div className="bg-primary-lighter rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in overflow-hidden">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-3xl flex flex-col relative overflow-hidden max-h-[90vh]">
 
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b">
+            <div className="flex justify-between items-start p-6 border-b border-border bg-primary/30 shrink-0">
               <div>
                 <div className="flex items-center gap-3">
-                  <h2 className="text-2xl font-bold text-light">{selectedJob.title}</h2>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${getPriorityColor(selectedJob.priority)}`}>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">{selectedJob.title}</h2>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${getPriorityColor(selectedJob.priority)}`}>
                     {selectedJob.priority}
                   </span>
                 </div>
-                <p className="text-sm text-muted mt-1">{selectedJob.department} • {selectedJob.location}</p>
+                <p className="text-sm text-gray-400 mt-1">{selectedJob.department} • {selectedJob.location}</p>
               </div>
               <button
                 onClick={() => setSelectedJob(null)}
-                className="text-muted hover:text-muted bg-primary hover:bg-gray-200 rounded-full p-2"
+                className="text-gray-400 hover:text-white bg-primary/50 hover:bg-primary rounded-full p-2 transition-colors border border-transparent hover:border-border"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 text-black">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-8">
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Industry</span>
-                  <p className="text-sm font-medium">{selectedJob.industry || "N/A"}</p>
+            <div className="flex-1 overflow-y-auto p-6 bg-primary custom-scrollbar">
+              {/* Info Cards Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Experience</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.experience || "N/A"}</p>
                 </div>
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Experience</span>
-                  <p className="text-sm font-medium">{selectedJob.experience || "N/A"}</p>
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Salary</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.salaryRange ? formatSalary(selectedJob.salaryRange) : "N/A"}</p>
                 </div>
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Salary Range</span>
-                  <p className="text-sm font-medium">{selectedJob.salaryRange ? formatSalary(selectedJob.salaryRange) : "N/A"}</p>
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Job Timing</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.jobTiming.replace(/_/g, ' ')}</p>
                 </div>
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Job Timing</span>
-                  <p className="text-sm font-medium">{selectedJob.jobTiming.replace(/_/g, ' ')}</p>
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Vacancies</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.vacancies}</p>
                 </div>
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Working Days</span>
-                  <p className="text-sm font-medium">{selectedJob.workingDays || "N/A"}</p>
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Working Days</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.workingDays || "N/A"}</p>
                 </div>
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Vacancies</span>
-                  <p className="text-sm font-medium">{selectedJob.vacancies}</p>
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Industry</span>
+                  <p className="text-sm font-semibold text-white truncate" title={selectedJob.industry || "N/A"}>{selectedJob.industry || "N/A"}</p>
                 </div>
-                <div>
-                  <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Gender Preference</span>
-                  <p className="text-sm font-medium">{selectedJob.gender}</p>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Required Skills</span>
-                <div className="bg-primary border rounded-md p-3 text-sm">
-                  {selectedJob.skills || "Not specified"}
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors sm:col-span-2">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Gender Preference</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.gender}</p>
                 </div>
               </div>
 
-              <div>
-                <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Job Description</span>
-                <div className="bg-primary border rounded-md p-4 text-sm whitespace-pre-wrap leading-relaxed">
+              <div className="mb-8">
+                <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Required Skills</span>
+                <div className="flex flex-wrap gap-2">
+                  {selectedJob.skills ? selectedJob.skills.split(',').map((skill, index) => (
+                    <span key={index} className="inline-flex items-center rounded-md bg-accent/10 px-3 py-1 text-xs font-semibold text-accent border border-accent/20">
+                      {skill.trim()}
+                    </span>
+                  )) : (
+                    <span className="text-sm text-gray-500">Not specified</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Job Description</span>
+                <div className="bg-primary-lighter rounded-xl p-5 text-sm text-white whitespace-pre-wrap leading-relaxed shadow-sm border border-border/50">
                   {selectedJob.description || "No description provided."}
                 </div>
               </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="p-6 border-t bg-primary flex justify-end items-center gap-4 rounded-b-lg">
-              <button
-                onClick={() => setSelectedJob(null)}
-                className="px-6 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary-lighter hover:bg-primary"
-              >
-                Close
-              </button>
+            {/* Sticky Floating Action Button (Submit) */}
+            <div className="absolute bottom-6 right-6">
               <Link
                 href={`/recruiter/candidates/new?jobId=${selectedJob.id}`}
-                className="px-6 py-2 bg-accent rounded-md text-sm font-medium text-primary hover:bg-accent-hover hover:scale-[1.02] shadow-[0_0_15px_rgba(170,255,0,0.2)] shadow-sm"
+                className="flex items-center justify-center px-6 py-3 bg-[#B6FF00] rounded-full text-sm font-bold text-[#0D0D0D] hover:bg-[#c4ff33] hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(182,255,0,0.3)] hover:shadow-[0_0_25px_rgba(182,255,0,0.5)]"
               >
                 Submit Candidate
               </Link>

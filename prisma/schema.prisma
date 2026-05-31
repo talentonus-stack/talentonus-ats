@@ -97,7 +97,7 @@ model Candidate {
   skills          String?
   remarks         String?
   resumeUrl       String?
-  resumeFile      String?
+  resumeFileName  String?
   portfolioUrl    String?
 
   recruiterId     String?

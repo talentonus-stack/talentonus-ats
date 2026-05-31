@@ -161,10 +161,10 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
 
           <div className="mt-8 pt-6 border-t border-border">
             <span className="block text-xs font-semibold text-muted uppercase mb-4">Resume</span>
-            {candidate.resumeFile ? (
-              <div className="flex gap-4">
+            {candidate.resumeUrl ? (
+              <div className="flex gap-4 items-center">
                 <a
-                  href={candidate.resumeFile}
+                  href={candidate.resumeUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
@@ -172,17 +172,14 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
                   View Resume
                 </a>
                 <a
-                  href={candidate.resumeFile}
+                  href={candidate.resumeUrl}
                   download
                   className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                 >
                   Download Resume
                 </a>
+                {candidate.resumeFileName && <span className="text-xs text-muted">({candidate.resumeFileName})</span>}
               </div>
-            ) : candidate.resumeUrl ? (
-              <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-accent hover:text-accent-hover underline break-all">
-                {candidate.resumeUrl}
-              </a>
             ) : (
               <span className="text-sm text-muted">No resume uploaded</span>
             )}

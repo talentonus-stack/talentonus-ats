@@ -18,10 +18,11 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
     // First, upload the file if present
     const file = formData.get("resumeFile") as File
     let filePath = null
+    let fileName = null
 
     if (file && file.size > 0) {
-      if (file.size > 10 * 1024 * 1024) {
-        setError("File exceeds 10MB limit.")
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File too large. Maximum size is 5MB.")
         setIsSubmitting(false)
         return
       }
@@ -44,23 +45,25 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
 
         if (!uploadRes.ok) {
            const errData = await uploadRes.json()
-           setError(errData.error || "Failed to upload file.")
+           setError(errData.error || "Upload failed.")
            setIsSubmitting(false)
            return
         }
 
         const data = await uploadRes.json()
         filePath = data.filePath
+        fileName = data.fileName
       } catch (err) {
         console.error(err)
-        setError("Failed to upload file.")
+        setError("Upload failed.")
         setIsSubmitting(false)
         return
       }
     }
 
     if (filePath) {
-      formData.set("resumeFilePath", filePath)
+      formData.set("resumeUrl", filePath)
+      if (fileName) formData.set("resumeFileName", fileName)
     }
 
     try {
@@ -155,7 +158,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Resume Upload (PDF, DOC, DOCX - Max 10MB)</label>
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Resume Upload (PDF, DOC, DOCX - Max 5MB)</label>
             <input type="file" name="resumeFile" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 

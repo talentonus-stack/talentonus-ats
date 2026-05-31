@@ -26,7 +26,7 @@ type Candidate = {
   skills: string | null
   remarks: string | null
   resumeUrl: string | null
-  resumeFile: string | null
+  resumeFileName: string | null
   portfolioUrl: string | null
   applications: Application[]
 }
@@ -188,10 +188,10 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                     </div>
                     <div className="sm:col-span-2">
                       <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Resume</span>
-                      {selectedCandidate.resumeFile ? (
-                        <div className="flex gap-4">
+                      {selectedCandidate.resumeUrl ? (
+                        <div className="flex gap-4 items-center">
                           <a
-                            href={selectedCandidate.resumeFile}
+                            href={selectedCandidate.resumeUrl}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
@@ -199,22 +199,14 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                             <FileText className="h-4 w-4" /> View Resume
                           </a>
                           <a
-                            href={selectedCandidate.resumeFile}
+                            href={selectedCandidate.resumeUrl}
                             download
                             className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                           >
                             <FileText className="h-4 w-4" /> Download Resume
                           </a>
+                          {selectedCandidate.resumeFileName && <span className="text-xs text-muted">({selectedCandidate.resumeFileName})</span>}
                         </div>
-                      ) : selectedCandidate.resumeUrl ? (
-                        <a
-                          href={selectedCandidate.resumeUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-hover hover:underline"
-                        >
-                          <FileText className="h-4 w-4" /> View Resume Link
-                        </a>
                       ) : (
                         <p className="text-sm font-medium text-muted">No resume uploaded</p>
                       )}

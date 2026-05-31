@@ -30,7 +30,8 @@ export async function POST(req: NextRequest) {
         skills: formData.get("skills") as string,
         remarks: formData.get("remarks") as string,
         portfolioUrl: formData.get("portfolioUrl") as string,
-        resumeFile: formData.get("resumeFilePath") as string,
+        resumeUrl: formData.get("resumeUrl") as string,
+        resumeFileName: formData.get("resumeFileName") as string,
         recruiterId,
       }
     })

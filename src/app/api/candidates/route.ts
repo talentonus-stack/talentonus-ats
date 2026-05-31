@@ -47,8 +47,22 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, id: candidate.id })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Candidate creation error:", error)
-    return NextResponse.json({ error: "Failed to create candidate" }, { status: 500 })
+
+    let errorMessage = "Failed to create candidate."
+
+    // Check if it's a known Prisma error
+    if (error.code) {
+      if (error.code === 'P2002') {
+        errorMessage = `A candidate with this ${error.meta?.target?.join(', ') || 'email'} already exists.`
+      } else {
+        errorMessage = `Database Error (${error.code}): ${error.message}`
+      }
+    } else if (error.message) {
+      errorMessage = `Error: ${error.message}`
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }

@@ -4,6 +4,16 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 
 export default async function CandidateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const formatSalary = (salary: string | null) => {
+    if (!salary) return "N/A"
+    if (salary.includes("₹")) return salary
+    const cleaned = salary.replace(/\$/g, "")
+    const num = parseFloat(cleaned.replace(/,/g, ""))
+    if (!isNaN(num)) {
+       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumSignificantDigits: 21 }).format(num)
+    }
+    return `₹${cleaned}`
+  }
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
     redirect("/login")
@@ -84,11 +94,11 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
               </div>
               <div>
                 <span className="block text-xs font-semibold text-muted uppercase">Current Salary</span>
-                <p className="text-sm font-medium">{candidate.currentSalary || 'N/A'}</p>
+                <p className="text-sm font-medium">{formatSalary(candidate.currentSalary)}</p>
               </div>
               <div>
                 <span className="block text-xs font-semibold text-muted uppercase">Expected Salary</span>
-                <p className="text-sm font-medium">{candidate.expectedSalary || 'N/A'}</p>
+                <p className="text-sm font-medium">{formatSalary(candidate.expectedSalary)}</p>
               </div>
             </div>
             <div>
@@ -138,15 +148,44 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
               </div>
             </div>
             <div>
-              <span className="block text-xs font-semibold text-muted uppercase mb-2">Resume URL</span>
-              {candidate.resumeUrl ? (
-                <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-accent hover:text-accent-hover underline break-all">
-                  {candidate.resumeUrl}
+              <span className="block text-xs font-semibold text-muted uppercase mb-2">Portfolio</span>
+              {candidate.portfolioUrl ? (
+                <a href={candidate.portfolioUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-accent hover:text-accent-hover underline break-all">
+                  {candidate.portfolioUrl}
                 </a>
               ) : (
-                <p className="text-sm text-muted">No resume uploaded.</p>
+                <span className="text-sm text-muted">No portfolio link provided</span>
               )}
             </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-border">
+            <span className="block text-xs font-semibold text-muted uppercase mb-4">Resume</span>
+            {candidate.resumeFile ? (
+              <div className="flex gap-4">
+                <a
+                  href={candidate.resumeFile}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
+                >
+                  View Resume
+                </a>
+                <a
+                  href={candidate.resumeFile}
+                  download
+                  className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
+                >
+                  Download Resume
+                </a>
+              </div>
+            ) : candidate.resumeUrl ? (
+              <a href={candidate.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-accent hover:text-accent-hover underline break-all">
+                {candidate.resumeUrl}
+              </a>
+            ) : (
+              <span className="text-sm text-muted">No resume uploaded</span>
+            )}
           </div>
         </div>
       </div>

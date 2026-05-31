@@ -87,7 +87,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Salary Range</label>
-            <input type="text" name="salaryRange" defaultValue={job.salaryRange || ""} placeholder="e.g. $80k - $100k" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input type="text" name="salaryRange" defaultValue={job.salaryRange || ""} placeholder="e.g. ₹5,00,000 - ₹8,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Working Days</label>

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { MapPin, Briefcase, DollarSign, X } from "lucide-react"
+import { MapPin, Briefcase, IndianRupee, X } from "lucide-react"
 
 type Job = {
   id: string
@@ -24,6 +24,21 @@ type Job = {
 
 export default function JobListingClient({ jobs }: { jobs: Job[] }) {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+
+  const formatSalary = (salary: string) => {
+    if (!salary) return ""
+    // Basic check: if it already has rupees symbol, leave it. Or simply prepend if it's a number.
+    // Given the previous code just rendered strings like "100000", we can format it.
+    if (salary.includes("₹")) return salary
+    // Remove any $ signs
+    const cleaned = salary.replace(/\$/g, "")
+    // Try formatting as currency if it looks like a number, else just prepend ₹
+    const num = parseFloat(cleaned.replace(/,/g, ""))
+    if (!isNaN(num)) {
+       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumSignificantDigits: 21 }).format(num)
+    }
+    return `₹${cleaned}`
+  }
 
   const isNewJob = (date: Date | string) => {
     if (!date) return false
@@ -77,8 +92,8 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                     <span>{job.location}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <DollarSign className="h-4 w-4 text-muted" />
-                    <span>{job.salaryRange || "Salary not disclosed"}</span>
+                    <IndianRupee className="h-4 w-4 text-muted" />
+                    <span>{job.salaryRange ? formatSalary(job.salaryRange) : "Salary not disclosed"}</span>
                   </div>
                 </div>
               </div>
@@ -161,7 +176,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                 </div>
                 <div>
                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Salary Range</span>
-                  <p className="text-sm font-medium">{selectedJob.salaryRange || "N/A"}</p>
+                  <p className="text-sm font-medium">{selectedJob.salaryRange ? formatSalary(selectedJob.salaryRange) : "N/A"}</p>
                 </div>
                 <div>
                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Job Timing</span>

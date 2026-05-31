@@ -26,6 +26,8 @@ type Candidate = {
   skills: string | null
   remarks: string | null
   resumeUrl: string | null
+  resumeFile: string | null
+  portfolioUrl: string | null
   applications: Application[]
 }
 
@@ -41,6 +43,17 @@ const STAGES = [
 
 export default function CandidateListingClient({ candidates }: { candidates: Candidate[] }) {
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
+
+  const formatSalary = (salary: string | null) => {
+    if (!salary) return "N/A"
+    if (salary.includes("₹")) return salary
+    const cleaned = salary.replace(/\$/g, "")
+    const num = parseFloat(cleaned.replace(/,/g, ""))
+    if (!isNaN(num)) {
+       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumSignificantDigits: 21 }).format(num)
+    }
+    return `₹${cleaned}`
+  }
 
   const getStageIndex = (status: string) => {
     return STAGES.indexOf(status)
@@ -103,8 +116,8 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
       {/* Candidate Details Modal */}
       {selectedCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in">
-          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-4xl max-h-[90vh] flex flex-col relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in overflow-y-auto">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-4xl flex flex-col relative overflow-hidden my-auto max-h-[90vh]">
 
             {/* Modal Header */}
             <div className="flex justify-between items-start p-6 sm:p-8 border-b border-border bg-primary/30">
@@ -148,26 +161,59 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                     </div>
                     <div>
                       <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Current Salary</span>
-                      <p className="text-sm font-medium text-light">{selectedCandidate.currentSalary || "N/A"}</p>
+                      <p className="text-sm font-medium text-light">{formatSalary(selectedCandidate.currentSalary)}</p>
                     </div>
                     <div>
                       <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Expected Salary</span>
-                      <p className="text-sm font-medium text-light">{selectedCandidate.expectedSalary || "N/A"}</p>
+                      <p className="text-sm font-medium text-light">{formatSalary(selectedCandidate.expectedSalary)}</p>
                     </div>
                     <div>
                       <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Notice Period</span>
                       <p className="text-sm font-medium text-light">{selectedCandidate.noticePeriod || "N/A"}</p>
                     </div>
                     <div>
-                      <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Resume</span>
-                      {selectedCandidate.resumeUrl ? (
+                      <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Portfolio</span>
+                      {selectedCandidate.portfolioUrl ? (
+                        <a
+                          href={selectedCandidate.portfolioUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm font-medium text-accent hover:text-accent-hover hover:underline truncate block"
+                        >
+                          {selectedCandidate.portfolioUrl}
+                        </a>
+                      ) : (
+                        <p className="text-sm font-medium text-muted">No portfolio link provided</p>
+                      )}
+                    </div>
+                    <div className="sm:col-span-2">
+                      <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Resume</span>
+                      {selectedCandidate.resumeFile ? (
+                        <div className="flex gap-4">
+                          <a
+                            href={selectedCandidate.resumeFile}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
+                          >
+                            <FileText className="h-4 w-4" /> View Resume
+                          </a>
+                          <a
+                            href={selectedCandidate.resumeFile}
+                            download
+                            className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
+                          >
+                            <FileText className="h-4 w-4" /> Download Resume
+                          </a>
+                        </div>
+                      ) : selectedCandidate.resumeUrl ? (
                         <a
                           href={selectedCandidate.resumeUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-hover hover:underline"
                         >
-                          <FileText className="h-4 w-4" /> View Resume
+                          <FileText className="h-4 w-4" /> View Resume Link
                         </a>
                       ) : (
                         <p className="text-sm font-medium text-muted">No resume uploaded</p>

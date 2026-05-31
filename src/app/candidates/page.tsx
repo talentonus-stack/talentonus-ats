@@ -6,6 +6,16 @@ import { authOptions } from "@/lib/auth"
 import DeleteButton from "./DeleteButton"
 
 export default async function CandidatesPage() {
+  const formatSalary = (salary: string | null) => {
+    if (!salary) return "N/A"
+    if (salary.includes("₹")) return salary
+    const cleaned = salary.replace(/\$/g, "")
+    const num = parseFloat(cleaned.replace(/,/g, ""))
+    if (!isNaN(num)) {
+       return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumSignificantDigits: 21 }).format(num)
+    }
+    return `₹${cleaned}`
+  }
   const session = await getServerSession(authOptions)
   if (!session) {
     redirect("/login")
@@ -78,8 +88,8 @@ export default async function CandidatesPage() {
                       {candidate.experience || 'N/A'}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-xs text-muted">
-                      <div>Cur: <span className="font-medium text-light">{candidate.currentSalary || 'N/A'}</span></div>
-                      <div>Exp: <span className="font-medium text-light">{candidate.expectedSalary || 'N/A'}</span></div>
+                      <div>Cur: <span className="font-medium text-light">{formatSalary(candidate.currentSalary)}</span></div>
+                      <div>Exp: <span className="font-medium text-light">{formatSalary(candidate.expectedSalary)}</span></div>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
                       {candidate.noticePeriod || 'N/A'}

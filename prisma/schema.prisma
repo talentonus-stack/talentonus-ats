@@ -97,6 +97,8 @@ model Candidate {
   skills          String?
   remarks         String?
   resumeUrl       String?
+  resumeFile      String?
+  portfolioUrl    String?
 
   recruiterId     String?
   recruiter       User?         @relation(fields: [recruiterId], references: [id])

@@ -35,7 +35,7 @@ export default function Sidebar() {
       <div className="absolute top-0 left-0 right-0 h-32 bg-accent opacity-5 blur-[80px] pointer-events-none"></div>
 
       <div className="flex h-36 items-center justify-center border-b border-border px-4 py-4 relative z-10">
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col items-center justify-center w-full h-full">
           <Image
             src="/logo.png"
             alt="Talentonus Logo"
@@ -44,7 +44,7 @@ export default function Sidebar() {
             className="object-contain w-full max-w-[180px] h-auto brightness-0 invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             priority
           />
-          <span className="text-[10px] font-medium text-accent -mt-1 uppercase tracking-[0.2em] shadow-accent">
+          <span className="text-[10px] font-medium text-accent -mt-4 uppercase tracking-[0.2em] shadow-accent">
             {role === "RECRUITER" ? "Recruiter Portal" : "ATS Admin"}
           </span>
         </div>

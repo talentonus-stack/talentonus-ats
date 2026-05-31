@@ -23,14 +23,21 @@ export async function POST(req: NextRequest) {
        return NextResponse.json({ error: "File exceeds 10MB limit." }, { status: 400 })
     }
 
+    // Ensure BLOB_READ_WRITE_TOKEN is present
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error("Missing BLOB_READ_WRITE_TOKEN environment variable")
+      return NextResponse.json({ error: "Storage is not configured on the server." }, { status: 500 })
+    }
+
     const blob = await put(file.name, file, {
       access: 'public',
       addRandomSuffix: true
     });
 
     return NextResponse.json({ success: true, filePath: blob.url })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error:", error)
-    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 })
+    const errorMsg = error.message || "Failed to upload file"
+    return NextResponse.json({ error: errorMsg }, { status: 500 })
   }
 }

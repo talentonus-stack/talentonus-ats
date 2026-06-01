@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { AlertCircle, X } from "lucide-react"
 
 export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJobs: any[], jobId?: string }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [duplicateData, setDuplicateData] = useState<any>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -77,7 +79,11 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
         router.refresh()
       } else {
         const errData = await res.json()
-        setError(errData.error || "Failed to create candidate.")
+        if (errData.error === "DUPLICATE_CANDIDATE" && errData.duplicateData) {
+           setDuplicateData(errData.duplicateData)
+        } else {
+           setError(errData.error || "Failed to create candidate.")
+        }
       }
     } catch (err) {
        console.error(err)
@@ -88,10 +94,10 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
   }
 
   return (
-    <div className="max-w-4xl animate-fade-in mx-auto">
+    <div className="max-w-4xl animate-fade-in mx-auto relative">
       <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Submit New Candidate</h1>
 
-      {error && <div className="mb-6 p-4 bg-red-900/20 border border-red-800 text-red-400 rounded-lg">{error}</div>}
+      {error && !duplicateData && <div className="mb-6 p-4 bg-red-900/20 border border-red-800 text-red-400 rounded-lg">{error}</div>}
 
       <form onSubmit={handleSubmit} className="bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border">
 
@@ -177,6 +183,63 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
           </button>
         </div>
       </form>
+
+      {/* Duplicate Candidate Modal */}
+      {duplicateData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-red-900/50 w-full max-w-lg overflow-hidden flex flex-col relative">
+            <div className="flex items-center justify-between p-6 border-b border-border bg-primary/50">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-red-900/20 flex items-center justify-center border border-red-800/30">
+                   <AlertCircle className="w-5 h-5 text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-light">Candidate Already Exists</h3>
+              </div>
+              <button onClick={() => setDuplicateData(null)} className="text-muted hover:text-light transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 bg-primary space-y-4">
+               <p className="text-sm text-light mb-2">A candidate with this email or mobile number is already in the system. Recruiters cannot create duplicate profiles.</p>
+
+               <div className="bg-primary-lighter rounded-xl border border-border p-4 space-y-3">
+                 <div>
+                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Candidate Name</span>
+                   <p className="text-sm font-bold text-white">{duplicateData.name}</p>
+                 </div>
+                 <div>
+                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Submitted By Recruiter</span>
+                   <p className="text-sm font-medium text-light">{duplicateData.submittedBy}</p>
+                 </div>
+                 <div>
+                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Submission Date</span>
+                   <p className="text-sm font-medium text-light">{duplicateData.submissionDate}</p>
+                 </div>
+                 <div>
+                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Current Status</span>
+                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
+                     {duplicateData.status}
+                   </span>
+                 </div>
+                 <div>
+                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Assigned Job</span>
+                   <p className="text-sm font-medium text-light">{duplicateData.assignedJob}</p>
+                 </div>
+               </div>
+            </div>
+
+            <div className="p-6 border-t border-border bg-primary/50 flex justify-end">
+               <button
+                 onClick={() => setDuplicateData(null)}
+                 className="px-6 py-2 bg-primary border border-border rounded-lg text-sm font-medium text-light hover:border-accent hover:text-accent transition-colors"
+               >
+                 Close & Edit Details
+               </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

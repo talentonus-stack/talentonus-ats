@@ -43,16 +43,22 @@ export async function POST(req: NextRequest) {
     })
 
     if (existingCandidate) {
-      const duplicateField = existingCandidate.email === email ? 'Email' : 'Mobile Number';
       const submittedBy = existingCandidate.recruiter ? existingCandidate.recruiter.name : 'System Admin';
       const submissionDate = new Date(existingCandidate.createdAt).toLocaleDateString();
       const latestApp = existingCandidate.applications[0];
       const status = latestApp ? latestApp.status.replace(/_/g, ' ') : 'NO ACTIVE APPLICATION';
       const assignedJob = latestApp ? latestApp.job.title : 'None';
 
-      const errorMsg = `Duplicate ${duplicateField} found. Candidate "${existingCandidate.firstName} ${existingCandidate.lastName || ''}" was already submitted by ${submittedBy} on ${submissionDate}. Current Status: ${status} (Job: ${assignedJob}).`;
-
-      return NextResponse.json({ error: errorMsg }, { status: 409 })
+      return NextResponse.json({
+        error: "DUPLICATE_CANDIDATE",
+        duplicateData: {
+          name: `${existingCandidate.firstName} ${existingCandidate.lastName || ''}`,
+          submittedBy,
+          submissionDate,
+          status,
+          assignedJob
+        }
+      }, { status: 409 })
     }
 
     const candidate = await prisma.candidate.create({

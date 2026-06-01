@@ -20,6 +20,7 @@ type Job = {
   description: string | null
   jobTiming: string
   postedDate: Date | string
+  companyId?: string | null
 }
 
 export default function JobListingClient({ jobs }: { jobs: Job[] }) {
@@ -82,7 +83,12 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                     </span>
                   )}
                 </div>
-                <div className="mt-2 flex flex-wrap gap-y-2 gap-x-6 text-sm text-muted">
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-border/50 text-light border border-border/80 shadow-sm">
+                     Confidential Client
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-y-2 gap-x-6 text-sm text-muted">
                   <div className="flex items-center gap-1">
                     <Briefcase className="h-4 w-4 text-muted" />
                     <span>{job.experience || "Experience not specified"}</span>
@@ -153,7 +159,10 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                     {selectedJob.priority}
                   </span>
                 </div>
-                <p className="text-sm text-gray-400 mt-1">{selectedJob.department} • {selectedJob.location}</p>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded bg-border text-light">Confidential Client</span>
+                  <p className="text-sm text-gray-400">{selectedJob.department} • {selectedJob.location}</p>
+                </div>
               </div>
               <button
                 onClick={() => setSelectedJob(null)}

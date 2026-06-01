@@ -12,6 +12,11 @@ export default async function NewJobPage() {
     redirect("/recruiter")
   }
 
+  const companies = await prisma.company.findMany({
+    where: { status: "ACTIVE" },
+    orderBy: { name: "asc" }
+  })
+
   async function createJob(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
@@ -20,6 +25,7 @@ export default async function NewJobPage() {
       await prisma.job.create({
         data: {
           title: formData.get("title") as string,
+          companyId: formData.get("companyId") as string || null,
           department: formData.get("department") as string,
           location: formData.get("location") as string,
           experience: formData.get("experience") as string,
@@ -48,6 +54,16 @@ export default async function NewJobPage() {
       <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Create New Job</h1>
       <form action={createJob} className="bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Company (Client)</label>
+            <select required name="companyId" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
+              <option value="">Select a Company...</option>
+              {companies.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Job Title</label>
             <input required type="text" name="title" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />

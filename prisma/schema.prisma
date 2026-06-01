@@ -51,29 +51,6 @@ enum JobStatus {
   CLOSED
 }
 
-enum CompanyStatus {
-  ACTIVE
-  INACTIVE
-}
-
-model Company {
-  id            String        @id @default(cuid())
-  name          String
-  industry      String?
-  logoUrl       String?
-  website       String?
-  contactPerson String?
-  email         String?
-  phone         String?
-  status        CompanyStatus @default(ACTIVE)
-  notes         String?
-
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  jobs          Job[]
-}
-
 enum JobGender {
   MALE
   FEMALE
@@ -100,9 +77,6 @@ model Job {
   vacancies    Int           @default(1)
   education    String?
 
-  companyId    String?
-  company      Company?      @relation(fields: [companyId], references: [id])
-
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   applications Application[]
@@ -113,7 +87,7 @@ model Candidate {
   firstName       String
   lastName        String?
   email           String        @unique
-  phone           String        @unique
+  phone           String?
 
   currentLocation String?
   experience      String?

@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Users, Briefcase, FileText, CheckCircle, Target, Calendar, UserCheck, UserPlus, TrendingUp, Clock, Activity } from "lucide-react"
+import { Users, Briefcase, FileText, CheckCircle, Target, Calendar, UserCheck, UserPlus, TrendingUp, Clock, Activity, Building2 } from "lucide-react"
 import { timeAgo } from "@/lib/dateUtils"
 import Link from "next/link"
 
@@ -21,15 +21,20 @@ export default async function DashboardPage() {
   startOfMonth.setDate(1)
   startOfMonth.setHours(0, 0, 0, 0)
 
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
   const [
     totalJobs,
     totalCandidates,
     totalApplications,
     hiredApplications,
     openPositions,
-    activeRecruiters,
+    totalRecruiters,
+    activeRecruitersList,
     interviewsScheduled,
-    candidatesThisMonth,
+    totalCompanies,
+    activeCompanies,
     allApplications,
     recruitersList,
     recentApplications,
@@ -40,9 +45,13 @@ export default async function DashboardPage() {
     prisma.application.count(),
     prisma.application.count({ where: { status: "JOINED" } }),
     prisma.job.count({ where: { status: "OPEN" } }),
-    prisma.user.count({ where: { role: "RECRUITER", status: "ACTIVE" } }),
+    prisma.user.count({ where: { role: "RECRUITER" } }),
+    prisma.user.findMany({
+      where: { role: "RECRUITER", candidates: { some: { createdAt: { gte: thirtyDaysAgo } } } }
+    }),
     prisma.application.count({ where: { status: "INTERVIEW_SCHEDULED" } }),
-    prisma.candidate.count({ where: { createdAt: { gte: startOfMonth } } }),
+    prisma.company.count(),
+    prisma.company.count({ where: { status: "ACTIVE" } }),
     prisma.application.findMany({ select: { status: true } }),
     prisma.user.findMany({
       where: { role: "RECRUITER" },
@@ -67,15 +76,22 @@ export default async function DashboardPage() {
     })
   ])
 
-  const stats = [
-    { name: "Total Jobs", value: totalJobs, icon: Briefcase },
+  const activeRecruitersCount = activeRecruitersList.length
+
+  const row1Stats = [
+    { name: "Total Companies", value: totalCompanies, icon: Building2 },
+    { name: "Active Companies", value: activeCompanies, icon: CheckCircle },
+    { name: "Total Recruiters", value: totalRecruiters, icon: Users },
+    { name: "Active Recruiters", value: activeRecruitersCount, icon: UserCheck },
     { name: "Open Positions", value: openPositions, icon: Target },
+  ]
+
+  const row2Stats = [
+    { name: "Total Jobs", value: totalJobs, icon: Briefcase },
     { name: "Total Candidates", value: totalCandidates, icon: Users },
-    { name: "Candidates This Month", value: candidatesThisMonth, icon: UserPlus },
     { name: "Total Applications", value: totalApplications, icon: FileText },
     { name: "Interviews Scheduled", value: interviewsScheduled, icon: Calendar },
     { name: "Hired Candidates", value: hiredApplications, icon: CheckCircle },
-    { name: "Active Recruiters", value: activeRecruiters, icon: UserCheck },
   ]
 
   // Funnel Data Calculations
@@ -133,23 +149,44 @@ export default async function DashboardPage() {
       </div>
 
       {/* 1. TOP STATISTICS ROW - COMPACT LAYOUT */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-        {stats.map((stat) => (
-          <div
-            key={stat.name}
-            className="group relative overflow-hidden rounded-lg bg-primary-lighter border border-border p-3 hover:border-accent transition-colors flex items-center justify-between gap-3 shadow-sm hover:shadow-[0_4px_20px_rgba(170,255,0,0.05)]"
-          >
-            <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-accent/5 group-hover:bg-accent/10 transition-colors duration-300 blur-md"></div>
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {row1Stats.map((stat) => (
+            <div
+              key={stat.name}
+              className="group relative overflow-hidden rounded-lg bg-primary-lighter border border-border p-4 hover:border-accent transition-colors flex items-center justify-between gap-3 shadow-sm hover:shadow-[0_4px_20px_rgba(170,255,0,0.05)] h-[110px]"
+            >
+              <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-accent/5 group-hover:bg-accent/10 transition-colors duration-300 blur-md"></div>
 
-            <div className="flex-1 min-w-0">
-              <dt className="text-[10px] font-bold text-muted uppercase tracking-wider truncate mb-0.5">{stat.name}</dt>
-              <dd className="text-xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
+              <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
+                <dt className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2 leading-tight">{stat.name}</dt>
+                <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
+              </div>
+              <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
+                <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />
+              </div>
             </div>
-            <div className="flex items-center justify-center h-8 w-8 rounded bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
-              <stat.icon className="h-3.5 w-3.5 text-accent opacity-80" aria-hidden="true" />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {row2Stats.map((stat) => (
+            <div
+              key={stat.name}
+              className="group relative overflow-hidden rounded-lg bg-primary-lighter border border-border p-4 hover:border-accent transition-colors flex items-center justify-between gap-3 shadow-sm hover:shadow-[0_4px_20px_rgba(170,255,0,0.05)] h-[110px]"
+            >
+              <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-accent/5 group-hover:bg-accent/10 transition-colors duration-300 blur-md"></div>
+
+              <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
+                <dt className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2 leading-tight">{stat.name}</dt>
+                <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
+              </div>
+              <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
+                <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* FULL WIDTH RECRUITMENT FUNNEL */}

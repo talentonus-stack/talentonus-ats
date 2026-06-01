@@ -181,54 +181,58 @@ export default function NewCandidateAdminClientForm() {
       {/* Duplicate Candidate Modal */}
       {duplicateData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-fade-in">
-          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-red-900/50 w-full max-w-lg overflow-hidden flex flex-col relative">
-            <div className="flex items-center justify-between p-6 border-b border-border bg-primary/50">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-md overflow-hidden flex flex-col relative">
+            <div className="flex items-center justify-between p-5 border-b border-border bg-primary/30">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-red-900/20 flex items-center justify-center border border-red-800/30">
-                   <AlertCircle className="w-5 h-5 text-red-400" />
+                <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
+                   <AlertCircle className="w-4 h-4 text-accent" />
                 </div>
-                <h3 className="text-xl font-bold text-light">Candidate Already Exists</h3>
+                <h3 className="text-lg font-bold text-white tracking-tight">Candidate Already Exists</h3>
               </div>
-              <button onClick={() => setDuplicateData(null)} className="text-muted hover:text-light transition-colors">
+              <button onClick={() => setDuplicateData(null)} className="text-gray-400 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 bg-primary space-y-4">
-               <p className="text-sm text-light mb-2">A candidate with this email or mobile number is already in the system. Duplicates cannot be created.</p>
+            <div className="p-5 bg-primary">
+               <p className="text-sm text-gray-300 leading-relaxed mb-6">
+                 Candidate already exists in Talentonus ATS. This email address or mobile number is already registered and cannot be submitted again.
+               </p>
 
-               <div className="bg-primary-lighter rounded-xl border border-border p-4 space-y-3">
-                 <div>
-                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Candidate Name</span>
-                   <p className="text-sm font-bold text-white">{duplicateData.name}</p>
+               <div className="bg-primary-lighter rounded-xl border border-border/50 overflow-hidden divide-y divide-border/50">
+                 <div className="flex justify-between items-center p-3 sm:px-4 hover:bg-primary/30 transition-colors">
+                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Candidate Name</span>
+                   <span className="text-sm font-bold text-white">{duplicateData.name}</span>
                  </div>
-                 <div>
-                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Submitted By Recruiter</span>
-                   <p className="text-sm font-medium text-light">{duplicateData.submittedBy}</p>
-                 </div>
-                 <div>
-                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Submission Date</span>
-                   <p className="text-sm font-medium text-light">{duplicateData.submissionDate}</p>
-                 </div>
-                 <div>
-                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Current Status</span>
-                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
+                 <div className="flex justify-between items-center p-3 sm:px-4 hover:bg-primary/30 transition-colors">
+                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Current Status</span>
+                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
                      {duplicateData.status}
                    </span>
                  </div>
-                 <div>
-                   <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Assigned Job</span>
-                   <p className="text-sm font-medium text-light">{duplicateData.assignedJob}</p>
+                 <div className="flex justify-between items-center p-3 sm:px-4 hover:bg-primary/30 transition-colors">
+                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Assigned Job</span>
+                   <span className="text-sm font-medium text-white max-w-[150px] truncate" title={duplicateData.assignedJob}>{duplicateData.assignedJob}</span>
+                 </div>
+                 <div className="flex justify-between items-center p-3 sm:px-4 hover:bg-primary/30 transition-colors">
+                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Submission Date</span>
+                   <span className="text-sm font-medium text-gray-300">{duplicateData.submissionDate}</span>
                  </div>
                </div>
             </div>
 
-            <div className="p-6 border-t border-border bg-primary/50 flex justify-end">
+            <div className="p-5 border-t border-border bg-primary/30 flex justify-end gap-3">
                <button
                  onClick={() => setDuplicateData(null)}
-                 className="px-6 py-2 bg-primary border border-border rounded-lg text-sm font-medium text-light hover:border-accent hover:text-accent transition-colors"
+                 className="px-5 py-2 bg-primary border border-border rounded-lg text-sm font-semibold text-gray-300 hover:text-white transition-colors"
                >
-                 Close & Edit Details
+                 Close
+               </button>
+               <button
+                 onClick={() => setDuplicateData(null)}
+                 className="px-5 py-2 bg-accent rounded-lg text-sm font-bold text-primary hover:bg-accent-hover hover:scale-105 transition-all shadow-[0_0_15px_rgba(170,255,0,0.2)]"
+               >
+                 Edit Candidate Details
                </button>
             </div>
           </div>

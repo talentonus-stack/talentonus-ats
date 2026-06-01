@@ -113,7 +113,7 @@ model Candidate {
   firstName       String
   lastName        String?
   email           String        @unique
-  phone           String?
+  phone           String        @unique
 
   currentLocation String?
   experience      String?

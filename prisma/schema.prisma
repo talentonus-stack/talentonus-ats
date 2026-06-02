@@ -7,77 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  RECRUITER
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-}
-
 model User {
-  id         String     @id @default(cuid())
-  role       Role       @default(ADMIN)
-  name       String?
-  email      String     @unique
-  password   String?
-  mobile     String?    @unique
-  location   String?
-  status     UserStatus @default(ACTIVE)
-
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  candidates Candidate[]
-}
-
-enum JobTiming {
-  FULL_TIME
-  PART_TIME
-  CONTRACT
-}
-
-enum JobPriority {
-  HIGH
-  MEDIUM
-  LOW
-}
-
-enum JobStatus {
-  OPEN
-  ON_HOLD
-  CLOSED
-}
-
-enum CompanyStatus {
-  ACTIVE
-  INACTIVE
-}
-
-model Company {
-  id            String        @id @default(cuid())
-  name          String
-  industry      String?
-  logoUrl       String?
-  website       String?
-  contactPerson String?
-  email         String?
-  phone         String?
-  status        CompanyStatus @default(ACTIVE)
-  notes         String?
-
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  jobs          Job[]
-}
-
-enum JobGender {
-  MALE
-  FEMALE
-  BOTH
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Job {
@@ -85,73 +21,32 @@ model Job {
   title        String
   department   String
   location     String
-  status       JobStatus     @default(OPEN)
+  status       String        @default("OPEN") // OPEN, CLOSED
   description  String?
-
-  postedDate   DateTime      @default(now())
-  experience   String?
-  skills       String?
-  salaryRange  String?
-  industry     String?
-  jobTiming    JobTiming     @default(FULL_TIME)
-  workingDays  String?
-  priority     JobPriority   @default(MEDIUM)
-  gender       JobGender     @default(BOTH)
-  vacancies    Int           @default(1)
-  education    String?
-
-  companyId    String?
-  company      Company?      @relation(fields: [companyId], references: [id])
-
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   applications Application[]
 }
 
 model Candidate {
-  id              String        @id @default(cuid())
-  firstName       String
-  lastName        String?
-  email           String        @unique
-  phone           String        @unique
-
-  currentLocation String?
-  experience      String?
-  currentSalary   String?
-  expectedSalary  String?
-  noticePeriod    String?
-  skills          String?
-  remarks         String?
-  resumeUrl       String?
-  resumeFileName  String?
-  portfolioUrl    String?
-
-  recruiterId     String?
-  recruiter       User?         @relation(fields: [recruiterId], references: [id])
-
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  applications    Application[]
-}
-
-enum ApplicationStatus {
-  SUBMITTED
-  SCREENING
-  INTERVIEW_SCHEDULED
-  L1_CLEARED
-  L2_CLEARED
-  SELECTED
-  REJECTED
-  JOINED
+  id           String        @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String        @unique
+  phone        String?
+  resumeUrl    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  applications Application[]
 }
 
 model Application {
-  id          String            @id @default(cuid())
+  id          String    @id @default(cuid())
   jobId       String
   candidateId String
-  status      ApplicationStatus @default(SUBMITTED)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  status      String    @default("NEW") // NEW, SCREENING, INTERVIEW, OFFER, HIRED, REJECTED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   job       Job       @relation(fields: [jobId], references: [id])
   candidate Candidate @relation(fields: [candidateId], references: [id])

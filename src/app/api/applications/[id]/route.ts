@@ -3,8 +3,6 @@ import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 
-export const dynamic = "force-dynamic";
-
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> }
@@ -12,9 +10,6 @@ export async function PATCH(
   const session = await getServerSession(authOptions)
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-  if ((session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   const { id } = await context.params;

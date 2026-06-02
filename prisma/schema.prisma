@@ -7,13 +7,134 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  RECRUITER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(cuid())
+  role       Role       @default(ADMIN)
+  name       String?
+  email      String     @unique
+  password   String?
+  mobile     String?    @unique
+  location   String?
+  status     UserStatus @default(ACTIVE)
+
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  candidates Candidate[]
+}
+
+enum JobTiming {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+enum JobPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum JobStatus {
+  OPEN
+  ON_HOLD
+  CLOSED
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum FeeType {
+  PERCENTAGE
+  FIXED
+}
+
+enum DocumentCategory {
+  CONTRACT
+  NDA
+  FEE_AGREEMENT
+  OTHER
+}
+
+model CompanyDocument {
+  id          String           @id @default(cuid())
+  name        String
+  fileUrl     String
+  category    DocumentCategory @default(OTHER)
+
+  companyId   String
+  company     Company          @relation(fields: [companyId], references: [id])
+
+  uploadedAt  DateTime         @default(now())
+}
+
+model Company {
+  id                 String        @id @default(cuid())
+  name               String
+  industry           String?
+  logoUrl            String?
+  website            String?
+  contactPerson      String?
+  email              String?
+  phone              String?
+  status             CompanyStatus @default(ACTIVE)
+  notes              String?
+  isConfidential     Boolean       @default(false)
+
+  // New Physical & Logical info
+  totalEmployees     String?
+  workingDays        String?
+  workingHours       String?
+  location           String?
+
+  // Financial Tracking & Terms
+  feeType            FeeType       @default(PERCENTAGE)
+  feeValue           String?
+  replacementPeriod  String?
+  paymentTerms       String?
+  placementGuarantee String?
+  gstApplicable      Boolean       @default(false)
+
+  // Interview Process Details
+  round1Name         String?
+  round1Desc         String?
+  round1Duration     String?
+
+  round2Name         String?
+  round2Desc         String?
+  round2Duration     String?
+
+  round3Name         String?
+  round3Desc         String?
+  round3Duration     String?
+
+  finalRoundName     String?
+  finalRoundDesc     String?
+  finalRoundDuration String?
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  jobs               Job[]
+  documents          CompanyDocument[]
+}
+
+enum JobGender {
+  MALE
+  FEMALE
+  BOTH
 }
 
 model Job {
@@ -21,32 +142,73 @@ model Job {
   title        String
   department   String
   location     String
-  status       String        @default("OPEN") // OPEN, CLOSED
+  status       JobStatus     @default(OPEN)
   description  String?
+
+  postedDate   DateTime      @default(now())
+  experience   String?
+  skills       String?
+  salaryRange  String?
+  industry     String?
+  jobTiming    JobTiming     @default(FULL_TIME)
+  workingDays  String?
+  priority     JobPriority   @default(MEDIUM)
+  gender       JobGender     @default(BOTH)
+  vacancies    Int           @default(1)
+  education    String?
+
+  companyId    String?
+  company      Company?      @relation(fields: [companyId], references: [id])
+
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   applications Application[]
 }
 
 model Candidate {
-  id           String        @id @default(cuid())
-  firstName    String
-  lastName     String
-  email        String        @unique
-  phone        String?
-  resumeUrl    String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  applications Application[]
+  id              String        @id @default(cuid())
+  firstName       String
+  lastName        String?
+  email           String        @unique
+  phone           String?
+
+  currentLocation String?
+  experience      String?
+  currentSalary   String?
+  expectedSalary  String?
+  noticePeriod    String?
+  skills          String?
+  remarks         String?
+  resumeUrl       String?
+  resumeFileName  String?
+  portfolioUrl    String?
+
+  recruiterId     String?
+  recruiter       User?         @relation(fields: [recruiterId], references: [id])
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  applications    Application[]
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  SCREENING
+  INTERVIEW_SCHEDULED
+  L1_CLEARED
+  L2_CLEARED
+  SELECTED
+  REJECTED
+  JOINED
 }
 
 model Application {
-  id          String    @id @default(cuid())
+  id          String            @id @default(cuid())
   jobId       String
   candidateId String
-  status      String    @default("NEW") // NEW, SCREENING, INTERVIEW, OFFER, HIRED, REJECTED
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  status      ApplicationStatus @default(SUBMITTED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   job       Job       @relation(fields: [jobId], references: [id])
   candidate Candidate @relation(fields: [candidateId], references: [id])

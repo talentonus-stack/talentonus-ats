@@ -9,7 +9,7 @@ export const authOptions: AuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -20,20 +20,37 @@ export const authOptions: AuthOptions = {
           where: { email: credentials.email }
         })
 
-        if (!user) {
+        if (!user || user.status !== 'ACTIVE' || !user.password) {
           return null
         }
 
+        // Validate password for both Admin and Recruiter
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
-        if (!isPasswordValid) {
-          return null
+        if (isPasswordValid) {
+          return { id: user.id, email: user.email, name: user.name, role: user.role }
         }
 
-        return { id: user.id, email: user.email, name: user.name }
+        return null
       }
     })
   ],
   session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role;
+        (session.user as any).id = token.id;
+      }
+      return session
+    }
+  },
   pages: { signIn: "/login" }
 }

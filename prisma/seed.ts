@@ -13,6 +13,8 @@ async function main() {
       email: 'admin@ats.com',
       name: 'Admin User',
       password: hashedPassword,
+      role: 'ADMIN',
+      status: 'ACTIVE'
     },
   })
 

@@ -8,6 +8,9 @@ export default async function NewApplicationPage() {
   if (!session) {
     redirect("/login")
   }
+  if ((session.user as any).role !== "ADMIN") {
+    redirect("/recruiter")
+  }
 
   let jobs: any[] = []
   let candidates: any[] = []
@@ -20,12 +23,14 @@ export default async function NewApplicationPage() {
 
   async function createApplication(formData: FormData) {
     "use server"
+    const authSession = await getServerSession(authOptions)
+    if (!authSession) throw new Error("Unauthorized")
     try {
       await prisma.application.create({
         data: {
           jobId: formData.get("jobId") as string,
           candidateId: formData.get("candidateId") as string,
-          status: "NEW",
+          status: "SUBMITTED",
         }
       })
     } catch(e) {
@@ -35,24 +40,24 @@ export default async function NewApplicationPage() {
   }
 
   return (
-    <div className="max-w-2xl text-black">
-      <h1 className="mb-6 text-xl font-semibold text-gray-900">Create New Application</h1>
-      <form action={createApplication} className="space-y-6 bg-white p-6 rounded-lg shadow">
+    <div className="max-w-2xl animate-fade-in mx-auto">
+      <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Create New Application</h1>
+      <form action={createApplication} className="space-y-6 bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Job</label>
-          <select required name="jobId" className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Job</label>
+          <select required name="jobId" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
             <option value="">Select a job...</option>
             {jobs.map(job => <option key={job.id} value={job.id}>{job.title}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Candidate</label>
-          <select required name="candidateId" className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Candidate</label>
+          <select required name="candidateId" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
             <option value="">Select a candidate...</option>
             {candidates.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.firstName} {candidate.lastName}</option>)}
           </select>
         </div>
-        <button type="submit" className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
           Create Application
         </button>
       </form>

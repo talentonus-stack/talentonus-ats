@@ -3,11 +3,12 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus } from "lucide-react"
+import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus, Building2 } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 
 const adminNavigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Jobs", href: "/jobs", icon: Briefcase },
   { name: "Candidates", href: "/candidates", icon: Users },
   { name: "Applications", href: "/applications", icon: FileText },

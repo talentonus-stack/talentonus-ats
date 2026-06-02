@@ -65,12 +65,12 @@ export default async function EditCandidatePage({ params }: { params: Promise<{ 
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address</label>
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address *</label>
             <input required type="email" name="email" defaultValue={candidate.email} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Mobile Number</label>
-            <input type="text" name="phone" defaultValue={candidate.phone || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Mobile Number *</label>
+            <input required type="text" name="phone" defaultValue={candidate.phone || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>

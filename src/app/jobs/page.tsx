@@ -39,6 +39,9 @@ export default async function JobsPage({
   try {
     jobs = await prisma.job.findMany({
       where: whereClause,
+      include: {
+        company: true
+      },
       orderBy: { postedDate: "desc" }
     })
   } catch (e) {
@@ -103,7 +106,7 @@ export default async function JobsPage({
           <table className="min-w-full divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title / Company</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Location</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Priority</th>
@@ -115,7 +118,10 @@ export default async function JobsPage({
             <tbody className="divide-y divide-border bg-primary-lighter">
               {jobs.map((job) => (
                 <tr key={job.id} className="hover:bg-primary/50 transition-colors group">
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</td>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
+                    <div className="text-xs text-muted mt-1">{job.company?.name || 'No Company'}</div>
+                  </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.experience || 'N/A'}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.location}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm">

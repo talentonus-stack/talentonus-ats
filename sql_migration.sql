@@ -1,45 +1,61 @@
--- CreateEnum
-CREATE TYPE "FeeType" AS ENUM ('PERCENTAGE', 'FIXED');
+-- Safely add columns to Company table (will error if already added, but that's fine, it means they are there)
+ALTER TABLE "Company"
+ADD COLUMN IF NOT EXISTS "finalRoundDesc" TEXT,
+ADD COLUMN IF NOT EXISTS "finalRoundName" TEXT,
+ADD COLUMN IF NOT EXISTS "isConfidential" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN IF NOT EXISTS "location" TEXT,
+ADD COLUMN IF NOT EXISTS "round1Desc" TEXT,
+ADD COLUMN IF NOT EXISTS "round1Name" TEXT,
+ADD COLUMN IF NOT EXISTS "round2Desc" TEXT,
+ADD COLUMN IF NOT EXISTS "round2Name" TEXT,
+ADD COLUMN IF NOT EXISTS "round3Desc" TEXT,
+ADD COLUMN IF NOT EXISTS "round3Name" TEXT,
+ADD COLUMN IF NOT EXISTS "totalEmployees" TEXT,
+ADD COLUMN IF NOT EXISTS "workingDays" TEXT,
+ADD COLUMN IF NOT EXISTS "workingHours" TEXT,
+ADD COLUMN IF NOT EXISTS "clientSince" TIMESTAMP(3);
 
--- CreateEnum
-CREATE TYPE "DocumentCategory" AS ENUM ('CONTRACT', 'NDA', 'FEE_AGREEMENT', 'OTHER');
+-- Remove deprecated columns/tables if they exist (clean up from previous attempts)
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "feeType";
+EXCEPTION WHEN undefined_column THEN null; END $$;
 
--- AlterTable
-ALTER TABLE "Company" ADD COLUMN     "feeType" "FeeType" NOT NULL DEFAULT 'PERCENTAGE',
-ADD COLUMN     "feeValue" TEXT,
-ADD COLUMN     "finalRoundDesc" TEXT,
-ADD COLUMN     "finalRoundDuration" TEXT,
-ADD COLUMN     "finalRoundName" TEXT,
-ADD COLUMN     "gstApplicable" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "isConfidential" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "location" TEXT,
-ADD COLUMN     "paymentTerms" TEXT,
-ADD COLUMN     "placementGuarantee" TEXT,
-ADD COLUMN     "replacementPeriod" TEXT,
-ADD COLUMN     "round1Desc" TEXT,
-ADD COLUMN     "round1Duration" TEXT,
-ADD COLUMN     "round1Name" TEXT,
-ADD COLUMN     "round2Desc" TEXT,
-ADD COLUMN     "round2Duration" TEXT,
-ADD COLUMN     "round2Name" TEXT,
-ADD COLUMN     "round3Desc" TEXT,
-ADD COLUMN     "round3Duration" TEXT,
-ADD COLUMN     "round3Name" TEXT,
-ADD COLUMN     "totalEmployees" TEXT,
-ADD COLUMN     "workingDays" TEXT,
-ADD COLUMN     "workingHours" TEXT;
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "feeValue";
+EXCEPTION WHEN undefined_column THEN null; END $$;
 
--- CreateTable
-CREATE TABLE "CompanyDocument" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "fileUrl" TEXT NOT NULL,
-    "category" "DocumentCategory" NOT NULL DEFAULT 'OTHER',
-    "companyId" TEXT NOT NULL,
-    "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "placementGuarantee";
+EXCEPTION WHEN undefined_column THEN null; END $$;
 
-    CONSTRAINT "CompanyDocument_pkey" PRIMARY KEY ("id")
-);
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "replacementPeriod";
+EXCEPTION WHEN undefined_column THEN null; END $$;
 
--- AddForeignKey
-ALTER TABLE "CompanyDocument" ADD CONSTRAINT "CompanyDocument_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "paymentTerms";
+EXCEPTION WHEN undefined_column THEN null; END $$;
+
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "gstApplicable";
+EXCEPTION WHEN undefined_column THEN null; END $$;
+
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "round1Duration";
+EXCEPTION WHEN undefined_column THEN null; END $$;
+
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "round2Duration";
+EXCEPTION WHEN undefined_column THEN null; END $$;
+
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "round3Duration";
+EXCEPTION WHEN undefined_column THEN null; END $$;
+
+DO $$ BEGIN
+    ALTER TABLE "Company" DROP COLUMN "finalRoundDuration";
+EXCEPTION WHEN undefined_column THEN null; END $$;
+
+DROP TABLE IF EXISTS "CompanyDocument";
+DROP TYPE IF EXISTS "DocumentCategory";
+DROP TYPE IF EXISTS "FeeType";

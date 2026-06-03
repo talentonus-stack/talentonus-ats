@@ -56,30 +56,6 @@ enum CompanyStatus {
   INACTIVE
 }
 
-enum FeeType {
-  PERCENTAGE
-  FIXED
-}
-
-enum DocumentCategory {
-  CONTRACT
-  NDA
-  FEE_AGREEMENT
-  OTHER
-}
-
-model CompanyDocument {
-  id          String           @id @default(cuid())
-  name        String
-  fileUrl     String
-  category    DocumentCategory @default(OTHER)
-
-  companyId   String
-  company     Company          @relation(fields: [companyId], references: [id])
-
-  uploadedAt  DateTime         @default(now())
-}
-
 model Company {
   id                 String        @id @default(cuid())
   name               String
@@ -93,42 +69,30 @@ model Company {
   notes              String?
   isConfidential     Boolean       @default(false)
 
-  // New Physical & Logical info
+  // Physical & Logical info
   totalEmployees     String?
   workingDays        String?
   workingHours       String?
   location           String?
-
-  // Financial Tracking & Terms
-  feeType            FeeType       @default(PERCENTAGE)
-  feeValue           String?
-  replacementPeriod  String?
-  paymentTerms       String?
-  placementGuarantee String?
-  gstApplicable      Boolean       @default(false)
+  clientSince        DateTime?
 
   // Interview Process Details
   round1Name         String?
   round1Desc         String?
-  round1Duration     String?
 
   round2Name         String?
   round2Desc         String?
-  round2Duration     String?
 
   round3Name         String?
   round3Desc         String?
-  round3Duration     String?
 
   finalRoundName     String?
   finalRoundDesc     String?
-  finalRoundDuration String?
 
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
   jobs               Job[]
-  documents          CompanyDocument[]
 }
 
 enum JobGender {

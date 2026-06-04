@@ -33,6 +33,9 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
 
   if (!company) notFound()
 
+  // Recent Candidate Activity logic
+  const recentActivity = company.jobs.flatMap(j => j.applications).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 5)
+
   // Recruiter Leaderboard logic
   const recruiterStats: Record<string, { name: string, submitted: number, shortlisted: number, interviews: number, selected: number, joined: number }> = {}
 
@@ -72,7 +75,10 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
     })
   }
 
-  const leaderboard = Object.values(recruiterStats).sort((a, b) => b.selected - a.selected || b.interviews - a.interviews)
+  const leaderboard = Object.values(recruiterStats).sort((a, b) => b.selected - a.selected || b.interviews - a.interviews).map(r => ({
+    ...r,
+    conversion: r.submitted > 0 ? Math.round((r.selected / r.submitted) * 100) : 0
+  }))
   const maxSubmitted = leaderboard.length > 0 ? Math.max(...leaderboard.map(r => r.submitted)) : 1
 
   return (
@@ -230,6 +236,33 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
               </div>
             </div>
 
+
+          {/* Recent Candidate Activity */}
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6 mt-6">
+            <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+              <Users className="w-4 h-4 text-accent" /> Recent Candidate Activity
+            </h3>
+            <div className="space-y-3">
+              {recentActivity.map((app: any, idx: number) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-primary/20 hover:border-accent/30 transition-colors">
+                  <div>
+                     <p className="text-sm font-semibold text-light">{app.candidate.firstName} {app.candidate.lastName}</p>
+                     <p className="text-xs text-muted mt-0.5">{app.job.title}</p>
+                  </div>
+                  <div className="text-right">
+                     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
+                       {app.status.replace(/_/g, ' ')}
+                     </span>
+                     <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))}
+              {recentActivity.length === 0 && (
+                <p className="text-sm text-muted text-center py-4">No recent activity.</p>
+              )}
+            </div>
+          </div>
+
             {/* Recruiter Leaderboard */}
             <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
               <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
@@ -240,10 +273,12 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                   <thead>
                     <tr>
                       <th className="pb-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Recruiter</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Sub</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Int</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Sel</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Join</th>
+                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Submitted</th>
+                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Shortlisted</th>
+                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Interviews</th>
+                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Selected</th>
+                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Joined</th>
+                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Conversion</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/30">
@@ -253,9 +288,11 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                           <div className="text-sm font-semibold text-light group-hover:text-white transition-colors">{recruiter.name}</div>
                         </td>
                         <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.submitted}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.shortlisted}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.interviews}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-accent font-bold">{recruiter.selected}</td>
                         <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.joined}</td>
+                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.conversion}%</td>
                       </tr>
                     ))}
                     {leaderboard.length === 0 && (

@@ -81,6 +81,14 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
   }))
   const maxSubmitted = leaderboard.length > 0 ? Math.max(...leaderboard.map(r => r.submitted)) : 1
 
+  // KPI Summary calculations
+  const totalActiveJobs = company.jobs.filter(j => j.status === 'OPEN').length
+  const allApplications = company.jobs.flatMap(j => j.applications)
+  const totalCandidates = allApplications.length
+  const totalInterviews = allApplications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
+  const totalSelected = allApplications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
+  const totalJoined = allApplications.filter(a => a.status === 'JOINED').length
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-8 pb-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -116,6 +124,30 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
             Edit Company
           </Link>
         )}
+      </div>
+
+      {/* KPI Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Active Jobs</p>
+          <p className="text-2xl font-black text-light">{totalActiveJobs}</p>
+        </div>
+        <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Total Candidates</p>
+          <p className="text-2xl font-black text-light">{totalCandidates}</p>
+        </div>
+        <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Interviews</p>
+          <p className="text-2xl font-black text-light">{totalInterviews}</p>
+        </div>
+        <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Selected</p>
+          <p className="text-2xl font-black text-accent">{totalSelected}</p>
+        </div>
+        <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center">
+          <p className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Joined</p>
+          <p className="text-2xl font-black text-light">{totalJoined}</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -195,12 +227,14 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
 
              {isAdmin && company.notes && (
                 <div className="mt-6 pt-6 border-t border-border/50">
-                  <div className="flex items-center gap-2 mb-3">
-                    <ShieldAlert className="w-4 h-4 text-red-400" />
-                    <p className="text-xs font-bold text-red-400 uppercase tracking-wider">Internal Client Notes</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-4 h-4 text-orange-400" />
+                      <p className="text-xs font-bold text-orange-400 uppercase tracking-wider">Internal Client Notes</p>
+                    </div>
                   </div>
-                  <div className="bg-primary/50 p-4 rounded-xl border border-red-900/30">
-                    <p className="text-sm text-light/90 whitespace-pre-wrap leading-relaxed">{company.notes}</p>
+                  <div className="bg-orange-900/10 p-4 rounded-xl border border-orange-500/20 shadow-inner">
+                    <p className="text-sm text-orange-200/90 whitespace-pre-wrap leading-relaxed italic">{company.notes}</p>
                   </div>
                 </div>
              )}
@@ -246,20 +280,26 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
               <Users className="w-4 h-4 text-accent" /> Recent Candidate Activity
             </h3>
             <div className="space-y-3">
-              {recentActivity.map((app: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-primary/20 hover:border-accent/30 transition-colors">
-                  <div>
-                     <p className="text-sm font-semibold text-light">{app.candidate?.firstName} {app.candidate?.lastName}</p>
-                     <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
+              {recentActivity.map((app: any, idx: number) => {
+                let displayStatus = app.status.replace(/_/g, ' ')
+                if (app.status === 'NEW' || app.status === 'SCREENING') displayStatus = 'SUBMITTED'
+                else if (app.status === 'L1_CLEARED' || app.status === 'L2_CLEARED') displayStatus = 'SHORTLISTED'
+
+                return (
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-primary/20 hover:border-accent/30 transition-colors">
+                    <div>
+                      <p className="text-sm font-semibold text-light">{app.candidate?.firstName} {app.candidate?.lastName}</p>
+                      <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
+                        {displayStatus}
+                      </span>
+                      <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                     <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
-                       {app.status.replace(/_/g, ' ')}
-                     </span>
-                     <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
               {recentActivity.length === 0 && (
                 <p className="text-sm text-muted text-center py-4">No recent activity.</p>
               )}
@@ -300,7 +340,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                     ))}
                     {leaderboard.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="py-6 text-center text-sm text-muted">No candidate activity yet.</td>
+                        <td colSpan={7} className="py-6 text-center text-sm text-muted">No candidate activity yet.</td>
                       </tr>
                     )}
                   </tbody>
@@ -321,12 +361,11 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                  <thead className="bg-primary-lighter">
                    <tr>
                      <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Title</th>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                     <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Candidates</th>
+                     <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Applications</th>
                      <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Interviews</th>
                      <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Selected</th>
                      <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Joined</th>
-                     <th className="px-6 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Posted Date</th>
+                     <th className="px-6 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
                    </tr>
                  </thead>
                  <tbody className="divide-y divide-border/50 bg-primary/20">
@@ -344,24 +383,21 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                            </Link>
                            <div className="text-xs text-muted mt-0.5">{job.location}</div>
                          </td>
-                         <td className="whitespace-nowrap px-6 py-4">
-                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
-                             {job.status}
-                           </span>
-                         </td>
                          <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{totalCands}</td>
                          <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{ints}</td>
                          <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">{sel}</td>
                          <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{joined}</td>
-                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-muted">
-                           {new Date(job.postedDate).toLocaleDateString()}
+                         <td className="whitespace-nowrap px-6 py-4 text-right">
+                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
+                             {job.status}
+                           </span>
                          </td>
                        </tr>
                      )
                    })}
                    {company.jobs.length === 0 && (
                      <tr>
-                       <td colSpan={7} className="px-6 py-8 text-center text-sm text-muted">No jobs posted for this company yet.</td>
+                       <td colSpan={6} className="px-6 py-8 text-center text-sm text-muted">No jobs posted for this company yet.</td>
                      </tr>
                    )}
                  </tbody>

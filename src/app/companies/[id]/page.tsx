@@ -34,17 +34,17 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
   if (!company) notFound()
 
   // Recent Candidate Activity logic
-  const recentActivity = company.jobs.flatMap(j => j.applications).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 5)
+  const recentActivity = company.jobs.flatMap(j => j.applications.map(app => ({ ...app, job: j }))).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).slice(0, 5)
 
   // Recruiter Leaderboard logic
   const recruiterStats: Record<string, { name: string, submitted: number, shortlisted: number, interviews: number, selected: number, joined: number }> = {}
 
   company.jobs.forEach(job => {
     job.applications.forEach(app => {
-      const recId = app.candidate.recruiterId || 'system'
+      const recId = app.candidate?.recruiterId || 'system'
       if (!recruiterStats[recId]) {
         recruiterStats[recId] = {
-          name: app.candidate.recruiterId ? 'Recruiter User' : 'System / Direct',
+          name: app.candidate?.recruiterId ? 'Recruiter User' : 'System / Direct',
           submitted: 0,
           shortlisted: 0,
           interviews: 0,
@@ -249,8 +249,8 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
               {recentActivity.map((app: any, idx: number) => (
                 <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-primary/20 hover:border-accent/30 transition-colors">
                   <div>
-                     <p className="text-sm font-semibold text-light">{app.candidate.firstName} {app.candidate.lastName}</p>
-                     <p className="text-xs text-muted mt-0.5">{app.job.title}</p>
+                     <p className="text-sm font-semibold text-light">{app.candidate?.firstName} {app.candidate?.lastName}</p>
+                     <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
                   </div>
                   <div className="text-right">
                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">

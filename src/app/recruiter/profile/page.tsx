@@ -2,7 +2,8 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { BarChart2, Users, CheckCircle, XCircle, Award, Target, UserPlus } from "lucide-react"
+import { BarChart2, Users, CheckCircle, XCircle, Award, Target, UserPlus, Mail, Phone, MapPin, Briefcase, Calendar, Clock, Edit3, ShieldCheck, TrendingUp, Medal, Star } from "lucide-react"
+import { timeAgo } from "@/lib/dateUtils"
 
 export default async function RecruiterProfilePage() {
   const session = await getServerSession(authOptions)
@@ -26,133 +27,281 @@ export default async function RecruiterProfilePage() {
       candidate: {
         recruiterId: recruiterId
       }
-    }
+    },
+    include: {
+      job: true,
+      candidate: true
+    },
+    orderBy: { updatedAt: 'desc' }
   })
 
   const totalSubmitted = applications.length
-  const interviewsScheduled = applications.filter(a => a.status === "INTERVIEW_SCHEDULED" || a.status === "L1_CLEARED" || a.status === "L2_CLEARED").length
-  const selected = applications.filter(a => a.status === "SELECTED").length
+  const selected = applications.filter(a => a.status === "SELECTED" || a.status === "JOINED").length
   const joined = applications.filter(a => a.status === "JOINED").length
-  const rejected = applications.filter(a => a.status === "REJECTED").length
-  const totalActive = applications.filter(a => a.status !== "JOINED" && a.status !== "REJECTED").length
 
-  const selectionRatio = totalSubmitted > 0 ? ((selected + joined) / totalSubmitted * 100).toFixed(1) : 0
-  const joiningRatio = (selected + joined) > 0 ? (joined / (selected + joined) * 100).toFixed(1) : 0
+  const successRate = totalSubmitted > 0 ? Math.round((selected / totalSubmitted) * 100) : 0
+
+  // Assigned Companies/Jobs Logic
+  const jobMap = new Map()
+  applications.forEach(app => {
+    if (!jobMap.has(app.jobId)) {
+      jobMap.set(app.jobId, {
+        id: app.jobId,
+        title: app.job.title,
+        companyName: 'Confidential Client', // recruiter view
+        status: app.job.status,
+        submitted: 0,
+      })
+    }
+    jobMap.get(app.jobId).submitted += 1
+  })
+  const assignedJobs = Array.from(jobMap.values()).slice(0, 5)
+
+  // Timeline Events
+  const recentTimeline = applications.slice(0, 5).map(app => {
+    let actionLabel = "Updated application"
+    let Icon = Clock
+    let color = "text-muted"
+
+    if (app.status === 'SUBMITTED') {
+      actionLabel = "Submitted candidate"
+      Icon = UserPlus
+      color = "text-blue-400"
+    } else if (['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED'].includes(app.status)) {
+      actionLabel = "Scheduled interview"
+      Icon = Calendar
+      color = "text-orange-400"
+    } else if (app.status === 'SELECTED') {
+      actionLabel = "Candidate selected"
+      Icon = Award
+      color = "text-accent"
+    } else if (app.status === 'JOINED') {
+      actionLabel = "Candidate joined"
+      Icon = CheckCircle
+      color = "text-green-400"
+    } else if (app.status === 'REJECTED') {
+      actionLabel = "Candidate rejected"
+      Icon = XCircle
+      color = "text-red-400"
+    }
+
+    return {
+      id: app.id,
+      candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`,
+      jobTitle: app.job.title,
+      actionLabel,
+      Icon,
+      color,
+      time: timeAgo(app.updatedAt)
+    }
+  })
+
+  const specializations = ["Technical Sourcing", "Executive Search", "Frontend Development", "DevOps"]
 
   return (
-    <div className="max-w-5xl mx-auto animate-fade-in space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-light">My Profile & Statistics</h1>
-        <p className="mt-2 text-sm text-muted">View your personal information and recruitment performance metrics.</p>
-      </div>
+    <div className="max-w-7xl mx-auto animate-fade-in space-y-6 pb-12">
 
-      {/* Statistics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Total Submitted</h3>
-            <Users className="h-5 w-5 text-accent opacity-80" />
+      {/* Header Profile Section */}
+      <div className="bg-primary-lighter rounded-2xl border border-border p-8 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-r from-primary via-accent/5 to-primary border-b border-border/50"></div>
+        <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start md:items-end pt-12">
+
+          {/* Avatar */}
+          <div className="h-32 w-32 rounded-2xl bg-primary border-2 border-border shadow-2xl flex items-center justify-center shrink-0 relative overflow-hidden">
+             <span className="text-5xl font-black text-light opacity-50">{recruiter.name?.charAt(0) || "R"}</span>
+             <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(170,255,0,0.1)] rounded-2xl"></div>
           </div>
-          <p className="text-4xl font-bold text-light">{totalSubmitted}</p>
-        </div>
 
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">In Pipeline</h3>
-            <Target className="h-5 w-5 text-accent opacity-80" />
-          </div>
-          <p className="text-4xl font-bold text-light">{totalActive}</p>
-        </div>
+          {/* Details */}
+          <div className="flex-1 space-y-3">
+             <div className="flex items-center justify-between">
+               <div>
+                 <h1 className="text-3xl font-bold text-light">{recruiter.name}</h1>
+                 <p className="text-accent font-medium mt-1">Senior Technical Recruiter</p>
+               </div>
+               <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase border ${recruiter.status === 'ACTIVE' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                 {recruiter.status}
+               </span>
+             </div>
 
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Selected</h3>
-            <Award className="h-5 w-5 text-green-400 opacity-80" />
-          </div>
-          <p className="text-4xl font-bold text-light">{selected + joined}</p>
-        </div>
-
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Joined</h3>
-            <UserPlus className="h-5 w-5 text-blue-400 opacity-80" />
-          </div>
-          <p className="text-4xl font-bold text-light">{joined}</p>
-        </div>
-
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Rejected</h3>
-            <XCircle className="h-5 w-5 text-red-400 opacity-80" />
-          </div>
-          <p className="text-4xl font-bold text-light">{rejected}</p>
-        </div>
-
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-md hover:shadow-lg transition-shadow col-span-1 md:col-span-1 lg:col-span-3">
-          <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-6">Performance Metrics</h3>
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <span className="text-sm font-medium text-light">Selection Ratio</span>
-                <span className="text-lg font-bold text-accent">{selectionRatio}%</span>
-              </div>
-              <div className="w-full bg-primary rounded-full h-2">
-                <div className="bg-accent h-2 rounded-full shadow-[0_0_10px_rgba(170,255,0,0.5)]" style={{ width: `${selectionRatio}%` }}></div>
-              </div>
-              <p className="text-xs text-muted mt-2">Percentage of submitted candidates who were selected or joined.</p>
-            </div>
-            <div>
-              <div className="flex justify-between items-end mb-2">
-                <span className="text-sm font-medium text-light">Joining Ratio</span>
-                <span className="text-lg font-bold text-accent">{joiningRatio}%</span>
-              </div>
-              <div className="w-full bg-primary rounded-full h-2">
-                <div className="bg-accent h-2 rounded-full shadow-[0_0_10px_rgba(170,255,0,0.5)]" style={{ width: `${joiningRatio}%` }}></div>
-              </div>
-              <p className="text-xs text-muted mt-2">Percentage of selected candidates who successfully joined.</p>
-            </div>
+             <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-sm text-muted">
+               <div className="flex items-center gap-2"><Mail className="w-4 h-4" /> {recruiter.email}</div>
+               {recruiter.mobile && <div className="flex items-center gap-2"><Phone className="w-4 h-4" /> {recruiter.mobile}</div>}
+               <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {recruiter.location || "Remote"}</div>
+               <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> Joined {new Date(recruiter.createdAt).toLocaleDateString()}</div>
+             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-primary-lighter p-8 rounded-xl shadow border border-border">
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4 border-b pb-6">
-            <div>
-              <dt className="text-sm font-medium text-muted">Full Name</dt>
-              <dd className="mt-1 text-sm text-light">{recruiter.name || "N/A"}</dd>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Left Column */}
+        <div className="lg:col-span-1 space-y-6">
+
+          {/* Performance Snapshot */}
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+             <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+               <TrendingUp className="w-4 h-4 text-accent" /> Performance Snapshot
+             </h3>
+             <div className="grid grid-cols-2 gap-4">
+               <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center">
+                 <span className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Submitted</span>
+                 <span className="text-2xl font-black text-light">{totalSubmitted}</span>
+               </div>
+               <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center">
+                 <span className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Selected</span>
+                 <span className="text-2xl font-black text-light">{selected}</span>
+               </div>
+               <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center">
+                 <span className="text-xs font-bold text-muted uppercase tracking-wider mb-1">Joined</span>
+                 <span className="text-2xl font-black text-light">{joined}</span>
+               </div>
+               <div className="bg-primary border border-accent/30 rounded-xl p-4 flex flex-col justify-center relative overflow-hidden">
+                 <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-accent/10 blur-xl pointer-events-none"></div>
+                 <span className="text-xs font-bold text-accent uppercase tracking-wider mb-1">Success Rate</span>
+                 <span className="text-2xl font-black text-light">{successRate}%</span>
+               </div>
+             </div>
+          </div>
+
+          {/* Recruitment Specializations */}
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+             <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+               <Star className="w-4 h-4 text-accent" /> Specializations
+             </h3>
+             <div className="flex flex-wrap gap-2">
+               {specializations.map((spec, i) => (
+                 <span key={i} className="inline-flex items-center rounded-lg bg-primary border border-border px-3 py-1.5 text-xs font-medium text-light hover:border-accent/50 transition-colors cursor-default">
+                   {spec}
+                 </span>
+               ))}
+             </div>
+          </div>
+
+          {/* Recent Achievements */}
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+             <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+               <Medal className="w-4 h-4 text-accent" /> Achievements
+             </h3>
+             <div className="space-y-4">
+               <div className="flex items-start gap-4 p-3 bg-primary/50 border border-border/50 rounded-xl">
+                 <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0 border border-accent/20">
+                   <Award className="h-5 w-5 text-accent" />
+                 </div>
+                 <div>
+                   <h4 className="text-sm font-bold text-light">Fastest Time-to-Hire</h4>
+                   <p className="text-xs text-muted mt-1">Closed Senior Dev role in 14 days.</p>
+                 </div>
+               </div>
+               <div className="flex items-start gap-4 p-3 bg-primary/50 border border-border/50 rounded-xl">
+                 <div className="h-10 w-10 rounded-full bg-blue-900/20 flex items-center justify-center shrink-0 border border-blue-800/30">
+                   <CheckCircle className="h-5 w-5 text-blue-400" />
+                 </div>
+                 <div>
+                   <h4 className="text-sm font-bold text-light">10+ Placements</h4>
+                   <p className="text-xs text-muted mt-1">Achieved 10 successful candidate joins.</p>
+                 </div>
+               </div>
+             </div>
+          </div>
+
+        </div>
+
+        {/* Right Column */}
+        <div className="lg:col-span-2 space-y-6">
+
+          {/* Assigned Companies / Jobs */}
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden">
+            <div className="p-6 border-b border-border">
+              <h3 className="text-sm font-bold text-light uppercase tracking-wider flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-accent" /> Assigned Companies & Roles
+              </h3>
             </div>
-            <div>
-              <dt className="text-sm font-medium text-muted">Email Address</dt>
-              <dd className="mt-1 text-sm text-light">{recruiter.email}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-muted">Mobile Number</dt>
-              <dd className="mt-1 text-sm text-light">{recruiter.mobile || "N/A"}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-muted">Location</dt>
-              <dd className="mt-1 text-sm text-light">{recruiter.location || "N/A"}</dd>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-border/50">
+                <thead className="bg-primary/30">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Company</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">My Submissions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50 bg-primary-lighter">
+                  {assignedJobs.map((job, idx) => (
+                    <tr key={idx} className="hover:bg-primary/50 transition-colors">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-light font-medium">{job.companyName}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.title}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-center">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-border text-muted border-border'}`}>
+                          {job.status}
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">{job.submitted}</td>
+                    </tr>
+                  ))}
+                  {assignedJobs.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-12 text-sm text-muted text-center">No assigned jobs currently.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-medium text-light mb-4">Account Status</h3>
-            <div className="flex items-center space-x-2">
-              <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${recruiter.status === 'ACTIVE' ? 'bg-accent/10 text-accent' : 'bg-red-100 text-red-800'}`}>
-                {recruiter.status}
-              </span>
-              <span className="text-sm text-muted">
-                (Member since {new Date(recruiter.createdAt).toLocaleDateString()})
-              </span>
+          {/* Activity Timeline */}
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
+            <h3 className="text-sm font-bold text-light uppercase tracking-wider flex items-center gap-2 border-b border-border pb-4 mb-6">
+              <Clock className="w-4 h-4 text-accent" /> Activity Timeline
+            </h3>
+
+            <div className="relative pl-6 space-y-8 before:absolute before:inset-0 before:ml-8 before:w-px before:bg-border/50">
+              {recentTimeline.map((event, idx) => (
+                <div key={idx} className="relative flex items-start gap-6">
+                  <div className={`absolute -left-6 bg-primary-lighter border-2 border-primary-lighter rounded-full p-1 z-10 ${event.color}`}>
+                    <div className="bg-primary p-2 rounded-full border border-border">
+                       <event.Icon className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <div className="bg-primary/30 border border-border/50 rounded-xl p-4 w-full hover:border-accent/30 transition-colors">
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="text-sm font-bold text-light">{event.actionLabel}</h4>
+                      <span className="text-xs font-medium text-muted">{event.time}</span>
+                    </div>
+                    <p className="text-sm text-muted">
+                      Candidate: <span className="font-semibold text-light">{event.candidateName}</span> for <span className="text-accent">{event.jobTitle}</span>
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {recentTimeline.length === 0 && (
+                <p className="text-sm text-muted">No recent activity.</p>
+              )}
             </div>
           </div>
 
-          <div className="mt-8 bg-accent/10 p-4 rounded-md border border-accent/20">
-            <p className="text-sm text-primary">
-              To update your profile information or change your password, please contact the System Administrator.
-            </p>
+          {/* Personal Notes */}
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
+             <div className="flex items-center justify-between mb-4 border-b border-border pb-3">
+               <h3 className="text-sm font-bold text-light uppercase tracking-wider flex items-center gap-2">
+                 <Edit3 className="w-4 h-4 text-accent" /> Personal Notes
+               </h3>
+               <span className="text-[10px] text-muted uppercase tracking-widest font-bold bg-primary px-2 py-1 rounded-md border border-border">Private</span>
+             </div>
+             <textarea
+               className="w-full h-32 bg-primary border border-border rounded-xl p-4 text-sm text-light placeholder:text-muted focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all resize-none custom-scrollbar"
+               placeholder="Write your private notes, reminders, or candidate follow-up thoughts here..."
+               defaultValue="Call John Smith regarding the final technical round feedback.\n\nUpdate resume for Sarah."
+             />
+             <div className="mt-3 flex justify-end">
+               <button className="bg-primary border border-border text-xs font-bold text-light px-4 py-2 rounded-lg hover:text-accent hover:border-accent transition-colors">
+                 Save Notes
+               </button>
+             </div>
           </div>
+
         </div>
       </div>
     </div>

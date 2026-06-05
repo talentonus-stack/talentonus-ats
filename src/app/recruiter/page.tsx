@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Users, Calendar, CheckCircle, XCircle, Percent, Clock, AlertCircle } from "lucide-react"
+import { Users, Calendar, CheckCircle, XCircle, Percent, AlertCircle, Briefcase, MessagesSquare, FileText, Zap } from "lucide-react"
 import { timeAgo } from "@/lib/dateUtils"
 
 export default async function RecruiterDashboardPage() {
@@ -40,11 +40,9 @@ export default async function RecruiterDashboardPage() {
 
   // Calculate Pipeline Funnel
   const pipeline = {
-    SUBMITTED: applications.length, // Total entering the top
-    SCREENING: applications.filter(a => !['REJECTED'].includes(a.status)).length, // Mock logic: assume they pass submitted unless rejected
-    INTERVIEW_SCHEDULED: applications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
-    L1_CLEARED: applications.filter(a => ['L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
-    L2_CLEARED: applications.filter(a => ['L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
+    SUBMITTED: applications.length,
+    SCREENING: applications.filter(a => !['REJECTED'].includes(a.status)).length,
+    INTERVIEW: applications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
     SELECTED: applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length,
     JOINED: applications.filter(a => a.status === 'JOINED').length,
   }
@@ -52,61 +50,60 @@ export default async function RecruiterDashboardPage() {
   const funnelStages = [
     { label: "Submitted", count: pipeline.SUBMITTED },
     { label: "Screening", count: pipeline.SCREENING },
-    { label: "Interview", count: pipeline.INTERVIEW_SCHEDULED },
-    { label: "L1 Cleared", count: pipeline.L1_CLEARED },
-    { label: "L2 Cleared", count: pipeline.L2_CLEARED },
+    { label: "Interview", count: pipeline.INTERVIEW },
     { label: "Selected", count: pipeline.SELECTED },
     { label: "Joined", count: pipeline.JOINED },
   ]
   const maxFunnel = pipeline.SUBMITTED > 0 ? pipeline.SUBMITTED : 1
 
-  // Recent Activity Feed (Using last 10 updated applications)
-  const recentActivities = applications.slice(0, 10).map(app => {
-    let action = "updated"
-    if (app.status === 'SUBMITTED') action = "submitted for"
-    if (app.status === 'INTERVIEW_SCHEDULED') action = "scheduled for interview for"
-    if (app.status === 'SELECTED') action = "selected for"
-    if (app.status === 'REJECTED') action = "rejected for"
-    if (app.status === 'JOINED') action = "joined as"
+  // Action Center Stats
+  const interviewFeedbackPending = applications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length;
+  const candidateFollowUpsPending = applications.filter(a => ['SCREENING', 'L1_CLEARED', 'L2_CLEARED'].includes(a.status)).length;
+  const newApplicationsReceived = applications.filter(a => a.status === 'SUBMITTED').length;
+  const offerAcceptancePending = applications.filter(a => a.status === 'SELECTED').length;
 
-    return {
-      id: app.id,
-      candidate: `${app.candidate.firstName} ${app.candidate.lastName || ''}`,
-      job: app.job.title,
-      action,
-      time: timeAgo(app.updatedAt)
-    }
-  })
-
-  // Pending Follow-ups
-  // Logic: Mock follow-up based on status
-  const pendingFollowUps = applications
+  // Priority Tasks
+  const priorityTasks = applications
     .filter(a => ['SCREENING', 'INTERVIEW_SCHEDULED', 'SELECTED'].includes(a.status))
     .map(app => {
-      let followUpType = "Client feedback pending"
-      let priority = "MEDIUM"
-      let dueDate = new Date(app.updatedAt.getTime() + 2 * 24 * 60 * 60 * 1000) // 2 days from update
+      let action = "Check screening status"
+      let priority = "LOW"
 
       if (app.status === 'INTERVIEW_SCHEDULED') {
-        followUpType = "Interview feedback pending"
+        action = "Get interview feedback"
         priority = "HIGH"
       } else if (app.status === 'SELECTED') {
-        followUpType = "Offer acceptance pending"
+        action = "Follow up on offer acceptance"
         priority = "HIGH"
       } else if (app.status === 'SCREENING') {
-        followUpType = "Screening outcome pending"
-        priority = "LOW"
+        action = "Follow up with client on screening"
+        priority = "MEDIUM"
       }
 
       return {
         id: app.id,
         candidate: `${app.candidate.firstName} ${app.candidate.lastName || ''}`,
         job: app.job.title,
-        followUpType,
-        dueDate: dueDate.toLocaleDateString(),
+        action,
         priority
       }
-    }).slice(0, 5) // Show top 5 pending
+    }).slice(0, 6)
+
+  // Assigned Jobs (Active Jobs recruiter has submitted candidates to)
+  const jobMap = new Map()
+  applications.forEach(app => {
+    if (!jobMap.has(app.jobId)) {
+      jobMap.set(app.jobId, {
+        id: app.jobId,
+        title: app.job.title,
+        companyName: 'Confidential Client', // recruiter view
+        openPositions: (app.job as any).vacancies || 1, // Fallback to 1 if no vacancies field
+        submitted: 0,
+      })
+    }
+    jobMap.get(app.jobId).submitted += 1
+  })
+  const assignedJobs = Array.from(jobMap.values())
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-10 pb-12">
@@ -145,29 +142,32 @@ export default async function RecruiterDashboardPage() {
         </div>
       </section>
 
-      {/* Middle Row: Pipeline & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Middle Row: Recruitment Funnel & Action Center */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* 4. Candidate Pipeline Chart (Left, 2 columns) */}
-        <section className="lg:col-span-2">
+        {/* Recruitment Funnel */}
+        <section>
           <div className="bg-primary-lighter rounded-2xl border border-border p-6 h-full shadow-lg">
-            <h2 className="text-lg font-semibold text-light mb-6">Candidate Pipeline</h2>
-            <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-light mb-6 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-accent" />
+              Recruitment Funnel
+            </h2>
+            <div className="space-y-5">
               {funnelStages.map((stage, idx) => {
                 const widthPercent = maxFunnel > 0 ? (stage.count / maxFunnel) * 100 : 0;
+                const conversion = maxFunnel > 0 ? Math.round((stage.count / maxFunnel) * 100) : 0;
                 return (
-                  <div key={stage.label} className="flex items-center gap-4">
-                    <div className="w-24 sm:w-32 text-xs font-medium text-muted uppercase text-right shrink-0">
-                      {stage.label}
+                  <div key={stage.label} className="relative">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="text-xs font-bold text-light uppercase tracking-wider">{stage.label}</span>
+                      <span className="text-xs font-medium text-muted">{stage.count} ({conversion}%)</span>
                     </div>
-                    <div className="flex-1 h-8 bg-primary rounded-r-lg rounded-l-sm overflow-hidden border border-border relative">
+                    <div className="w-full h-3 bg-primary rounded-full overflow-hidden border border-border">
                       <div
-                        className="h-full bg-accent/20 border-r border-accent transition-all duration-1000 ease-out flex items-center justify-end px-3 relative"
+                        className="h-full bg-accent/40 rounded-full transition-all duration-1000 ease-out relative"
                         style={{ width: `${widthPercent}%` }}
                       >
-                         {/* Glow effect on the bar */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-accent/20 blur-sm pointer-events-none"></div>
-                        <span className="text-xs font-bold text-accent relative z-10">{stage.count}</span>
+                         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-accent/20 blur-sm pointer-events-none"></div>
                       </div>
                     </div>
                   </div>
@@ -177,75 +177,114 @@ export default async function RecruiterDashboardPage() {
           </div>
         </section>
 
-        {/* 2. Recent Activity Feed (Right, 1 column) */}
-        <section className="lg:col-span-1">
-          <div className="bg-primary-lighter rounded-2xl border border-border p-6 h-full shadow-lg flex flex-col">
+        {/* Action Center */}
+        <section>
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 h-full shadow-lg">
             <h2 className="text-lg font-semibold text-light mb-6 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-accent" />
-              Recent Activity
+              <AlertCircle className="w-5 h-5 text-accent" />
+              Action Center
             </h2>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
-              {recentActivities.length > 0 ? recentActivities.map((act, i) => (
-                <div key={i} className="relative pl-4 border-l border-border/50 pb-1">
-                  <div className="absolute -left-[5px] top-1 h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_rgba(170,255,0,0.6)]"></div>
-                  <p className="text-sm text-light leading-snug">
-                    <span className="font-semibold text-white">{act.candidate}</span> {act.action} <span className="font-medium text-accent">{act.job}</span>
-                  </p>
-                  <p className="text-xs text-muted mt-1">{act.time}</p>
-                </div>
-              )) : (
-                <p className="text-sm text-muted">No recent activities.</p>
-              )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center items-center text-center hover:border-accent/50 transition-colors">
+                <MessagesSquare className="w-6 h-6 text-orange-400 mb-2" />
+                <span className="text-2xl font-black text-light">{interviewFeedbackPending}</span>
+                <span className="text-[10px] uppercase font-bold text-muted mt-1">Interview Feedback Pending</span>
+              </div>
+              <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center items-center text-center hover:border-accent/50 transition-colors">
+                <Users className="w-6 h-6 text-blue-400 mb-2" />
+                <span className="text-2xl font-black text-light">{candidateFollowUpsPending}</span>
+                <span className="text-[10px] uppercase font-bold text-muted mt-1">Candidate Follow-ups Pending</span>
+              </div>
+              <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center items-center text-center hover:border-accent/50 transition-colors">
+                <FileText className="w-6 h-6 text-accent mb-2" />
+                <span className="text-2xl font-black text-light">{newApplicationsReceived}</span>
+                <span className="text-[10px] uppercase font-bold text-muted mt-1">New Applications Received</span>
+              </div>
+              <div className="bg-primary border border-border rounded-xl p-4 flex flex-col justify-center items-center text-center hover:border-accent/50 transition-colors">
+                <CheckCircle className="w-6 h-6 text-green-400 mb-2" />
+                <span className="text-2xl font-black text-light">{offerAcceptancePending}</span>
+                <span className="text-[10px] uppercase font-bold text-muted mt-1">Offer Acceptance Pending</span>
+              </div>
             </div>
           </div>
         </section>
       </div>
 
-      {/* 3. My Pending Follow-ups (Bottom Row) */}
-      <section>
-        <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden">
-          <div className="p-6 border-b border-border flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-accent" />
-            <h2 className="text-lg font-semibold text-light">Pending Follow-ups</h2>
-          </div>
+      {/* Bottom Row: Priority Tasks & Assigned Jobs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border">
-              <thead className="bg-primary-lighter/50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Position</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Follow-up Type</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Due Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Priority</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border bg-primary-lighter">
-                {pendingFollowUps.map((fu, idx) => (
-                  <tr key={idx} className="hover:bg-primary/50 transition-colors group">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
-                      {fu.candidate}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{fu.job}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-light">{fu.followUpType}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{fu.dueDate}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${fu.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : fu.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
-                        {fu.priority}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {pendingFollowUps.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-sm text-muted text-center">You have no pending follow-ups. Great job!</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        {/* Priority Tasks */}
+        <section>
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden h-full">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-lg font-semibold text-light flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-accent" />
+                Priority Tasks
+              </h2>
+            </div>
+            <div className="p-6 space-y-3">
+              {priorityTasks.map((task, idx) => (
+                <div key={idx} className="bg-primary border border-border rounded-xl p-4 flex items-start justify-between gap-4 hover:border-accent/30 transition-colors">
+                  <div>
+                    <h4 className="text-sm font-bold text-light">{task.candidate}</h4>
+                    <p className="text-xs text-muted mt-0.5">{task.job}</p>
+                    <p className="text-sm text-light mt-2">{task.action}</p>
+                  </div>
+                  <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${task.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : task.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
+                    {task.priority}
+                  </span>
+                </div>
+              ))}
+              {priorityTasks.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted">No pending tasks.</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Assigned Jobs */}
+        <section>
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden h-full">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-lg font-semibold text-light flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-accent" />
+                Assigned Jobs
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-border">
+                <thead className="bg-primary-lighter">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Company</th>
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Openings</th>
+                    <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Submitted</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50 bg-primary/20">
+                  {assignedJobs.map((job) => (
+                    <tr key={job.id} className="hover:bg-primary/50 transition-colors">
+                      <td className="whitespace-nowrap px-6 py-4">
+                        <div className="text-sm font-bold text-light">{job.title}</div>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.companyName}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{job.openPositions}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">{job.submitted}</td>
+                    </tr>
+                  ))}
+                  {assignedJobs.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-sm text-muted">No assigned jobs yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
 
     </div>
   )

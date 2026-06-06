@@ -60,10 +60,10 @@ export default async function RecruiterProfilePage() {
       const isPaid = app.status === 'JOINED' && Math.random() > 0.3; // mock payment status
       return {
         id: app.id,
-        candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`,
+        candidateName: `${app.candidate?.firstName} ${app.candidate?.lastName || ''}`,
         company: 'Confidential Client', // recruiter view
-        position: app.job.title,
-        placementDate: app.updatedAt.toLocaleDateString(),
+        position: app.job?.title || 'Unknown Position',
+        placementDate: app.updatedAt ? new Date(app.updatedAt).toLocaleDateString() : 'N/A',
         amount: commissionPerJoin,
         status: isPaid ? 'PAID' : 'PENDING'
       }

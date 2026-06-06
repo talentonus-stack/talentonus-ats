@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Users, FileText, CheckCircle, Briefcase } from "lucide-react"
+import { Users, FileText, CheckCircle, Briefcase, LinkIcon, ShieldCheck, Download, Edit3, Lock } from "lucide-react"
 
 export default async function RecruiterDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
@@ -74,14 +74,14 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t">
-            <a href={`/recruiters/${id}/edit`} className="block w-full text-center bg-primary border border-border hover:bg-gray-200 text-gray-800 font-medium py-2 rounded transition-colors">
-              Edit Recruiter Profile
+          <div className="mt-6 pt-4 border-t border-border">
+            <a href={`/recruiters/${id}/edit`} className="block w-full text-center bg-primary border border-border hover:border-accent hover:text-accent text-light font-medium py-2 rounded transition-colors">
+              Edit Recruiter Details
             </a>
           </div>
         </div>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {stats.map((stat) => (
               <div
@@ -102,6 +102,107 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
               </div>
             ))}
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            {/* Professional Links */}
+            <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+               <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+                 <LinkIcon className="w-4 h-4 text-accent" /> Professional Links
+               </h3>
+               <div className="space-y-3">
+                 {recruiter.linkedinUrl ? (
+                   <a href={recruiter.linkedinUrl} target="_blank" rel="noopener noreferrer" className="block text-sm text-accent hover:underline">
+                     View LinkedIn Profile
+                   </a>
+                 ) : <span className="text-sm text-muted block">LinkedIn Not Provided</span>}
+
+                 {recruiter.resumeLink ? (
+                   <a href={recruiter.resumeLink} target="_blank" rel="noopener noreferrer" className="block text-sm text-accent hover:underline">
+                     View External Resume
+                   </a>
+                 ) : <span className="text-sm text-muted block">Resume Link Not Provided</span>}
+
+                 {recruiter.whatsappNumber ? (
+                   <a href={`https://wa.me/${recruiter.whatsappNumber.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="block text-sm text-accent hover:underline">
+                     WhatsApp: {recruiter.whatsappNumber}
+                   </a>
+                 ) : <span className="text-sm text-muted block">WhatsApp Not Provided</span>}
+               </div>
+            </div>
+
+            {/* Documents Vault */}
+            <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+               <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+                 <ShieldCheck className="w-4 h-4 text-accent" /> Documents Vault
+               </h3>
+               <div className="grid grid-cols-2 gap-3">
+                 {recruiter.resumeVaultUrl ? (
+                   <a href={recruiter.resumeVaultUrl} target="_blank" rel="noopener noreferrer" className="bg-primary/50 border border-border/50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-accent/30 transition-colors group">
+                     <Download className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
+                     <span className="text-xs font-medium text-light text-center">Resume</span>
+                   </a>
+                 ) : (
+                   <div className="bg-primary/20 border border-border/30 rounded-xl p-3 flex flex-col items-center justify-center gap-2 opacity-50">
+                     <FileText className="w-5 h-5 text-muted" />
+                     <span className="text-xs font-medium text-muted text-center">No Resume</span>
+                   </div>
+                 )}
+
+                 {recruiter.panCardUrl ? (
+                   <a href={recruiter.panCardUrl} target="_blank" rel="noopener noreferrer" className="bg-primary/50 border border-border/50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-accent/30 transition-colors group">
+                     <Download className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
+                     <span className="text-xs font-medium text-light text-center">PAN Card</span>
+                   </a>
+                 ) : (
+                   <div className="bg-primary/20 border border-border/30 rounded-xl p-3 flex flex-col items-center justify-center gap-2 opacity-50">
+                     <FileText className="w-5 h-5 text-muted" />
+                     <span className="text-xs font-medium text-muted text-center">No PAN Card</span>
+                   </div>
+                 )}
+
+                 {recruiter.aadhaarUrl ? (
+                   <a href={recruiter.aadhaarUrl} target="_blank" rel="noopener noreferrer" className="bg-primary/50 border border-border/50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-accent/30 transition-colors group">
+                     <Download className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
+                     <span className="text-xs font-medium text-light text-center">Aadhaar</span>
+                   </a>
+                 ) : (
+                   <div className="bg-primary/20 border border-border/30 rounded-xl p-3 flex flex-col items-center justify-center gap-2 opacity-50">
+                     <FileText className="w-5 h-5 text-muted" />
+                     <span className="text-xs font-medium text-muted text-center">No Aadhaar</span>
+                   </div>
+                 )}
+
+                 {recruiter.bankDetailsUrl ? (
+                   <a href={recruiter.bankDetailsUrl} target="_blank" rel="noopener noreferrer" className="bg-primary/50 border border-border/50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-accent/30 transition-colors group">
+                     <Download className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
+                     <span className="text-xs font-medium text-light text-center">Bank Details</span>
+                   </a>
+                 ) : (
+                   <div className="bg-primary/20 border border-border/30 rounded-xl p-3 flex flex-col items-center justify-center gap-2 opacity-50">
+                     <FileText className="w-5 h-5 text-muted" />
+                     <span className="text-xs font-medium text-muted text-center">No Bank Details</span>
+                   </div>
+                 )}
+               </div>
+            </div>
+
+          </div>
+
+          {/* Private Notes (Readonly for Admin) */}
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+             <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+               <Lock className="w-4 h-4 text-accent" /> Recruiter's Private Notes
+             </h3>
+             <div className="bg-primary border border-border rounded-xl p-4 min-h-[100px]">
+               {recruiter.notes ? (
+                 <p className="text-sm text-light whitespace-pre-wrap">{recruiter.notes}</p>
+               ) : (
+                 <p className="text-sm text-muted italic">The recruiter has not added any private notes.</p>
+               )}
+             </div>
+          </div>
+
         </div>
       </div>
 

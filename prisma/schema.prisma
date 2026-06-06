@@ -18,19 +18,33 @@ enum UserStatus {
 }
 
 model User {
-  id         String     @id @default(cuid())
-  role       Role       @default(ADMIN)
-  name       String?
-  email      String     @unique
-  password   String?
-  mobile     String?    @unique
-  location   String?
-  status     UserStatus @default(ACTIVE)
+  id               String     @id @default(cuid())
+  role             Role       @default(ADMIN)
+  name             String?
+  email            String     @unique
+  password         String?
+  mobile           String?    @unique
+  location         String?
+  status           UserStatus @default(ACTIVE)
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  // Professional Links
+  linkedinUrl      String?
+  whatsappNumber   String?
+  resumeLink       String?
 
-  candidates Candidate[]
+  // Documents Vault
+  resumeVaultUrl   String?
+  panCardUrl       String?
+  aadhaarUrl       String?
+  bankDetailsUrl   String?
+
+  // Private Notes
+  notes            String?
+
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  candidates       Candidate[]
 }
 
 enum JobTiming {

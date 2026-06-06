@@ -13,9 +13,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate file type
-    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx)$/i)) {
-       return NextResponse.json({ error: "Invalid file type. Only PDF, DOC, and DOCX are allowed." }, { status: 400 })
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/png',
+      'image/jpeg',
+      'image/jpg'
+    ]
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|doc|docx|png|jpg|jpeg)$/i)) {
+       return NextResponse.json({ error: "Invalid file type. Only PDF, DOC, DOCX, PNG, and JPG are allowed." }, { status: 400 })
     }
 
     // Validate file size (5MB)

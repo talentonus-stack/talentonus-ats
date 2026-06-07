@@ -29,7 +29,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
   async function updateJob(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession) throw new Error("Unauthorized")
+    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
     try {
       await prisma.job.update({
         where: { id },

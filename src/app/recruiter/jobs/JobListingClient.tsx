@@ -85,7 +85,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                 </div>
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-border/50 text-light border border-border/80 shadow-sm">
-                     Confidential Client
+                     {(job as any).company?.isConfidential ? "Confidential Client" : ((job as any).company?.name || "Unknown Company")}
                   </span>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-y-2 gap-x-6 text-sm text-muted">
@@ -160,7 +160,9 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                   </span>
                 </div>
                 <div className="flex items-center gap-3 mt-1.5">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded bg-border text-light">Confidential Client</span>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded bg-border text-light">
+                    {(selectedJob as any).company?.isConfidential ? "Confidential Client" : ((selectedJob as any).company?.name || "Unknown Company")}
+                  </span>
                   <p className="text-sm text-gray-400">{selectedJob.department} • {selectedJob.location}</p>
                 </div>
               </div>

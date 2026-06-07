@@ -23,7 +23,7 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
   async function updateRecruiter(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession) throw new Error("Unauthorized")
+    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
     try {
       const data: any = {
         name: formData.get("name") as string,

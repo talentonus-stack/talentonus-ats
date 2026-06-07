@@ -18,6 +18,10 @@ export default async function EditCompanyPage({ params }: { params: Promise<{ id
 
   async function updateCompany(formData: FormData) {
     "use server"
+    const session = await getServerSession(authOptions)
+    if (!session || (session.user as any).role !== "ADMIN") {
+      throw new Error("Unauthorized")
+    }
     const name = formData.get("name") as string
     const industry = formData.get("industry") as string
     const website = formData.get("website") as string

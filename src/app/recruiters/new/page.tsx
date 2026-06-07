@@ -13,7 +13,7 @@ export default async function NewRecruiterPage() {
   async function createRecruiter(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession) throw new Error("Unauthorized")
+    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
     try {
       const plainPassword = formData.get("password") as string
       const hashedPassword = await bcrypt.hash(plainPassword, 10)

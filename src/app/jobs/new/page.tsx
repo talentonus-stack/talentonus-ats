@@ -20,7 +20,7 @@ export default async function NewJobPage() {
   async function createJob(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession) throw new Error("Unauthorized")
+    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
     try {
       await prisma.job.create({
         data: {

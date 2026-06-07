@@ -29,7 +29,9 @@ export default async function RecruiterProfilePage() {
       }
     },
     include: {
-      job: true,
+      job: {
+        include: { company: true }
+      },
       candidate: true
     },
     orderBy: { updatedAt: 'desc' }
@@ -58,10 +60,11 @@ export default async function RecruiterProfilePage() {
     .filter(a => a.status === 'JOINED' || a.status === 'SELECTED')
     .map(app => {
       const isPaid = app.status === 'JOINED' && Math.random() > 0.3; // mock payment status
+      const companyName = app.job?.company?.isConfidential ? "Confidential Client" : (app.job?.company?.name || "Unknown Company");
       return {
         id: app.id,
         candidateName: `${app.candidate?.firstName} ${app.candidate?.lastName || ''}`,
-        company: 'Confidential Client', // recruiter view
+        company: companyName, // recruiter view respects confidentiality
         position: app.job?.title || 'Unknown Position',
         placementDate: app.updatedAt ? new Date(app.updatedAt).toLocaleDateString() : 'N/A',
         amount: commissionPerJoin,

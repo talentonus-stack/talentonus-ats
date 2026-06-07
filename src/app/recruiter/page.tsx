@@ -18,7 +18,9 @@ export default async function RecruiterDashboardPage() {
     where: { candidate: { recruiterId } },
     include: {
       candidate: true,
-      job: true,
+      job: {
+        include: { company: true }
+      },
     },
     orderBy: { updatedAt: 'desc' }
   })
@@ -93,10 +95,11 @@ export default async function RecruiterDashboardPage() {
   const jobMap = new Map()
   applications.forEach(app => {
     if (!jobMap.has(app.jobId)) {
+      const companyName = (app.job as any).company?.isConfidential ? "Confidential Client" : ((app.job as any).company?.name || "Unknown Company");
       jobMap.set(app.jobId, {
         id: app.jobId,
         title: app.job.title,
-        companyName: 'Confidential Client', // recruiter view
+        companyName: companyName, // recruiter view logic
         openPositions: (app.job as any).vacancies || 1, // Fallback to 1 if no vacancies field
         submitted: 0,
       })

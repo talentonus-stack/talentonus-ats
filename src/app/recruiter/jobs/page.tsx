@@ -15,6 +15,9 @@ export default async function RecruiterJobsPage() {
   try {
     jobs = await prisma.job.findMany({
       where: { status: "OPEN" },
+      include: {
+        company: true
+      },
       orderBy: { postedDate: "desc" }
     })
   } catch (e) {

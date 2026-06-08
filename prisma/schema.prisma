@@ -27,6 +27,10 @@ model User {
   location         String?
   status           UserStatus @default(ACTIVE)
 
+  // OTP Fields (from DB)
+  otp              String?
+  otpExpiry        DateTime?
+
   // Professional Links
   linkedinUrl      String?
   whatsappNumber   String?

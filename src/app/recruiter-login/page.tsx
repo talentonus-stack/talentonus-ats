@@ -89,11 +89,7 @@ export default function RecruiterLoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-border/50 text-center text-sm">
-            <Link href="/login" className="text-muted hover:text-accent transition-colors duration-200 border-b border-transparent hover:border-accent pb-1">
-              Return to Admin Login
-            </Link>
-          </div>
+
         </div>
       </div>
     </div>

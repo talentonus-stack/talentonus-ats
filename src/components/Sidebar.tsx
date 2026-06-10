@@ -78,7 +78,7 @@ export default function Sidebar() {
 
       <div className="border-t border-border p-4 relative z-10">
         <button
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={() => signOut({ callbackUrl: role === 'RECRUITER' ? '/recruiter-login' : '/login' })}
           className="group flex w-full items-center rounded-xl px-3 py-3 text-sm font-medium text-muted hover:bg-primary-lighter hover:text-light transition-all duration-200"
         >
           <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-muted group-hover:text-light transition-colors" />

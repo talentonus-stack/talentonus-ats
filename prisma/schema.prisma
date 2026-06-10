@@ -31,19 +31,6 @@ model User {
   otp              String?
   otpExpiry        DateTime?
 
-  // Professional Links
-  linkedinUrl      String?
-  whatsappNumber   String?
-  resumeLink       String?
-
-  // Documents Vault
-  resumeVaultUrl   String?
-  panCardUrl       String?
-  aadhaarUrl       String?
-  bankDetailsUrl   String?
-
-  // Private Notes
-  notes            String?
 
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt

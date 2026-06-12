@@ -36,6 +36,10 @@ model User {
   updatedAt        DateTime   @updatedAt
 
   candidates       Candidate[]
+  placements       Placement[]
+
+  // Commission
+  defaultCommissionPercentage Float? @default(0)
 }
 
 enum JobTiming {
@@ -98,6 +102,12 @@ model Company {
   updatedAt          DateTime      @updatedAt
 
   jobs               Job[]
+  placements         Placement[]
+
+  // Commercial Terms (Admin Only)
+  recruitmentFeePercentage Float?
+  paymentTermsDays         Int?
+  replacementPeriodDays    Int?
 }
 
 enum JobGender {
@@ -132,6 +142,7 @@ model Job {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   applications Application[]
+  placements   Placement[]
 }
 
 model Candidate {
@@ -158,6 +169,7 @@ model Candidate {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   applications    Application[]
+  placements      Placement[]
 }
 
 enum ApplicationStatus {
@@ -176,9 +188,54 @@ model Application {
   jobId       String
   candidateId String
   status      ApplicationStatus @default(SUBMITTED)
+  offeredCTC  Float?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
 
   job       Job       @relation(fields: [jobId], references: [id])
   candidate Candidate @relation(fields: [candidateId], references: [id])
+  placement Placement?
+}
+
+enum PlacementStatus {
+  SELECTED
+  JOINED
+  INVOICE_GENERATED
+  INVOICE_PAID
+  RECRUITER_PAID
+}
+
+model Placement {
+  id               String          @id @default(cuid())
+
+  applicationId    String          @unique
+  candidateId      String
+  companyId        String
+  jobId            String
+  recruiterId      String?
+
+  application      Application     @relation(fields: [applicationId], references: [id])
+  candidate        Candidate       @relation(fields: [candidateId], references: [id])
+  company          Company         @relation(fields: [companyId], references: [id])
+  job              Job             @relation(fields: [jobId], references: [id])
+  recruiter        User?           @relation(fields: [recruiterId], references: [id])
+
+  offeredCTC       Float
+  placementValue   Float
+  recruiterCommissionPercentage Float
+  recruiterShare   Float
+  talentonusShare  Float
+
+  joiningDate      DateTime?
+  invoiceNumber    String?
+  invoiceDate      DateTime?
+  invoiceAmount    Float?
+  paymentReceivedDate DateTime?
+  recruiterPaidDate DateTime?
+  remarks          String?
+
+  status           PlacementStatus @default(SELECTED)
+
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }

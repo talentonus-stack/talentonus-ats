@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Users, FileText, CheckCircle, Briefcase } from "lucide-react"
+import { Users, FileText, CheckCircle, Briefcase , IndianRupee } from "lucide-react"
 
 export default async function RecruiterDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
@@ -13,7 +13,15 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
   const { id } = await params;
 
   const recruiter = await prisma.user.findUnique({
-    where: { id, role: "RECRUITER" }
+    where: { id },
+    include: {
+      candidates: {
+        include: {
+          applications: true
+        }
+      },
+      placements: true
+    }
   })
 
   if (!recruiter) {

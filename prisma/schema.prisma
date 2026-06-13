@@ -108,6 +108,10 @@ model Company {
   recruitmentFeePercentage Float?
   paymentTermsDays         Int?
   replacementPeriodDays    Int?
+  gstApplicable            Boolean?      @default(true)
+  clientAgreementSigned    Boolean?      @default(false)
+  agreementExpiryDate      DateTime?
+  commercialRemarks        String?
 }
 
 enum JobGender {

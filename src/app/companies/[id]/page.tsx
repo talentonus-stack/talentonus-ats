@@ -3,7 +3,7 @@ import { redirect, notFound } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
-import { Briefcase, Calendar, CheckCircle, ExternalLink, Mail, Phone, User, Users, Clock, MapPin, Building, ShieldAlert, ShieldCheck } from "lucide-react"
+import { Briefcase, Calendar, CheckCircle, ExternalLink, Mail, Phone, User, Users, Clock, MapPin, Building, ShieldAlert, ShieldCheck , FileText } from "lucide-react"
 
 export default async function CompanyDashboardPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)

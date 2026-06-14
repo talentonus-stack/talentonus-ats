@@ -169,9 +169,94 @@ export default async function NewCompanyPage() {
             <p className="text-xs text-muted mb-2">Admin-only section. Used for client preferences, hiring instructions, feedback process, and internal remarks. Recruiters cannot see this section.</p>
             <textarea name="notes" rows={4} placeholder="Any confidential notes about the company..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
+
+          {/* Commercial Terms (Admin Only) */}
+          <div className="sm:col-span-2 pt-6 border-t border-border mt-6">
+            <h3 className="text-lg font-bold text-light mb-4">Commercial Terms (Admin Only)</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+              <div>
+                <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Recruitment Fee (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="recruitmentFeePercentage"
+
+                  className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                  placeholder="e.g. 8.33"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Payment Terms (Days)</label>
+                <input
+                  type="number"
+                  name="paymentTermsDays"
+
+                  className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                  placeholder="e.g. 30"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Replacement Period (Days)</label>
+                <input
+                  type="number"
+                  name="replacementPeriodDays"
+
+                  className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                  placeholder="e.g. 90"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+              <div>
+                <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">GST Applicable</label>
+                <select
+                  name="gstApplicable"
+                  defaultValue="true"
+                  className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Client Agreement Signed</label>
+                <select
+                  name="clientAgreementSigned"
+                  defaultValue="false"
+                  className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Agreement Expiry Date</label>
+                <input
+                  type="date"
+                  name="agreementExpiryDate"
+
+                  className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Commercial Remarks</label>
+              <textarea
+                name="commercialRemarks"
+                rows={2}
+
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                placeholder="Specific billing or commercial notes..."
+              ></textarea>
+            </div>
+          </div>
         </div>
 
         <div className="mt-8 flex justify-end gap-4 border-t border-border pt-8">
+
           <a href="/companies" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">
             Cancel
           </a>

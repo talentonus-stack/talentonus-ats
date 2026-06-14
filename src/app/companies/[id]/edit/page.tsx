@@ -47,6 +47,15 @@ export default async function EditCompanyPage({ params }: { params: Promise<{ id
     const finalRoundName = formData.get("finalRoundName") as string
     const finalRoundDesc = formData.get("finalRoundDesc") as string
 
+
+    const recruitmentFeePercentage = formData.get("recruitmentFeePercentage") as string
+    const paymentTermsDays = formData.get("paymentTermsDays") as string
+    const replacementPeriodDays = formData.get("replacementPeriodDays") as string
+    const gstApplicable = formData.get("gstApplicable") === "true"
+    const clientAgreementSigned = formData.get("clientAgreementSigned") === "true"
+    const agreementExpiryDate = formData.get("agreementExpiryDate") as string
+    const commercialRemarks = formData.get("commercialRemarks") as string
+
     await prisma.company.update({
       where: { id },
       data: {
@@ -71,8 +80,16 @@ export default async function EditCompanyPage({ params }: { params: Promise<{ id
         round3Name,
         round3Desc,
         finalRoundName,
-        finalRoundDesc
-      }
+        finalRoundDesc,
+
+        recruitmentFeePercentage: recruitmentFeePercentage ? parseFloat(recruitmentFeePercentage) : null,
+        paymentTermsDays: paymentTermsDays ? parseInt(paymentTermsDays) : null,
+        replacementPeriodDays: replacementPeriodDays ? parseInt(replacementPeriodDays) : null,
+        gstApplicable,
+        clientAgreementSigned,
+        agreementExpiryDate: agreementExpiryDate ? new Date(agreementExpiryDate) : null,
+        commercialRemarks: commercialRemarks || null,
+              }
     })
     redirect("/companies")
   }

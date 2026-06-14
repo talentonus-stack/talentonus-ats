@@ -244,6 +244,51 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
         {/* Right Col: Dashboard Sections */}
         <div className="lg:col-span-3 space-y-6">
 
+
+          {isAdmin && (
+            <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
+              <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-accent" />
+                Commercial Terms (Admin Only)
+              </h3>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Recruitment Fee</span>
+                  <span className="text-light font-medium">{company.recruitmentFeePercentage ? `${company.recruitmentFeePercentage}%` : 'Not Set'}</span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Payment Terms</span>
+                  <span className="text-light font-medium">{company.paymentTermsDays ? `${company.paymentTermsDays} Days` : 'Not Set'}</span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Replacement Period</span>
+                  <span className="text-light font-medium">{company.replacementPeriodDays ? `${company.replacementPeriodDays} Days` : 'Not Set'}</span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">GST Applicable</span>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.gstApplicable ? 'bg-accent/10 text-accent border-accent/20' : 'bg-primary border-border text-muted'}`}>
+                    {company.gstApplicable ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Signed</span>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.clientAgreementSigned ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                    {company.clientAgreementSigned ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Expiry</span>
+                  <span className="text-light font-medium">{company.agreementExpiryDate ? new Date(company.agreementExpiryDate).toLocaleDateString() : 'Not Set'}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Remarks</span>
+                  <span className="text-light text-sm">{company.commercialRemarks || 'None'}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Interview Process Overview */}
             <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">

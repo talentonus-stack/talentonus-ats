@@ -44,6 +44,12 @@ export async function PATCH(
       const finalCTC = offeredCTC || application.offeredCTC
 
       // Commercial calculation variables
+      const companyId = application.job.companyId;
+
+      if (!companyId) {
+        return NextResponse.json({ error: "Cannot create placement: Job is not associated with a company." }, { status: 400 })
+      }
+
       const companyFeePct = application.job.company?.recruitmentFeePercentage || 0
       const recruiterCommPct = application.candidate.recruiter?.defaultCommissionPercentage || 0
 
@@ -74,7 +80,7 @@ export async function PATCH(
           create: {
             applicationId: id,
             candidateId: application.candidateId,
-            companyId: application.job.companyId!,
+            companyId: companyId,
             jobId: application.jobId,
             recruiterId: application.candidate.recruiterId,
             offeredCTC: finalCTC,
@@ -121,8 +127,10 @@ export async function PATCH(
     })
 
     return NextResponse.json(updatedApplication)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Application Update Error:", error)
+    console.error("Error Name:", error.name)
+    console.error("Error Message:", error.message)
     return NextResponse.json({ error: "Failed to update application status" }, { status: 500 })
   }
 }

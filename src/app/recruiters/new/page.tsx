@@ -24,10 +24,7 @@ export default async function NewRecruiterPage() {
           email: formData.get("email") as string,
           password: hashedPassword,
           mobile: formData.get("mobile") as string,
-
-        location: formData.get("location") as string,
-        defaultCommissionPercentage: formData.get("defaultCommissionPercentage") ? parseFloat(formData.get("defaultCommissionPercentage") as string) : 0,
-
+          location: formData.get("location") as string,
           status: formData.get("status") as any,
           role: "RECRUITER",
         }

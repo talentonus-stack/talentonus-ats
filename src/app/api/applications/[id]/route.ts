@@ -51,7 +51,7 @@ export async function PATCH(
       }
 
       const companyFeePct = application.job.company?.recruitmentFeePercentage || 0
-      const recruiterCommPct = application.candidate.recruiter?.defaultCommissionPercentage || 0
+      const recruiterCommPct = application.candidate.recruiter?.commissionPercentage || 0
 
       const placementValue = finalCTC * (companyFeePct / 100)
       const recruiterShare = placementValue * (recruiterCommPct / 100)

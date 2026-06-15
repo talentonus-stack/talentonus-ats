@@ -30,11 +30,14 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
         email: formData.get("email") as string,
         mobile: formData.get("mobile") as string,
 
-
         location: formData.get("location") as string,
-        defaultCommissionPercentage: formData.get("defaultCommissionPercentage") ? parseFloat(formData.get("defaultCommissionPercentage") as string) : 0,
-
-        status: formData.get("status") as any
+        commissionPercentage: formData.get("commissionPercentage") ? parseFloat(formData.get("commissionPercentage") as string) : 0,
+        paymentTermsDays: formData.get("paymentTermsDays") ? parseInt(formData.get("paymentTermsDays") as string) : null,
+        paymentReleaseCondition: formData.get("paymentReleaseCondition") as string || null,
+        recruiterType: formData.get("recruiterType") as string || null,
+        agreementSigned: formData.get("agreementSigned") === "true",
+        agreementDate: formData.get("agreementDate") ? new Date(formData.get("agreementDate") as string) : null,
+        agreementExpiryDate: formData.get("agreementExpiryDate") ? new Date(formData.get("agreementExpiryDate") as string) : null,
       }
 
 

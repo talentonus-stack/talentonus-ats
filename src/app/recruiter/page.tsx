@@ -21,6 +21,7 @@ export default async function RecruiterDashboardPage() {
       job: {
         include: { company: true }
       },
+      placement: true
     },
     orderBy: { updatedAt: 'desc' }
   })

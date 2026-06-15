@@ -38,8 +38,14 @@ model User {
   candidates       Candidate[]
   placements       Placement[]
 
-  // Commission
-  defaultCommissionPercentage Float? @default(0)
+  // Commercial & Payment Terms (Recruiter)
+  commissionPercentage    Float?    @default(0)
+  paymentTermsDays        Int?
+  paymentReleaseCondition String?
+  recruiterType           String?
+  agreementSigned         Boolean   @default(false)
+  agreementDate           DateTime?
+  agreementExpiryDate     DateTime?
 }
 
 enum JobTiming {

@@ -38,16 +38,6 @@ export default async function RecruiterProfilePage() {
   })
 
   // Placement Statistics
-
-  const placements = await prisma.placement.findMany({
-    where: { recruiterId },
-    include: {
-      candidate: true,
-      company: true,
-      job: true
-    }
-  })
-
   const totalSubmitted = applications.length
   const interviewed = applications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
   const selected = applications.filter(a => a.status === "SELECTED" || a.status === "JOINED").length
@@ -56,42 +46,31 @@ export default async function RecruiterProfilePage() {
   const selectionRatio = totalSubmitted > 0 ? Math.round((selected / totalSubmitted) * 100) : 0
   const joiningRatio = selected > 0 ? Math.round((joined / selected) * 100) : 0
 
-  // Placement Earnings Data (Dynamically calculated from Placements table)
-
-  const totalPlacements = placements.length
-
-  let totalRevenue = 0
-  let totalCommissionEarned = 0
-  let commissionReceived = 0
-
-  placements.forEach(p => {
-    totalRevenue += p.placementValue
-
-    // Only count as earned if JOINED or further
-    if (['JOINED', 'INVOICE_GENERATED', 'INVOICE_PAID', 'RECRUITER_PAID'].includes(p.status)) {
-      totalCommissionEarned += p.recruiterShare
-    }
-
-    // Only count as received if RECRUITER_PAID
-    if (p.status === 'RECRUITER_PAID') {
-      commissionReceived += p.recruiterShare
-    }
-  })
-
-  const commissionPending = totalCommissionEarned - commissionReceived
+  // Placement Earnings Data (Mock logic based on joined candidates)
+  // Assuming average placement fee commission is ₹50,000 per joined candidate
+  const commissionPerJoin = 50000;
+  const totalPlacements = joined;
+  const totalRevenue = totalPlacements * (commissionPerJoin * 5); // Example: total client billing
+  const totalCommissionEarned = totalPlacements * commissionPerJoin;
+  const commissionReceived = Math.floor(totalCommissionEarned * 0.8); // 80% received
+  const commissionPending = totalCommissionEarned - commissionReceived;
 
   // Placement Commission History
-  const commissionHistory = placements.map(p => {
-    return {
-      id: p.id,
-      candidateName: `${p.candidate?.firstName} ${p.candidate?.lastName || ''}`,
-      company: p.company?.isConfidential ? "Confidential Client" : (p.company?.name || "Unknown Company"),
-      position: p.job?.title || 'Unknown Position',
-      placementDate: new Date(p.createdAt).toLocaleDateString(),
-      amount: p.recruiterShare,
-      status: p.status === 'RECRUITER_PAID' ? 'PAID' : 'PENDING'
-    }
-  })
+  const commissionHistory = applications
+    .filter(a => a.status === 'JOINED' || a.status === 'SELECTED')
+    .map(app => {
+      const isPaid = app.status === 'JOINED' && Math.random() > 0.3; // mock payment status
+      const companyName = app.job?.company?.isConfidential ? "Confidential Client" : (app.job?.company?.name || "Unknown Company");
+      return {
+        id: app.id,
+        candidateName: `${app.candidate?.firstName} ${app.candidate?.lastName || ''}`,
+        company: companyName, // recruiter view respects confidentiality
+        position: app.job?.title || 'Unknown Position',
+        placementDate: app.updatedAt ? new Date(app.updatedAt).toLocaleDateString() : 'N/A',
+        amount: commissionPerJoin,
+        status: isPaid ? 'PAID' : 'PENDING'
+      }
+    })
 
   const stats = {
     totalSubmitted,

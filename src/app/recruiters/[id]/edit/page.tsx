@@ -30,9 +30,11 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
         email: formData.get("email") as string,
         mobile: formData.get("mobile") as string,
 
+
         location: formData.get("location") as string,
-        status: formData.get("status") as any,
         defaultCommissionPercentage: formData.get("defaultCommissionPercentage") ? parseFloat(formData.get("defaultCommissionPercentage") as string) : 0,
+
+        status: formData.get("status") as any
       }
 
 

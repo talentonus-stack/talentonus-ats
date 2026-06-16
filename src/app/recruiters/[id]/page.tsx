@@ -89,8 +89,49 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
           </div>
         </div>
 
-        <div className="md:col-span-2">
+
+        <div className="md:col-span-2 space-y-6">
+
+          <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2 flex items-center gap-2">
+              <IndianRupee className="w-5 h-5 text-gray-500" /> Commercial & Payment Terms
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div>
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Commission %</span>
+                <span className="text-gray-900 font-bold text-lg">{recruiter.commissionPercentage || 0}%</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Payment Terms</span>
+                <span className="text-gray-900 font-medium">{recruiter.paymentTermsDays ? `${recruiter.paymentTermsDays} Days` : 'Not Set'}</span>
+              </div>
+              <div className="col-span-2">
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Release Condition</span>
+                <span className="text-gray-900 font-medium">{recruiter.paymentReleaseCondition || 'Not Set'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Recruiter Type</span>
+                <span className="text-gray-900 font-medium">{recruiter.recruiterType || 'Not Set'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Agreement Signed</span>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${recruiter.agreementSigned ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
+                  {recruiter.agreementSigned ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Agreement Date</span>
+                <span className="text-gray-900 font-medium">{recruiter.agreementDate ? new Date(recruiter.agreementDate).toLocaleDateString() : 'Not Set'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Expiry Date</span>
+                <span className="text-gray-900 font-medium">{recruiter.agreementExpiryDate ? new Date(recruiter.agreementExpiryDate).toLocaleDateString() : 'Not Set'}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
             {stats.map((stat) => (
               <div
                 key={stat.name}

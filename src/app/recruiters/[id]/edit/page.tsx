@@ -89,6 +89,97 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
             </select>
           </div>
         </div>
+
+        <div className="pt-6 border-t border-border mt-6">
+          <h3 className="text-lg font-bold text-light mb-4">Commercial & Payment Terms (Admin Only)</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Commission Percentage (%)</label>
+              <input
+                type="number"
+                step="0.01"
+                name="commissionPercentage"
+                defaultValue={recruiter.commissionPercentage || 0}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                placeholder="e.g. 50"
+              />
+              <p className="text-xs text-muted mt-2">Percentage of the placement value.</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Payment Terms (Days)</label>
+              <input
+                type="number"
+                name="paymentTermsDays"
+                defaultValue={recruiter.paymentTermsDays || ""}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+                placeholder="e.g. 30"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Payment Release Condition</label>
+              <select
+                name="paymentReleaseCondition"
+                defaultValue={recruiter.paymentReleaseCondition || ""}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+              >
+                <option value="">Select Condition</option>
+                <option value="After Candidate Joins">After Candidate Joins</option>
+                <option value="After Client Payment Received">After Client Payment Received</option>
+                <option value="After Replacement Period Complete">After Replacement Period Complete</option>
+                <option value="Manual Approval by Admin">Manual Approval by Admin</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Recruiter Type</label>
+              <select
+                name="recruiterType"
+                defaultValue={recruiter.recruiterType || ""}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+              >
+                <option value="">Select Type</option>
+                <option value="Internal Recruiter">Internal Recruiter</option>
+                <option value="Freelance Recruiter">Freelance Recruiter</option>
+                <option value="Partner Agency">Partner Agency</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Agreement Signed</label>
+              <select
+                name="agreementSigned"
+                defaultValue={recruiter.agreementSigned ? "true" : "false"}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Agreement Date</label>
+              <input
+                type="date"
+                name="agreementDate"
+                defaultValue={recruiter.agreementDate ? new Date(recruiter.agreementDate).toISOString().split("T")[0] : ""}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Agreement Expiry Date</label>
+              <input
+                type="date"
+                name="agreementExpiryDate"
+                defaultValue={recruiter.agreementExpiryDate ? new Date(recruiter.agreementExpiryDate).toISOString().split("T")[0] : ""}
+                className="w-full bg-primary border border-border rounded-lg p-3 text-sm text-light focus:outline-none focus:border-accent"
+              />
+            </div>
+          </div>
+        </div>
         <div className="mt-8 flex justify-end gap-4 border-t border-border pt-8">
           <a href="/recruiters" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">Cancel</a>
           <button type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">Save Changes</button>

@@ -13,7 +13,13 @@ export default async function RecruiterDashboardPage() {
 
   const recruiterId = (session.user as any).id
 
+
+  const recruiter = await prisma.user.findUnique({
+    where: { id: recruiterId }
+  });
+
   // 1. Fetch raw data to calculate everything efficiently
+
   const applications = await prisma.application.findMany({
     where: { candidate: { recruiterId } },
     include: {

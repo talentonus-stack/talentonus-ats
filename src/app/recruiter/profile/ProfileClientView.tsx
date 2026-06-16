@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Users, CheckCircle, UserPlus, Mail, Phone, MapPin, Calendar, ShieldCheck, TrendingUp, DollarSign, FileText, Link as LinkIcon, Settings, Lock, Edit3, X, UploadCloud, File, Download } from "lucide-react"
+import { Users, CheckCircle, UserPlus, Mail, Phone, MapPin, Calendar, ShieldCheck, TrendingUp, DollarSign, FileText, Link as LinkIcon, Settings, Lock, Edit3, X, UploadCloud, File, Download , ShieldAlert } from "lucide-react"
 
 export default function ProfileClientView({ recruiter, stats }: { recruiter: any, stats: any }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -183,6 +183,55 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
         {/* Left Column */}
         <div className="lg:col-span-1 space-y-6">
+
+
+          {/* Commercial & Payment Terms */}
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg mb-6">
+            <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+              <FileText className="w-4 h-4 text-accent" /> Commercial Agreement Details
+            </h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Commission %</span>
+                <span className="text-sm font-bold text-accent">{recruiter.commissionPercentage || 0}%</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Payment Terms</span>
+                <span className="text-sm font-bold text-light">{recruiter.paymentTermsDays ? `${recruiter.paymentTermsDays} Days` : 'Not Set'}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Release Condition</span>
+                <span className="text-sm font-medium text-light">{recruiter.paymentReleaseCondition || 'Not Set'}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Recruiter Type</span>
+                <span className="text-sm font-medium text-light">{recruiter.recruiterType || 'Not Set'}</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Agreement Signed</span>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${recruiter.agreementSigned ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                  {recruiter.agreementSigned ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center border-b border-border/50 pb-2">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Agreement Date</span>
+                <span className="text-sm font-medium text-light">{recruiter.agreementDate ? new Date(recruiter.agreementDate).toLocaleDateString() : 'Not Set'}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium text-muted uppercase tracking-wider">Expiry Date</span>
+                <span className="text-sm font-medium text-light">{recruiter.agreementExpiryDate ? new Date(recruiter.agreementExpiryDate).toLocaleDateString() : 'Not Set'}</span>
+              </div>
+
+              {recruiter.agreementExpiryDate && new Date(recruiter.agreementExpiryDate) < new Date(new Date().setDate(new Date().getDate() + 30)) && (
+                <div className="mt-4 p-3 bg-red-900/20 border border-red-500/50 rounded-lg">
+                  <p className="text-xs font-bold text-red-400 flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4" />
+                    {new Date(recruiter.agreementExpiryDate) < new Date() ? 'Agreement Expired' : 'Agreement expiring within 30 days'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Placement Statistics */}
           <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">

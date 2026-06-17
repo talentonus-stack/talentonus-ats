@@ -191,6 +191,7 @@ enum ApplicationStatus {
   SELECTED
   REJECTED
   JOINED
+  BACKED_OUT
 }
 
 model Application {

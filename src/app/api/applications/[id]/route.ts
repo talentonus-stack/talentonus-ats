@@ -120,14 +120,25 @@ export async function PATCH(
       return NextResponse.json(updatedApplication)
     }
 
+
     // Default status update (not SELECTED or JOINED)
-    const updatedApplication = await prisma.application.update({
-      where: { id },
-      data: { status },
+    const updatedApplication = await prisma.$transaction(async (tx) => {
+      const updated = await tx.application.update({
+        where: { id },
+        data: { status },
+      })
+
+      // If moving FROM Selected TO any other status (e.g., BACKED_OUT, REJECTED), remove placement
+      await tx.placement.deleteMany({
+        where: { applicationId: id }
+      })
+
+      return updated
     })
 
     return NextResponse.json(updatedApplication)
   } catch (error: any) {
+
     console.error("Application Update Error:", error)
     console.error("Error Name:", error.name)
     console.error("Error Message:", error.message)

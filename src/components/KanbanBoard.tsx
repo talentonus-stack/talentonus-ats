@@ -11,7 +11,8 @@ const PIPELINE_STATUSES = [
   "L2_CLEARED",
   "SELECTED",
   "REJECTED",
-  "JOINED"
+  "JOINED",
+  "BACKED_OUT"
 ]
 
 type Application = {

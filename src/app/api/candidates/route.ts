@@ -16,7 +16,14 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData()
     const selectedJobId = formData.get("jobId") as string
 
+
+    const resumeUrl = formData.get("resumeUrl") as string;
+    if (!resumeUrl || resumeUrl.trim() === '') {
+      return NextResponse.json({ error: "Resume attachment is required." }, { status: 400 });
+    }
+
     const candidate = await prisma.candidate.create({
+
       data: {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,

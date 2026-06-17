@@ -10,13 +10,18 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    const formData = new FormData(e.currentTarget)
+    const file = formData.get("resumeFile") as File
+
+    if (!file || file.size === 0) {
+      alert("Resume attachment is required.");
+      return;
+    }
+
     setIsSubmitting(true)
     setError("")
 
-    const formData = new FormData(e.currentTarget)
-
-    // First, upload the file if present
-    const file = formData.get("resumeFile") as File
     let filePath = null
     let fileName = null
 

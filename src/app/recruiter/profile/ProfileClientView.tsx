@@ -160,22 +160,22 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
         <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-accent/5 blur-xl pointer-events-none"></div>
           <span className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Revenue Generated</span>
-          <span className="text-2xl font-black text-light">₹{stats.totalRevenue.toLocaleString('en-IN')}</span>
+          <span className="text-2xl font-black text-light">₹{(stats.revenueGenerated || 0).toLocaleString('en-IN')}</span>
         </div>
         <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-accent/10 blur-xl pointer-events-none"></div>
           <span className="text-[10px] font-bold text-accent uppercase tracking-wider mb-1">Commission Earned</span>
-          <span className="text-2xl font-black text-accent">₹{stats.totalCommissionEarned.toLocaleString('en-IN')}</span>
+          <span className="text-2xl font-black text-accent">₹{(stats.commissionEarned || 0).toLocaleString('en-IN')}</span>
         </div>
         <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-green-500/5 blur-xl pointer-events-none"></div>
           <span className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Commission Received</span>
-          <span className="text-2xl font-black text-green-400">₹{stats.commissionReceived.toLocaleString('en-IN')}</span>
+          <span className="text-2xl font-black text-green-400">₹{(stats.commissionReceived || 0).toLocaleString('en-IN')}</span>
         </div>
         <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-orange-500/5 blur-xl pointer-events-none"></div>
           <span className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Total Lifetime Earned</span>
-          <span className="text-2xl font-black text-purple-400">₹{stats.totalLifetimeEarned.toLocaleString('en-IN')}</span>
+          <span className="text-2xl font-black text-purple-400">₹{(stats.totalLifetimeEarned || 0).toLocaleString('en-IN')}</span>
         </div>
       </div>
 
@@ -450,7 +450,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{item.company}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{item.position}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-muted">{item.placementDate}</td>
-                      <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">₹{item.amount.toLocaleString('en-IN')}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">₹{(item.amount || 0).toLocaleString('en-IN')}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-center">
                         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${item.status === 'PAID' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
                           {item.status}

@@ -20,7 +20,8 @@ export default async function RecruiterProfilePage() {
         include: {
           candidate: true,
           company: true,
-          job: true
+          job: true,
+          application: true
         }
       }
     }
@@ -55,29 +56,38 @@ export default async function RecruiterProfilePage() {
   const selectionRatio = totalSubmitted > 0 ? Math.round((selected / totalSubmitted) * 100) : 0
   const joiningRatio = selected > 0 ? Math.round((joined / selected) * 100) : 0
 
-  // Placement Earnings Data (Dynamically calculated from Placements table)
+  // Placement Earnings Data (Dynamically calculated from Placements table using new logic)
   const placements = recruiter.placements || []
   const totalPlacements = placements.length
 
-  let totalRevenue = 0
-  let totalCommissionEarned = 0
-  let commissionReceived = 0
+  let revenueGenerated = 0;
+  let commissionEarned = 0;
+  let commissionReceived = 0;
+  let totalLifetimeEarned = 0;
 
   placements.forEach(p => {
-    totalRevenue += p.placementValue
+    const share = p.recruiterShare;
 
-    // Only count as earned if JOINED or further
-    if (['JOINED', 'INVOICE_GENERATED', 'INVOICE_PAID', 'RECRUITER_PAID'].includes(p.status)) {
-      totalCommissionEarned += p.recruiterShare
+    // REVENUE GENERATED: Selected candidates only (not yet joined)
+    if (p.application?.status === 'SELECTED') {
+      revenueGenerated += share;
     }
 
-    // Only count as received if RECRUITER_PAID
-    if (p.status === 'RECRUITER_PAID') {
-      commissionReceived += p.recruiterShare
+    // COMMISSION EARNED: Joined candidates not yet paid
+    if (p.application?.status === 'JOINED' && p.recruiterPaymentStatus === 'PENDING') {
+      commissionEarned += share;
+    }
+
+    // COMMISSION RECEIVED: Joined candidates already paid
+    if (p.application?.status === 'JOINED' && p.recruiterPaymentStatus === 'PAID') {
+      commissionReceived += share;
+    }
+
+    // TOTAL LIFETIME EARNED: All recruiter payments ever released
+    if (p.recruiterPaymentStatus === 'PAID') {
+      totalLifetimeEarned += share;
     }
   })
-
-  const commissionPending = totalCommissionEarned - commissionReceived
 
   // Placement Commission History
   const commissionHistory = placements.map(p => {
@@ -88,7 +98,7 @@ export default async function RecruiterProfilePage() {
       position: p.job?.title || 'Unknown Position',
       placementDate: new Date(p.createdAt).toLocaleDateString(),
       amount: p.recruiterShare,
-      status: p.status === 'RECRUITER_PAID' ? 'PAID' : 'PENDING'
+      status: p.recruiterPaymentStatus === 'PAID' ? 'PAID' : 'PENDING'
     }
   })
 
@@ -100,10 +110,10 @@ export default async function RecruiterProfilePage() {
     selectionRatio,
     joiningRatio,
     totalPlacements,
-    totalRevenue,
-    totalCommissionEarned,
+    revenueGenerated,
+    commissionEarned,
     commissionReceived,
-    commissionPending,
+    totalLifetimeEarned,
     commissionHistory
   }
 

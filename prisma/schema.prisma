@@ -243,6 +243,7 @@ model Placement {
   invoiceAmount    Float?
   paymentReceivedDate DateTime?
   recruiterPaidDate DateTime?
+  recruiterPaymentStatus String @default("PENDING")
   remarks          String?
 
   status           PlacementStatus @default(SELECTED)

@@ -20,6 +20,7 @@ export async function markRecruiterPaid(placementId: string) {
     throw new Error("Placement not found")
   }
 
+  console.log("MARK_RECRUITER_PAID_EXECUTED")
   console.log("=== MARK PAID DEBUG ===")
   console.log("placementId:", placementId)
   console.log("applicationStatus:", placement.application?.status)

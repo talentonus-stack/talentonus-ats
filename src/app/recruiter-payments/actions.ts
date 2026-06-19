@@ -30,6 +30,20 @@ export async function markRecruiterPaid(placementId: string) {
   console.log("company:", placement.company?.name)
   console.log("======================")
 
+  if (placement.application.status === "SELECTED") {
+    return {
+      error: "NOT_JOINED",
+      message: "Recruiter payment cannot be processed until the candidate has joined.",
+      companyName: placement.company.name,
+      applicationId: placement.applicationId,
+      candidateName: `${placement.candidate.firstName} ${placement.candidate.lastName || ''}`.trim()
+    }
+  }
+
+  if (placement.application.status !== "JOINED") {
+    throw new Error("Recruiter payment cannot be processed until the candidate has joined.")
+  }
+
   await prisma.placement.update({
     where: { id: placementId },
     data: {

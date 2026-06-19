@@ -11,6 +11,19 @@ export async function markRecruiterPaid(placementId: string) {
     throw new Error("Unauthorized")
   }
 
+  const placement = await prisma.placement.findUnique({
+    where: { id: placementId },
+    include: { company: true }
+  })
+
+  if (!placement) {
+    throw new Error("Placement not found")
+  }
+
+  if (placement.status === "SELECTED") {
+    return { error: "NOT_JOINED", companyName: placement.company.name }
+  }
+
   await prisma.placement.update({
     where: { id: placementId },
     data: {

@@ -13,7 +13,7 @@ export async function markRecruiterPaid(placementId: string) {
 
   const placement = await prisma.placement.findUnique({
     where: { id: placementId },
-    include: { company: true }
+    include: { company: true, candidate: true }
   })
 
   if (!placement) {
@@ -25,7 +25,8 @@ export async function markRecruiterPaid(placementId: string) {
       error: "NOT_JOINED",
       message: "Recruiter payment cannot be processed until the candidate has joined.",
       companyName: placement.company.name,
-      applicationId: placement.applicationId
+      applicationId: placement.applicationId,
+      candidateName: `${placement.candidate.firstName} ${placement.candidate.lastName || ''}`.trim()
     }
   }
 

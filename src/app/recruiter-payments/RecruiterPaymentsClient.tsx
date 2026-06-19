@@ -6,7 +6,7 @@ import { markRecruiterPaid } from "./actions"
 
 export default function RecruiterPaymentsClient({ placements }: { placements: any[] }) {
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
-  const [modalData, setModalData] = useState<{ isOpen: boolean, companyName: string, applicationId: string }>({ isOpen: false, companyName: "", applicationId: "" })
+  const [modalData, setModalData] = useState<{ isOpen: boolean, companyName: string, applicationId: string, candidateName: string }>({ isOpen: false, companyName: "", applicationId: "", candidateName: "" })
   const router = useRouter()
 
   const handleMarkPaid = async (id: string) => {
@@ -14,7 +14,7 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
     try {
       const res = await markRecruiterPaid(id)
       if (res?.error === "NOT_JOINED") {
-        setModalData({ isOpen: true, companyName: res.companyName!, applicationId: res.applicationId! })
+        setModalData({ isOpen: true, companyName: res.companyName!, applicationId: res.applicationId!, candidateName: res.candidateName! })
       }
     } catch (e: any) {
       alert(e.message || "Failed to mark as paid")
@@ -31,21 +31,21 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
             <h2 className="text-xl font-bold text-light mb-4">Candidate Not Yet Joined</h2>
             <div className="text-muted mb-6 space-y-4">
               <p>This candidate is currently in SELECTED status.</p>
-              <p>Please confirm that the candidate has joined at {modalData.companyName} before processing recruiter payment.</p>
+              <p>Please confirm that candidate {modalData.candidateName} has joined at {modalData.companyName} before processing recruiter payment.</p>
               <p>Recruiter payments can only be released after candidate joining confirmation.</p>
             </div>
             <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setModalData({ isOpen: false, companyName: "", applicationId: "", candidateName: "" })}
+                className="px-4 py-2 bg-primary border border-border text-light font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                Cancel
+              </button>
               <button
                 onClick={() => router.push(`/applications?highlight=${modalData.applicationId}`)}
                 className="px-4 py-2 bg-accent text-primary font-semibold rounded-lg hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
               >
                 Go To Application Pipeline
-              </button>
-              <button
-                onClick={() => setModalData({ isOpen: false, companyName: "", applicationId: "" })}
-                className="px-4 py-2 bg-primary border border-border text-light font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                Cancel
               </button>
             </div>
           </div>

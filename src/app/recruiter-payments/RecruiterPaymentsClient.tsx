@@ -6,7 +6,7 @@ import { markRecruiterPaid } from "./actions"
 
 export default function RecruiterPaymentsClient({ placements }: { placements: any[] }) {
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
-  const [modalData, setModalData] = useState<{ isOpen: boolean, companyName: string }>({ isOpen: false, companyName: "" })
+  const [modalData, setModalData] = useState<{ isOpen: boolean, companyName: string, applicationId: string }>({ isOpen: false, companyName: "", applicationId: "" })
   const router = useRouter()
 
   const handleMarkPaid = async (id: string) => {
@@ -14,10 +14,10 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
     try {
       const res = await markRecruiterPaid(id)
       if (res?.error === "NOT_JOINED") {
-        setModalData({ isOpen: true, companyName: res.companyName! })
+        setModalData({ isOpen: true, companyName: res.companyName!, applicationId: res.applicationId! })
       }
-    } catch (e) {
-      alert("Failed to mark as paid")
+    } catch (e: any) {
+      alert(e.message || "Failed to mark as paid")
     } finally {
       setIsProcessing(null)
     }
@@ -26,24 +26,26 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
       {modalData.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-primary-lighter border border-border p-6 rounded-2xl shadow-xl w-full max-w-md text-center">
-            <h2 className="text-xl font-bold text-light mb-4">Cannot Process Payment</h2>
-            <p className="text-muted mb-6">
-              Candidate has not yet joined {modalData.companyName}
-            </p>
-            <div className="flex justify-center gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in text-left">
+          <div className="bg-primary-lighter border border-border p-6 rounded-2xl shadow-xl w-full max-w-lg">
+            <h2 className="text-xl font-bold text-light mb-4">Candidate Not Yet Joined</h2>
+            <div className="text-muted mb-6 space-y-4">
+              <p>This candidate is currently in SELECTED status.</p>
+              <p>Please confirm that the candidate has joined at {modalData.companyName} before processing recruiter payment.</p>
+              <p>Recruiter payments can only be released after candidate joining confirmation.</p>
+            </div>
+            <div className="flex justify-end gap-4">
               <button
-                onClick={() => setModalData({ isOpen: false, companyName: "" })}
-                className="px-4 py-2 bg-primary border border-border text-light font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => router.push("/applications")}
+                onClick={() => router.push(`/applications?highlight=${modalData.applicationId}`)}
                 className="px-4 py-2 bg-accent text-primary font-semibold rounded-lg hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
               >
                 Go To Application Pipeline
+              </button>
+              <button
+                onClick={() => setModalData({ isOpen: false, companyName: "", applicationId: "" })}
+                className="px-4 py-2 bg-primary border border-border text-light font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                Cancel
               </button>
             </div>
           </div>

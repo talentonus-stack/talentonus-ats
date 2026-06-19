@@ -20,8 +20,13 @@ export async function markRecruiterPaid(placementId: string) {
     throw new Error("Placement not found")
   }
 
-  if (placement.status === "SELECTED") {
-    return { error: "NOT_JOINED", companyName: placement.company.name }
+  if (placement.status !== "JOINED") {
+    return {
+      error: "NOT_JOINED",
+      message: "Recruiter payment cannot be processed until the candidate has joined.",
+      companyName: placement.company.name,
+      applicationId: placement.applicationId
+    }
   }
 
   await prisma.placement.update({

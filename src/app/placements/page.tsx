@@ -43,6 +43,7 @@ export default async function PlacementsPage() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Company</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Offered CTC</th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Total Value</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Our Share</th>
                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
@@ -58,8 +59,11 @@ export default async function PlacementsPage() {
                     <div className="text-xs text-muted mt-1">{p.job.title}</div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-light font-medium">{p.company.name}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{p.recruiter ? p.recruiter.name || p.recruiter.email : 'Admin (Direct)'}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{p.recruiter ? p.recruiter.name || p.recruiter.email : 'Admin'}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-medium">₹{(p.offeredCTC).toLocaleString('en-IN')}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-muted">
+                    {p.expectedJoiningDate ? new Date(p.expectedJoiningDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                  </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{(p.placementValue).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-center">
@@ -77,7 +81,7 @@ export default async function PlacementsPage() {
               ))}
               {placements.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">
+                  <td colSpan={8} className="px-6 py-12 text-sm text-muted text-center">
                     No placements recorded yet. Move a candidate to "SELECTED" status to create a placement.
                   </td>
                 </tr>

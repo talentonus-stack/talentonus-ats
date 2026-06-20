@@ -20,7 +20,7 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    const { status, offeredCTC } = await request.json()
+    const { status, offeredCTC, expectedJoiningDate, remarks } = await request.json()
 
     // If changing to SELECTED, handle Placement creation logic
     if (status === 'SELECTED') {
@@ -67,7 +67,7 @@ export async function PATCH(
           },
         })
 
-        await tx.placement.upsert({
+                await tx.placement.upsert({
           where: { applicationId: id },
           update: {
             offeredCTC: finalCTC,
@@ -75,7 +75,9 @@ export async function PATCH(
             recruiterCommissionPercentage: recruiterCommPct,
             recruiterShare,
             talentonusShare,
-            status: 'SELECTED'
+            status: 'SELECTED',
+            expectedJoiningDate: expectedJoiningDate ? new Date(expectedJoiningDate) : undefined,
+            remarks: remarks || undefined
           },
           create: {
             applicationId: id,
@@ -88,7 +90,9 @@ export async function PATCH(
             recruiterCommissionPercentage: recruiterCommPct,
             recruiterShare,
             talentonusShare,
-            status: 'SELECTED'
+            status: 'SELECTED',
+            expectedJoiningDate: expectedJoiningDate ? new Date(expectedJoiningDate) : undefined,
+            remarks: remarks || undefined
           }
         })
 

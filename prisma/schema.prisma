@@ -237,6 +237,7 @@ model Placement {
   recruiterShare   Float
   talentonusShare  Float
 
+  expectedJoiningDate DateTime?
   joiningDate      DateTime?
   invoiceNumber    String?
   invoiceDate      DateTime?

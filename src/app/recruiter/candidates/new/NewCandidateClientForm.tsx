@@ -7,6 +7,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId, returnUrl = 
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [modalError, setModalError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -15,7 +16,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId, returnUrl = 
     const file = formData.get("resumeFile") as File
 
     if (!file || file.size === 0) {
-      alert("Resume attachment is required.");
+      setModalError("Resume attachment is required.");
       return;
     }
 
@@ -182,6 +183,20 @@ export default function NewCandidateClientForm({ activeJobs, jobId, returnUrl = 
           </button>
         </div>
       </form>
+
+      {modalError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center">
+            <p className="text-white text-sm font-medium mb-6">{modalError}</p>
+            <button
+              onClick={() => setModalError("")}
+              className="bg-[#A3FF00] hover:bg-[#8AE600] text-black font-bold py-2 px-6 rounded-xl transition-colors w-full"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

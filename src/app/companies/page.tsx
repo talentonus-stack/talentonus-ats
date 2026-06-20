@@ -14,34 +14,42 @@ export default async function CompaniesPage() {
     redirect("/login")
   }
 
-  const companies = await prisma.company.findMany({
+    const companies = await prisma.company.findMany({
     include: {
+      jobs: {
+        where: { status: 'OPEN' }
+      },
+      placements: {
+        where: { application: { status: 'JOINED' } }
+      },
       _count: {
         select: { jobs: true }
-      },
-      jobs: {
-        include: {
-          _count: {
-            select: { applications: true }
-          },
-          applications: {
-            where: { status: "JOINED" }
-          }
-        }
       }
     },
     orderBy: { createdAt: "desc" }
   })
 
+  // We need to count total candidates submitted to jobs for this company
+  // We can query applications for these companies
+  const companyIds = companies.map(c => c.id);
+  const applications = await prisma.application.findMany({
+    where: { job: { companyId: { in: companyIds } } },
+    select: { job: { select: { companyId: true } } }
+  });
+
+  const appsByCompany = applications.reduce((acc, app) => {
+    const cid = app.job.companyId;
+    if (cid) acc[cid] = (acc[cid] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
   // Calculate stats for each company
   const companyStats = companies.map(company => {
-    let totalCandidates = 0
-    let hiredCandidates = 0
+    const openJobs = company.jobs.length;
+    const candidatesSubmitted = appsByCompany[company.id] || 0;
+    const placementsCount = company.placements.length;
 
-    company.jobs.forEach(job => {
-      totalCandidates += job._count.applications
-      hiredCandidates += job.applications.length
-    })
+    const revenueGenerated = company.placements.reduce((sum, p) => sum + p.placementValue, 0);
 
     return {
       id: company.id,
@@ -49,11 +57,14 @@ export default async function CompaniesPage() {
       website: company.website,
       status: company.status,
       industry: company.industry,
-      _count: company._count,
-      totalCandidates,
-      hiredCandidates
+      openJobs,
+      candidatesSubmitted,
+      placementsCount,
+      revenueGenerated,
+      paymentStatus: 'PENDING' // Hardcoded as requested
     }
   })
+
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">

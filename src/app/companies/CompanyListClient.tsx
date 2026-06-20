@@ -11,12 +11,35 @@ type CompanyStat = {
   website: string | null
   status: string
   industry: string | null
-  _count: { jobs: number }
-  totalCandidates: number
-  hiredCandidates: number
+  openJobs: number
+  candidatesSubmitted: number
+  placementsCount: number
+  revenueGenerated: number
+  paymentStatus: string
 }
 
-export default function CompanyListClient({ companies }: { companies: CompanyStat[] }) {
+export default function CompanyListClient({ companies: initialCompanies }: { companies: CompanyStat[] }) {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [statusFilter, setStatusFilter] = useState("ALL")
+  const [industryFilter, setIndustryFilter] = useState("ALL")
+
+  const formatLakhs = (val: number) => {
+    if (val >= 100000) {
+      return `₹${(val / 100000).toFixed(2)}L`;
+    }
+    return `₹${val.toLocaleString('en-IN')}`;
+  };
+
+  const industries = Array.from(new Set(initialCompanies.map(c => c.industry).filter(Boolean))) as string[];
+
+  const filteredCompanies = initialCompanies.filter(company => {
+    const matchesSearch = company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (company.website && company.website.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesStatus = statusFilter === "ALL" || company.status === statusFilter;
+    const matchesIndustry = industryFilter === "ALL" || company.industry === industryFilter;
+
+    return matchesSearch && matchesStatus && matchesIndustry;
+  });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [companyToDelete, setCompanyToDelete] = useState<CompanyStat | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -49,19 +72,47 @@ export default function CompanyListClient({ companies }: { companies: CompanySta
     <>
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
+          <div className="p-4 border-b border-border bg-primary/30 flex flex-wrap gap-4">
+          <input
+            type="text"
+            placeholder="Search company name or website..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-[200px] bg-primary border border-border rounded-lg px-4 py-2 text-sm text-light focus:border-accent outline-none"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-primary border border-border rounded-lg px-4 py-2 text-sm text-light focus:border-accent outline-none"
+          >
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+          <select
+            value={industryFilter}
+            onChange={(e) => setIndustryFilter(e.target.value)}
+            className="bg-primary border border-border rounded-lg px-4 py-2 text-sm text-light focus:border-accent outline-none"
+          >
+            <option value="ALL">All Industries</option>
+            {industries.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+          </select>
+        </div>
+        <table className="min-w-full divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Company Details</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Industry</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Active Jobs</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Total Candidates</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Hired</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Open Jobs</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Candidates Submitted</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Placements</th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Revenue Generated</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Payment Status</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
-              {companies.map((company) => (
+              {filteredCompanies.map((company) => (
                 <tr key={company.id} className="hover:bg-primary/50 transition-colors group">
                   <td className="whitespace-nowrap px-6 py-4">
                     <Link href={`/companies/${company.id}`} className="block">
@@ -73,9 +124,15 @@ export default function CompanyListClient({ companies }: { companies: CompanySta
                     </Link>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-light font-medium">{company.industry || 'N/A'}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light font-medium">{company._count.jobs}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light font-medium">{company.totalCandidates}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-accent font-bold">{company.hiredCandidates}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light font-medium">{company.openJobs}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light font-medium">{company.candidatesSubmitted}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-accent font-bold">{company.placementsCount}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">{formatLakhs(company.revenueGenerated)}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-center">
+                    <span className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-yellow-900/20 text-yellow-400 border-yellow-800/30">
+                      {company.paymentStatus}
+                    </span>
+                  </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
                       <Link href={`/companies/${company.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View Dashboard">
@@ -95,7 +152,7 @@ export default function CompanyListClient({ companies }: { companies: CompanySta
                   </td>
                 </tr>
               ))}
-              {companies.length === 0 && (
+              {filteredCompanies.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-sm text-muted text-center">No companies found. Add your first client company.</td>
                 </tr>
@@ -122,9 +179,9 @@ export default function CompanyListClient({ companies }: { companies: CompanySta
 
             <p className="text-sm text-muted mb-6">
               Are you sure you want to delete <span className="font-bold text-light">{companyToDelete.name}</span>?
-              {companyToDelete._count.jobs > 0 && (
+              {companyToDelete.openJobs > 0 && (
                 <span className="block mt-2 text-red-400 font-medium">
-                  This company has {companyToDelete._count.jobs} associated jobs and cannot be permanently deleted. It will be marked as INACTIVE instead.
+                  This company has {companyToDelete.openJobs} associated jobs and cannot be permanently deleted. It will be marked as INACTIVE instead.
                 </span>
               )}
             </p>

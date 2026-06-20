@@ -53,11 +53,11 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "HIGH":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-900/20 text-red-400 border-red-800/30"
       case "MEDIUM":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return "bg-orange-900/20 text-orange-400 border-orange-800/30"
       case "LOW":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-accent/10 text-accent border-accent/20"
       default:
         return "bg-primary text-light border-border"
     }
@@ -78,7 +78,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                     {job.title}
                   </button>
                   {isNewJob(job.postedDate) && (
-                    <span className="bg-[#F4A340] text-white px-2 py-0.5 rounded text-[10px] font-bold tracking-wider animate-pulse">
+                    <span className="bg-accent text-primary px-2 py-0.5 rounded text-[10px] font-bold tracking-wider animate-pulse">
                       NEW
                     </span>
                   )}

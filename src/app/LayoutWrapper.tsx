@@ -14,7 +14,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto p-8"><div className="max-w-[1400px] mx-auto space-y-12">{children}</div></main>
+      <main className="flex-1 overflow-y-auto p-8">{children}</main>
     </>
   )
 }

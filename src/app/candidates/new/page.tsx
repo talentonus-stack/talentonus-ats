@@ -55,7 +55,7 @@ export default async function NewCandidatePage() {
           <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Phone</label>
           <input type="tel" name="phone" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
         </div>
-        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-[#E8952C] hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg">
+        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
           Save Candidate
         </button>
       </form>

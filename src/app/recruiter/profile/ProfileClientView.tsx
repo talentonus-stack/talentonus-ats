@@ -128,7 +128,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                  <p className="text-accent font-medium mt-1">Senior Technical Recruiter</p>
                </div>
                <div className="flex items-center gap-4">
-                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase border ${recruiter.status === 'ACTIVE' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
+                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase border ${recruiter.status === 'ACTIVE' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
                    {recruiter.status}
                  </span>
                  <button
@@ -209,7 +209,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
               </div>
               <div className="flex justify-between items-center border-b border-border/50 pb-2">
                 <span className="text-xs font-medium text-muted uppercase tracking-wider">Agreement Signed</span>
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${recruiter.agreementSigned ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${recruiter.agreementSigned ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
                   {recruiter.agreementSigned ? 'Yes' : 'No'}
                 </span>
               </div>
@@ -408,7 +408,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                <div>
                  <span className="text-xs font-medium text-muted">Account Status</span>
                  <p className="mt-1">
-                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${recruiter.status === 'ACTIVE' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
+                   <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${recruiter.status === 'ACTIVE' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
                      {recruiter.status}
                    </span>
                  </p>
@@ -452,7 +452,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                       <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-muted">{item.placementDate}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">₹{(item.amount || 0).toLocaleString('en-IN')}</td>
                       <td className="whitespace-nowrap px-6 py-4 text-center">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${item.status === 'PAID' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200'}`}>
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${item.status === 'PAID' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
                           {item.status}
                         </span>
                       </td>
@@ -639,7 +639,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
               <button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
-                className="px-4 py-2 rounded-lg text-sm font-bold bg-[#F4A340] text-white hover:bg-[#E8952C] transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </button>

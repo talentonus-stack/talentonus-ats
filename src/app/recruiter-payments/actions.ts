@@ -20,16 +20,6 @@ export async function markRecruiterPaid(placementId: string) {
     throw new Error("Placement not found")
   }
 
-  console.log("MARK_RECRUITER_PAID_EXECUTED")
-  console.log("=== MARK PAID DEBUG ===")
-  console.log("placementId:", placementId)
-  console.log("applicationStatus:", placement.application?.status)
-  console.log("placementStatus:", placement.status)
-  console.log("recruiterPaymentStatus:", placement.recruiterPaymentStatus)
-  console.log("candidate:", placement.candidate?.firstName)
-  console.log("company:", placement.company?.name)
-  console.log("======================")
-
   if (placement.application.status === "SELECTED") {
     return {
       error: "NOT_JOINED",

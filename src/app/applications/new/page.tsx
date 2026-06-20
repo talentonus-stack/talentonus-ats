@@ -57,7 +57,7 @@ export default async function NewApplicationPage() {
             {candidates.map(candidate => <option key={candidate.id} value={candidate.id}>{candidate.firstName} {candidate.lastName}</option>)}
           </select>
         </div>
-        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-[#E8952C] hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg">
+        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
           Create Application
         </button>
       </form>

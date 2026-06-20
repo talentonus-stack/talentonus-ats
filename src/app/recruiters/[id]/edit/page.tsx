@@ -182,7 +182,7 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
         </div>
         <div className="mt-8 flex justify-end gap-4 border-t border-border pt-8">
           <a href="/recruiters" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">Cancel</a>
-          <button type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-[#E8952C] hover:scale-[1.02] transition-all duration-200 shadow-md hover:shadow-lg">Save Changes</button>
+          <button type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">Save Changes</button>
         </div>
       </form>
     </div>

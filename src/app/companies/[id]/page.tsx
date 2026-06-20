@@ -3,7 +3,7 @@ import { redirect, notFound } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
-import { Briefcase, Calendar, CheckCircle, ExternalLink, Mail, Phone, User, Users, Clock, MapPin, Building, ShieldAlert, ShieldCheck, FileText, IndianRupee, Target } from "lucide-react"
+import { Briefcase, Calendar, CheckCircle, ExternalLink, Mail, Phone, User, Users, Clock, MapPin, Building, ShieldAlert, ShieldCheck , FileText } from "lucide-react"
 
 export default async function CompanyDashboardPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
@@ -19,14 +19,22 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
     include: {
       jobs: {
         include: {
-          _count: {
-            select: { applications: true }
-          },
           applications: {
-            include: { candidate: true }
+            include: {
+              candidate: true,
+              job: true
+            },
+            orderBy: { updatedAt: 'desc' }
           }
         },
-        orderBy: { postedDate: "desc" }
+        orderBy: { createdAt: 'desc' }
+      },
+      placements: {
+        include: {
+          candidate: true,
+          job: true,
+          recruiter: true
+        }
       }
     }
   })
@@ -88,6 +96,24 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
   const totalInterviews = allApplications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
   const totalSelected = allApplications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
   const totalJoined = allApplications.filter(a => a.status === 'JOINED').length
+
+
+  // Computations
+  let totalCands = 0;
+  let sel = 0;
+  let joinedCount = 0;
+  company.jobs.forEach(j => {
+    totalCands += j.applications.length;
+    sel += j.applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length;
+    joinedCount += j.applications.filter(a => a.status === 'JOINED').length;
+  });
+
+  const revenueGenerated = company.placements.reduce((sum, p) => sum + p.placementValue, 0);
+
+  const formatLakhs = (val: number) => {
+    if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;
+    return `₹${val.toLocaleString('en-IN')}`;
+  };
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-8 pb-10">
@@ -393,6 +419,45 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
               </div>
             </div>
           </div>
+
+          {/* Recent Placements Activity */}
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6 mt-6">
+            <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-accent" /> Recent Placements
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-border/50">
+                <thead>
+                  <tr>
+                    <th className="pb-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Candidate Name</th>
+                    <th className="pb-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Job Title</th>
+                    <th className="pb-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Recruiter</th>
+                    <th className="pb-2 text-right text-[10px] font-bold text-muted uppercase tracking-wider">CTC</th>
+                    <th className="pb-2 text-right text-[10px] font-bold text-muted uppercase tracking-wider">Revenue</th>
+                    <th className="pb-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Joining Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/30">
+                  {company.placements.sort((a,b) => new Date(b.joiningDate || b.createdAt).getTime() - new Date(a.joiningDate || a.createdAt).getTime()).slice(0, 5).map((p) => (
+                    <tr key={p.id} className="hover:bg-primary/20 transition-colors">
+                      <td className="py-3 whitespace-nowrap text-sm font-bold text-light">{p.candidate?.firstName} {p.candidate?.lastName}</td>
+                      <td className="py-3 whitespace-nowrap text-sm text-muted">{p.job?.title}</td>
+                      <td className="py-3 whitespace-nowrap text-sm text-muted">{p.recruiter?.name || 'Admin'}</td>
+                      <td className="py-3 whitespace-nowrap text-right text-sm text-light">₹{(p.offeredCTC).toLocaleString('en-IN')}</td>
+                      <td className="py-3 whitespace-nowrap text-right text-sm font-bold text-accent">{formatLakhs(p.placementValue)}</td>
+                      <td className="py-3 whitespace-nowrap text-center text-sm text-muted">{p.joiningDate ? new Date(p.joiningDate).toLocaleDateString() : '-'}</td>
+                    </tr>
+                  ))}
+                  {company.placements.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-6 text-center text-sm text-muted">No placements found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
 
           <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden">
              <div className="p-6 border-b border-border flex justify-between items-center bg-primary/30">

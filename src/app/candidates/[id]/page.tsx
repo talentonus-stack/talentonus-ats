@@ -128,7 +128,7 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
             </div>
             <div>
               <span className="block text-xs font-semibold text-muted uppercase">Submitted By (Recruiter)</span>
-              <p className="text-sm font-medium">{candidate.recruiter ? candidate.recruiter.name : 'Admin'}</p>
+              <p className="text-sm font-medium">{candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}</p>
             </div>
             <div>
               <span className="block text-xs font-semibold text-muted uppercase">Submitted Date</span>

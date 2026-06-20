@@ -10,18 +10,18 @@ type CompanyStat = {
   name: string
   website: string | null
   status: string
-  industry: string | null
   openJobs: number
   candidatesSubmitted: number
-  placementsCount: number
+  selectedCandidates: number
+  joinedCandidates: number
   revenueGenerated: number
-  paymentStatus: string
 }
 
-export default function CompanyListClient({ companies: initialCompanies }: { companies: CompanyStat[] }) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("ALL")
-  const [industryFilter, setIndustryFilter] = useState("ALL")
+export default function CompanyListClient({ companies }: { companies: CompanyStat[] }) {
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [companyToDelete, setCompanyToDelete] = useState<CompanyStat | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteMessage, setDeleteMessage] = useState<string | null>(null)
 
   const formatLakhs = (val: number) => {
     if (val >= 100000) {
@@ -29,21 +29,6 @@ export default function CompanyListClient({ companies: initialCompanies }: { com
     }
     return `₹${val.toLocaleString('en-IN')}`;
   };
-
-  const industries = Array.from(new Set(initialCompanies.map(c => c.industry).filter(Boolean))) as string[];
-
-  const filteredCompanies = initialCompanies.filter(company => {
-    const matchesSearch = company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (company.website && company.website.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesStatus = statusFilter === "ALL" || company.status === statusFilter;
-    const matchesIndustry = industryFilter === "ALL" || company.industry === industryFilter;
-
-    return matchesSearch && matchesStatus && matchesIndustry;
-  });
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [companyToDelete, setCompanyToDelete] = useState<CompanyStat | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [deleteMessage, setDeleteMessage] = useState<string | null>(null)
 
   const confirmDelete = (company: CompanyStat) => {
     setCompanyToDelete(company)
@@ -72,47 +57,20 @@ export default function CompanyListClient({ companies: initialCompanies }: { com
     <>
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
-          <div className="p-4 border-b border-border bg-primary/30 flex flex-wrap gap-4">
-          <input
-            type="text"
-            placeholder="Search company name or website..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 min-w-[200px] bg-primary border border-border rounded-lg px-4 py-2 text-sm text-light focus:border-accent outline-none"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-primary border border-border rounded-lg px-4 py-2 text-sm text-light focus:border-accent outline-none"
-          >
-            <option value="ALL">All Statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="INACTIVE">Inactive</option>
-          </select>
-          <select
-            value={industryFilter}
-            onChange={(e) => setIndustryFilter(e.target.value)}
-            className="bg-primary border border-border rounded-lg px-4 py-2 text-sm text-light focus:border-accent outline-none"
-          >
-            <option value="ALL">All Industries</option>
-            {industries.map(ind => <option key={ind} value={ind}>{ind}</option>)}
-          </select>
-        </div>
-        <table className="min-w-full divide-y divide-border">
+          <table className="min-w-full divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Company Details</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Industry</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Open Jobs</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Active Jobs</th>
                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Candidates Submitted</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Placements</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Selected Candidates</th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Joined Candidates</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Revenue Generated</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Payment Status</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider w-24">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
-              {filteredCompanies.map((company) => (
+              {companies.map((company) => (
                 <tr key={company.id} className="hover:bg-primary/50 transition-colors group">
                   <td className="whitespace-nowrap px-6 py-4">
                     <Link href={`/companies/${company.id}`} className="block">
@@ -123,16 +81,11 @@ export default function CompanyListClient({ companies: initialCompanies }: { com
                       </span>
                     </Link>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-light font-medium">{company.industry || 'N/A'}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light font-medium">{company.openJobs}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light font-medium">{company.candidatesSubmitted}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-accent font-bold">{company.placementsCount}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">{formatLakhs(company.revenueGenerated)}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-center">
-                    <span className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-yellow-900/20 text-yellow-400 border-yellow-800/30">
-                      {company.paymentStatus}
-                    </span>
-                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-accent font-bold">{company.selectedCandidates}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-green-400 font-bold">{company.joinedCandidates}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">{formatLakhs(company.revenueGenerated)}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
                       <Link href={`/companies/${company.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View Dashboard">
@@ -152,9 +105,9 @@ export default function CompanyListClient({ companies: initialCompanies }: { com
                   </td>
                 </tr>
               ))}
-              {filteredCompanies.length === 0 && (
+              {companies.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-sm text-muted text-center">No companies found. Add your first client company.</td>
+                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">No companies found. Add your first client company.</td>
                 </tr>
               )}
             </tbody>

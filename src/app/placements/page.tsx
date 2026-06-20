@@ -58,7 +58,7 @@ export default async function PlacementsPage() {
                     <div className="text-xs text-muted mt-1">{p.job.title}</div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-light font-medium">{p.company.name}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{p.recruiter ? p.recruiter.name || p.recruiter.email : 'Admin'}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{p.recruiter ? p.recruiter.name || p.recruiter.email : 'Admin (Direct)'}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-medium">₹{(p.offeredCTC).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{(p.placementValue).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>

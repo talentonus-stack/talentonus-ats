@@ -109,7 +109,7 @@ export default async function CandidatesPage() {
                       )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                      {candidate.recruiter ? candidate.recruiter.name : 'Admin'}
+                      {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
                       <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors">

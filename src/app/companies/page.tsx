@@ -34,20 +34,27 @@ export default async function CompaniesPage() {
   const companyIds = companies.map(c => c.id);
   const applications = await prisma.application.findMany({
     where: { job: { companyId: { in: companyIds } } },
-    select: { job: { select: { companyId: true } } }
+    select: { status: true, job: { select: { companyId: true } } }
   });
 
   const appsByCompany = applications.reduce((acc, app) => {
     const cid = app.job.companyId;
-    if (cid) acc[cid] = (acc[cid] || 0) + 1;
+    if (cid) {
+      if (!acc[cid]) acc[cid] = { total: 0, selected: 0, joined: 0 };
+      acc[cid].total += 1;
+      if (app.status === 'SELECTED') acc[cid].selected += 1;
+      if (app.status === 'JOINED') acc[cid].joined += 1;
+    }
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, { total: number, selected: number, joined: number }>);
 
   // Calculate stats for each company
   const companyStats = companies.map(company => {
     const openJobs = company.jobs.length;
-    const candidatesSubmitted = appsByCompany[company.id] || 0;
-    const placementsCount = company.placements.length;
+    const stats = appsByCompany[company.id] || { total: 0, selected: 0, joined: 0 };
+    const candidatesSubmitted = stats.total;
+    const selectedCandidates = stats.selected;
+    const joinedCandidates = stats.joined;
 
     const revenueGenerated = company.placements.reduce((sum, p) => sum + p.placementValue, 0);
 
@@ -56,12 +63,11 @@ export default async function CompaniesPage() {
       name: company.name,
       website: company.website,
       status: company.status,
-      industry: company.industry,
       openJobs,
       candidatesSubmitted,
-      placementsCount,
-      revenueGenerated,
-      paymentStatus: 'PENDING' // Hardcoded as requested
+      selectedCandidates,
+      joinedCandidates,
+      revenueGenerated
     }
   })
 

@@ -77,14 +77,14 @@ export default async function DashboardPage() {
   const openPositions = jobs.reduce((acc, job) => acc + (job.vacancies || 0), 0);
 
   let revenueGenerated = 0;
-  let recruiterPayouts = 0;
+  let recruiterCommissionPayable = 0;
 
   placementsForRevenue.forEach(p => {
     if (p.application?.status === 'JOINED') {
       revenueGenerated += p.placementValue || 0;
     }
-    if (p.recruiterPaymentStatus === 'PAID') {
-      recruiterPayouts += p.recruiterShare || 0;
+    if (p.recruiterPaymentStatus !== 'PAID') {
+      recruiterCommissionPayable += p.recruiterShare || 0;
     }
   });
 
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
     { name: "Total Candidates", value: totalCandidates, icon: Users },
     { name: "Total Placements", value: totalPlacements, icon: CheckCircle },
     { name: "Revenue Generated", value: "₹" + revenueGenerated.toLocaleString('en-IN'), icon: IndianRupee },
-    { name: "Recruiter Payouts", value: "₹" + recruiterPayouts.toLocaleString('en-IN'), icon: Wallet },
+    { name: "Commission Payable", value: "₹" + recruiterCommissionPayable.toLocaleString('en-IN'), icon: Wallet },
   ]
 
   // Funnel Data Calculations
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
 
               <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
                 <dt className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2 leading-tight">{stat.name}</dt>
-                <dd className="text-3xl font-bold text-light truncate">{stat.value}</dd>
+                <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
               </div>
               <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
                 <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />
@@ -189,7 +189,7 @@ export default async function DashboardPage() {
 
               <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
                 <dt className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2 leading-tight">{stat.name}</dt>
-                <dd className="text-3xl font-bold text-light truncate">{stat.value}</dd>
+                <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
               </div>
               <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
                 <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />
@@ -352,7 +352,7 @@ export default async function DashboardPage() {
                         </Link>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">
-                        {candidate.recruiter?.name || 'Admin'}
+                        {candidate.recruiter?.name || 'System Admin'}
                       </td>
                       <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-light">{candidate.experience || 'N/A'}</td>
                       <td className="py-3 text-right whitespace-nowrap text-sm text-muted">{new Date(candidate.createdAt).toLocaleDateString()}</td>

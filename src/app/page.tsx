@@ -77,14 +77,14 @@ export default async function DashboardPage() {
   const openPositions = jobs.reduce((acc, job) => acc + (job.vacancies || 0), 0);
 
   let revenueGenerated = 0;
-  let recruiterCommissionPayable = 0;
+  let recruiterPayouts = 0;
 
   placementsForRevenue.forEach(p => {
     if (p.application?.status === 'JOINED') {
       revenueGenerated += p.placementValue || 0;
     }
-    if (p.recruiterPaymentStatus !== 'PAID') {
-      recruiterCommissionPayable += p.recruiterShare || 0;
+    if (p.recruiterPaymentStatus === 'PAID') {
+      recruiterPayouts += p.recruiterShare || 0;
     }
   });
 
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
     { name: "Total Candidates", value: totalCandidates, icon: Users },
     { name: "Total Placements", value: totalPlacements, icon: CheckCircle },
     { name: "Revenue Generated", value: "₹" + revenueGenerated.toLocaleString('en-IN'), icon: IndianRupee },
-    { name: "Commission Payable", value: "₹" + recruiterCommissionPayable.toLocaleString('en-IN'), icon: Wallet },
+    { name: "Recruiter Payouts", value: "₹" + recruiterPayouts.toLocaleString('en-IN'), icon: Wallet },
   ]
 
   // Funnel Data Calculations

@@ -90,16 +90,16 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
 
       <div className="flex h-[calc(100vh-12rem)] space-x-4 overflow-x-auto pb-4 custom-scrollbar">
         {PIPELINE_STATUSES.map(status => (
-          <div key={status} className="flex w-80 flex-shrink-0 flex-col rounded-2xl bg-primary-lighter border border-border p-4 shadow-sm">
+          <div key={status} className="flex w-80 flex-shrink-0 flex-col rounded-2xl bg-white border border-[#E8DED1] p-4 shadow-sm">
             <h3 className="mb-4 text-xs font-bold text-muted uppercase tracking-wider border-b border-border pb-2">{status.replace(/_/g, ' ')}</h3>
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar pr-1">
               {applications.filter(app => app.status === status).map(app => (
-                <div key={app.id} className="rounded-xl bg-primary border border-border hover:border-accent/50 transition-colors p-4 shadow-sm text-light">
+                <div key={app.id} className="rounded-xl bg-white border border-[#E8DED1] hover:border-[#F4A340] hover:-translate-y-1 hover:shadow-md transition-all p-4 shadow-sm text-[#111111]">
                   <p className="font-bold text-sm text-light">{app.candidate.firstName} {app.candidate.lastName || ''}</p>
                   <p className="text-xs text-muted mb-4 truncate">{app.job.title}</p>
 
                   <select
-                    className="block w-full rounded-lg border border-border bg-primary-lighter px-3 py-2 text-xs font-medium shadow-sm focus:border-accent focus:ring-1 focus:ring-accent transition-all cursor-pointer"
+                    className="block w-full rounded-lg border border-[#E8DED1] bg-white px-3 py-2 text-xs font-medium text-[#7A746D] shadow-sm focus:border-[#F4A340] focus:ring-1 focus:ring-[#F4A340] transition-all cursor-pointer"
                     value={app.status}
                     onChange={(e) => handleStatusChange(app.id, e.target.value)}
                   >

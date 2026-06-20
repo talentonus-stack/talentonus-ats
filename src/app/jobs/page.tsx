@@ -58,7 +58,7 @@ export default async function JobsPage({
         <div className="mt-4 sm:mt-0">
           <Link
             href="/jobs/new"
-            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
+            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-[#E8952C] transition-colors shadow-md hover:shadow-lg"
           >
             Create New Job
           </Link>
@@ -125,12 +125,12 @@ export default async function JobsPage({
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.experience || 'N/A'}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.location}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : job.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.priority === 'HIGH' ? 'bg-red-100 text-red-800 border-red-200' : job.priority === 'MEDIUM' ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-green-100 text-green-800 border-green-200'}`}>
                       {job.priority}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.status === 'OPEN' ? 'bg-green-100 text-green-800 border-green-200' : job.status === 'ON_HOLD' ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-border text-muted border-border'}`}>
                       {job.status}
                     </span>
                   </td>

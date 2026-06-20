@@ -43,7 +43,7 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
               </button>
               <button
                 onClick={() => router.push(`/applications?highlight=${modalData.applicationId}`)}
-                className="px-4 py-2 bg-accent text-primary font-semibold rounded-lg hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
+                className="px-4 py-2 bg-[#F4A340] text-white font-semibold rounded-lg hover:bg-[#E8952C] transition-colors shadow-md hover:shadow-lg"
               >
                 Go To Application Pipeline
               </button>
@@ -77,7 +77,7 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{p.placementValue.toLocaleString('en-IN')}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-yellow-400 font-bold">₹{p.recruiterShare.toLocaleString('en-IN')}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-center">
-                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border ${p.recruiterPaymentStatus === 'PAID' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
+                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border ${p.recruiterPaymentStatus === 'PAID' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200'}`}>
                     {p.recruiterPaymentStatus}
                   </span>
                 </td>

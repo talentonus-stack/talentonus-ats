@@ -240,7 +240,7 @@ export default async function RecruiterDashboardPage() {
                     <p className="text-xs text-muted mt-0.5">{task.job}</p>
                     <p className="text-sm text-light mt-2">{task.action}</p>
                   </div>
-                  <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${task.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : task.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
+                  <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${task.priority === 'HIGH' ? 'bg-red-100 text-red-800 border-red-200' : task.priority === 'MEDIUM' ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-green-100 text-green-800 border-green-200'}`}>
                     {task.priority}
                   </span>
                 </div>

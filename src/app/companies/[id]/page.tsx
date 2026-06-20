@@ -96,11 +96,11 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-light">{company.name}</h1>
             {isAdmin && company.isConfidential && (
-              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20 gap-1">
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase border bg-green-100 text-green-800 border-green-200 gap-1">
                 <ShieldCheck className="w-3 h-3" /> Confidential
               </span>
             )}
-            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase border ${company.status === 'ACTIVE' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase border ${company.status === 'ACTIVE' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
               {company.status}
             </span>
           </div>
@@ -267,13 +267,13 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                 </div>
                 <div>
                   <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">GST Applicable</span>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.gstApplicable ? 'bg-accent/10 text-accent border-accent/20' : 'bg-primary border-border text-muted'}`}>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.gstApplicable ? 'bg-green-100 text-green-800 border-green-200' : 'bg-primary border-border text-muted'}`}>
                     {company.gstApplicable ? 'Yes' : 'No'}
                   </span>
                 </div>
                 <div>
                   <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Signed</span>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.clientAgreementSigned ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.clientAgreementSigned ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                     {company.clientAgreementSigned ? 'Yes' : 'No'}
                   </span>
                 </div>
@@ -337,7 +337,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                       <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
                     </div>
                     <div className="text-right">
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-green-100 text-green-800 border-green-200">
                         {displayStatus}
                       </span>
                       <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
@@ -433,7 +433,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                          <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">{sel}</td>
                          <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{joined}</td>
                          <td className="whitespace-nowrap px-6 py-4 text-right">
-                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
+                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-green-100 text-green-800 border-green-200' : job.status === 'ON_HOLD' ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-border text-muted border-border'}`}>
                              {job.status}
                            </span>
                          </td>

@@ -31,7 +31,7 @@ export default async function RecruitersPage() {
         <div className="mt-4 sm:mt-0">
           <Link
             href="/recruiters/new"
-            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
+            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-[#E8952C] transition-colors shadow-md hover:shadow-lg"
           >
             Add Recruiter
           </Link>
@@ -57,7 +57,7 @@ export default async function RecruitersPage() {
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{r.mobile || 'N/A'}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{r.location || 'N/A'}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm">
-                  <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${r.status === 'ACTIVE' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                  <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${r.status === 'ACTIVE' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                     {r.status}
                   </span>
                 </td>

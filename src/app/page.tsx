@@ -247,7 +247,7 @@ export default async function DashboardPage() {
                     return (
                       <tr key={recruiter.id} className="group hover:bg-primary/20 transition-colors">
                         <td className="py-3">
-                          <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold ${isTop ? 'bg-accent text-primary shadow-[0_0_8px_rgba(170,255,0,0.4)]' : 'bg-primary border border-border text-muted'}`}>
+                          <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold ${isTop ? 'bg-[#F4A340] text-white shadow-[0_0_8px_rgba(170,255,0,0.4)]' : 'bg-primary border border-border text-muted'}`}>
                             {idx + 1}
                           </span>
                         </td>
@@ -300,7 +300,7 @@ export default async function DashboardPage() {
                       <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">{timeAgo(app.updatedAt)}</p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20 whitespace-nowrap">
+                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border whitespace-nowrap badge-${app.status.toLowerCase()}`}>
                     {app.status.replace(/_/g, ' ')}
                   </span>
                 </div>

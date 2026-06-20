@@ -64,11 +64,11 @@ export default async function PlacementsPage() {
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-center">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border
-                      ${p.status === 'SELECTED' ? 'bg-blue-900/20 text-blue-400 border-blue-800/30' : ''}
-                      ${p.status === 'JOINED' ? 'bg-accent/10 text-accent border-accent/20' : ''}
-                      ${p.status === 'INVOICE_GENERATED' ? 'bg-yellow-900/20 text-yellow-400 border-yellow-800/30' : ''}
-                      ${p.status === 'INVOICE_PAID' ? 'bg-green-900/20 text-green-400 border-green-800/30' : ''}
-                      ${p.status === 'RECRUITER_PAID' ? 'bg-purple-900/20 text-purple-400 border-purple-800/30' : ''}
+                      ${p.status === 'SELECTED' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                      ${p.status === 'JOINED' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                      ${p.status === 'INVOICE_GENERATED' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : ''}
+                      ${p.status === 'INVOICE_PAID' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                      ${p.status === 'RECRUITER_PAID' ? 'bg-purple-100 text-purple-800 border-purple-200' : ''}
                     `}>
                       {p.status.replace('_', ' ')}
                     </span>

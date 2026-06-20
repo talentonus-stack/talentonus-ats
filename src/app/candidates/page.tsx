@@ -51,7 +51,7 @@ export default async function CandidatesPage() {
         <div className="mt-4 sm:mt-0">
           <Link
             href="/candidates/new"
-            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
+            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-[#E8952C] transition-colors shadow-md hover:shadow-lg"
           >
             Add candidate
           </Link>

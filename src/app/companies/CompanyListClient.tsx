@@ -67,7 +67,7 @@ export default function CompanyListClient({ companies }: { companies: CompanySta
                     <Link href={`/companies/${company.id}`} className="block">
                       <div className="text-sm font-bold text-light group-hover:text-accent transition-colors">{company.name}</div>
                       <div className="text-xs text-muted mt-1">{company.website || 'No website'}</div>
-                      <span className={`mt-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.status === 'ACTIVE' ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                      <span className={`mt-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.status === 'ACTIVE' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                         {company.status}
                       </span>
                     </Link>

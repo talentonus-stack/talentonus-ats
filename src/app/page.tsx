@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
-import { Users, Briefcase, FileText, CheckCircle, Target, Calendar, UserCheck, UserPlus, TrendingUp, Clock, Activity, Building2 } from "lucide-react"
+import { Users, Briefcase, FileText, CheckCircle, Target, Calendar, UserCheck, UserPlus, TrendingUp, Clock, Activity, Building2, Wallet, IndianRupee } from "lucide-react"
 import { timeAgo } from "@/lib/dateUtils"
 import Link from "next/link"
 
@@ -24,34 +24,31 @@ export default async function DashboardPage() {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const [
-    totalJobs,
-    totalCandidates,
-    totalApplications,
-    hiredApplications,
-    openPositions,
-    totalRecruiters,
-    activeRecruitersList,
-    interviewsScheduled,
+    const [
     totalCompanies,
     activeCompanies,
+    totalRecruiters,
+    activeRecruitersCount,
+    jobs,
+    totalCandidates,
+    totalPlacements,
+    placementsForRevenue,
     allApplications,
     recruitersList,
     recentApplications,
     recentCandidates
   ] = await Promise.all([
-    prisma.job.count(),
-    prisma.candidate.count(),
-    prisma.application.count(),
-    prisma.application.count({ where: { status: "JOINED" } }),
-    prisma.job.count({ where: { status: "OPEN" } }),
-    prisma.user.count({ where: { role: "RECRUITER" } }),
-    prisma.user.findMany({
-      where: { role: "RECRUITER", candidates: { some: { createdAt: { gte: thirtyDaysAgo } } } }
-    }),
-    prisma.application.count({ where: { status: "INTERVIEW_SCHEDULED" } }),
     prisma.company.count(),
     prisma.company.count({ where: { status: "ACTIVE" } }),
+    prisma.user.count({ where: { role: "RECRUITER" } }),
+    prisma.user.count({ where: { role: "RECRUITER", status: "ACTIVE" } }),
+    prisma.job.findMany({ select: { vacancies: true } }),
+    prisma.candidate.count(),
+    prisma.application.count({ where: { status: "JOINED" } }),
+    prisma.placement.findMany({
+      where: { OR: [ { application: { status: 'JOINED' } }, { recruiterPaymentStatus: { not: 'PAID' } } ] },
+      include: { application: true }
+    }),
     prisma.application.findMany({ select: { status: true } }),
     prisma.user.findMany({
       where: { role: "RECRUITER" },
@@ -76,22 +73,35 @@ export default async function DashboardPage() {
     })
   ])
 
-  const activeRecruitersCount = activeRecruitersList.length
+  const totalJobs = jobs.length;
+  const openPositions = jobs.reduce((acc, job) => acc + (job.vacancies || 0), 0);
+
+  let revenueGenerated = 0;
+  let recruiterCommissionPayable = 0;
+
+  placementsForRevenue.forEach(p => {
+    if (p.application?.status === 'JOINED') {
+      revenueGenerated += p.placementValue || 0;
+    }
+    if (p.recruiterPaymentStatus !== 'PAID') {
+      recruiterCommissionPayable += p.recruiterShare || 0;
+    }
+  });
 
   const row1Stats = [
     { name: "Total Companies", value: totalCompanies, icon: Building2 },
-    { name: "Active Companies", value: activeCompanies, icon: CheckCircle },
+    { name: "Active Companies", value: activeCompanies, icon: Building2 },
     { name: "Total Recruiters", value: totalRecruiters, icon: Users },
     { name: "Active Recruiters", value: activeRecruitersCount, icon: UserCheck },
-    { name: "Open Positions", value: openPositions, icon: Target },
+    { name: "Total Jobs", value: totalJobs, icon: Briefcase },
   ]
 
   const row2Stats = [
-    { name: "Total Jobs", value: totalJobs, icon: Briefcase },
+    { name: "Open Positions", value: openPositions, icon: Target },
     { name: "Total Candidates", value: totalCandidates, icon: Users },
-    { name: "Total Applications", value: totalApplications, icon: FileText },
-    { name: "Interviews Scheduled", value: interviewsScheduled, icon: Calendar },
-    { name: "Hired Candidates", value: hiredApplications, icon: CheckCircle },
+    { name: "Total Placements", value: totalPlacements, icon: CheckCircle },
+    { name: "Revenue Generated", value: "₹" + revenueGenerated.toLocaleString('en-IN'), icon: IndianRupee },
+    { name: "Commission Payable", value: "₹" + recruiterCommissionPayable.toLocaleString('en-IN'), icon: Wallet },
   ]
 
   // Funnel Data Calculations

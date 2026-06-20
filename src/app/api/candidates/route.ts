@@ -8,10 +8,10 @@ export const dynamic = "force-dynamic"
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user as any).role !== "RECRUITER") {
+    if (!session || !["ADMIN", "RECRUITER"].includes((session.user as any).role)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    const recruiterId = (session.user as any).id
+    const recruiterId = (session.user as any).role === "RECRUITER" ? (session.user as any).id : null
 
     const formData = await req.formData()
     const selectedJobId = formData.get("jobId") as string

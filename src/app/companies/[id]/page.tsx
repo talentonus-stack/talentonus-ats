@@ -33,7 +33,8 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
         include: {
           candidate: true,
           job: true,
-          recruiter: true
+          recruiter: true,
+          application: true
         }
       }
     }
@@ -108,7 +109,9 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
     joinedCount += j.applications.filter(a => a.status === 'JOINED').length;
   });
 
-  const revenueGenerated = company.placements.reduce((sum, p) => sum + p.placementValue, 0);
+  const revenueGenerated = company.placements
+    .filter(p => p.application?.status === 'JOINED')
+    .reduce((sum, p) => sum + p.placementValue, 0);
 
   const formatLakhs = (val: number) => {
     if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;

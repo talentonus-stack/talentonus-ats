@@ -65,6 +65,10 @@ export default async function RecruiterProfilePage() {
   let commissionReceived = 0;
   let totalLifetimeEarned = 0;
 
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
   placements.forEach(p => {
     const share = p.recruiterShare;
 
@@ -78,8 +82,8 @@ export default async function RecruiterProfilePage() {
       commissionEarned += share;
     }
 
-    // COMMISSION RECEIVED: Joined candidates already paid
-    if (p.application?.status === 'JOINED' && p.recruiterPaymentStatus === 'PAID') {
+    // COMMISSION RECEIVED (Last 30 Days): PAID within the last 30 days
+    if (p.recruiterPaymentStatus === 'PAID' && p.recruiterPaidDate && new Date(p.recruiterPaidDate) >= thirtyDaysAgo) {
       commissionReceived += share;
     }
 

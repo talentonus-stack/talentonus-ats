@@ -169,7 +169,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
         </div>
         <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center relative overflow-hidden">
           <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-green-500/5 blur-xl pointer-events-none"></div>
-          <span className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Commission Received</span>
+          <span className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Commission Received (Last 30 Days)</span>
           <span className="text-2xl font-black text-green-400">₹{(stats.commissionReceived || 0).toLocaleString('en-IN')}</span>
         </div>
         <div className="bg-primary-lighter rounded-2xl border border-border p-5 shadow-lg flex flex-col justify-center relative overflow-hidden">

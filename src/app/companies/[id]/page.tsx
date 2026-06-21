@@ -99,20 +99,6 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
   const totalJoined = allApplications.filter(a => a.status === 'JOINED').length
 
 
-  // Computations
-  let totalCands = 0;
-  let sel = 0;
-  let joinedCount = 0;
-  company.jobs.forEach(j => {
-    totalCands += j.applications.length;
-    sel += j.applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length;
-    joinedCount += j.applications.filter(a => a.status === 'JOINED').length;
-  });
-
-  const revenueGenerated = company.placements
-    .filter(p => p.application?.status === 'JOINED')
-    .reduce((sum, p) => sum + p.placementValue, 0);
-
   const formatLakhs = (val: number) => {
     if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;
     return `₹${val.toLocaleString('en-IN')}`;

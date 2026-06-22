@@ -151,8 +151,8 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
       </div>
 
       {isResetModalOpen && selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-md shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] pb-4 px-4 overflow-y-auto bg-black/80 backdrop-blur-sm">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto flex flex-col mb-4">
             <button
               onClick={() => setIsResetModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"

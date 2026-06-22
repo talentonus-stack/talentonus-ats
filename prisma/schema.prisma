@@ -46,6 +46,22 @@ model User {
   agreementSigned         Boolean   @default(false)
   agreementDate           DateTime?
   agreementExpiryDate     DateTime?
+
+  passwordResetRequests PasswordResetRequest[]
+}
+
+enum PasswordResetStatus {
+  PENDING
+  COMPLETED
+}
+
+model PasswordResetRequest {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id])
+  status    PasswordResetStatus @default(PENDING)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 }
 
 enum JobTiming {

@@ -14,19 +14,20 @@ export async function POST(req: Request) {
     })
 
     if (!user || user.role !== "RECRUITER") {
-      // Return 404 so frontend can show "No recruiter account found with this email."
       return NextResponse.json({ error: "No recruiter account found with this email." }, { status: 404 })
     }
 
-    // Since we are mocking the email sending process, we will just return success.
-    // In a real application, you would generate a token and send an email via an SMTP service.
+    // Create a Password Reset Request for the Admin
+    await prisma.passwordResetRequest.create({
+      data: {
+        userId: user.id,
+        status: "PENDING"
+      }
+    })
 
-    // Simulate some delay for realism
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    return NextResponse.json({ message: "Password reset link has been sent to your email." })
+    return NextResponse.json({ message: "Your password reset request has been submitted successfully. The administrator will contact you shortly." })
   } catch (error: any) {
     console.error("Forgot password error:", error)
-    return NextResponse.json({ error: "Failed to process forgot password request" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to process password reset request" }, { status: 500 })
   }
 }

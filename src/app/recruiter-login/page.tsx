@@ -156,15 +156,15 @@ export default function RecruiterLoginPage() {
 
             <div className="p-6">
               <h2 className="text-xl font-bold text-light flex items-center gap-2 mb-2">
-                <Mail className="w-5 h-5 text-accent" /> Forgot Password
+                <AlertTriangle className="w-5 h-5 text-accent" /> Forgot Password
               </h2>
-              <p className="text-sm text-muted mb-6">Enter your registered email address and we will send you a link to reset your password.</p>
+              <p className="text-sm text-muted mb-6">Unable to access your account? Click below to submit a password reset request to the administrator.</p>
 
               {forgotStatus === "success" ? (
                 <div className="bg-green-900/20 border border-green-800 rounded-xl p-4 flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-bold text-green-400">Email Sent</p>
+                    <p className="text-sm font-bold text-green-400">Request Submitted</p>
                     <p className="text-xs text-green-300/80 mt-1">{forgotMessage}</p>
                   </div>
                 </div>
@@ -185,17 +185,26 @@ export default function RecruiterLoginPage() {
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
                       className="block w-full rounded-lg bg-primary-lighter border border-border px-4 py-3 text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
-                      placeholder="Enter your email"
+                      placeholder="Enter your registered email"
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={forgotStatus === "loading"}
-                    className="w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover transition-all duration-200 disabled:opacity-50"
-                  >
-                    {forgotStatus === "loading" ? "Sending..." : "Send Reset Link"}
-                  </button>
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotModalOpen(false)}
+                      className="px-4 py-2 rounded-lg text-sm font-bold text-muted hover:text-light transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={forgotStatus === "loading"}
+                      className="rounded-lg bg-accent px-4 py-2 text-primary text-sm font-bold hover:bg-accent-hover transition-all duration-200 disabled:opacity-50"
+                    >
+                      {forgotStatus === "loading" ? "Submitting..." : "Request Password Reset"}
+                    </button>
+                  </div>
                 </form>
               )}
             </div>

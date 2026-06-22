@@ -36,7 +36,8 @@ export default async function DashboardPage() {
     allApplications,
     recruitersList,
     recentApplications,
-    recentCandidates
+    recentCandidates,
+    pendingResetRequestsCount
   ] = await Promise.all([
     prisma.company.count(),
     prisma.company.count({ where: { status: "ACTIVE" } }),
@@ -70,6 +71,9 @@ export default async function DashboardPage() {
       take: 5,
       orderBy: { createdAt: 'desc' },
       include: { recruiter: { select: { name: true } } }
+    }),
+    prisma.passwordResetRequest.count({
+      where: { status: "PENDING" }
     })
   ])
 
@@ -92,8 +96,8 @@ export default async function DashboardPage() {
     { name: "Total Companies", value: totalCompanies, icon: Building2 },
     { name: "Active Companies", value: activeCompanies, icon: Building2 },
     { name: "Total Recruiters", value: totalRecruiters, icon: Users },
-    { name: "Active Recruiters", value: activeRecruitersCount, icon: UserCheck },
     { name: "Total Jobs", value: totalJobs, icon: Briefcase },
+    { name: "Pending Resets", value: pendingResetRequestsCount, icon: UserCheck, color: pendingResetRequestsCount > 0 ? "text-orange-400" : undefined },
   ]
 
   const row2Stats = [
@@ -173,7 +177,7 @@ export default async function DashboardPage() {
                 <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
               </div>
               <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
-                <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />
+                <stat.icon className={`h-5 w-5 opacity-80 ${stat.color || 'text-accent'}`} aria-hidden="true" />
               </div>
             </div>
           ))}

@@ -1,7 +1,7 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -17,6 +17,17 @@ export default function RecruiterLoginPage() {
   const [forgotEmail, setForgotEmail] = useState("")
   const [forgotStatus, setForgotStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [forgotMessage, setForgotMessage] = useState("")
+
+  useEffect(() => {
+    if (isForgotModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isForgotModalOpen])
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -143,8 +154,8 @@ export default function RecruiterLoginPage() {
 
       {/* Forgot Password Modal */}
       {isForgotModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-primary border border-border rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] pb-4 px-4 overflow-y-auto bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-primary border border-border rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col mb-4">
             <div className="absolute top-0 left-0 w-full h-1 bg-accent"></div>
 
             <button
@@ -154,7 +165,7 @@ export default function RecruiterLoginPage() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
               <h2 className="text-xl font-bold text-light flex items-center gap-2 mb-2">
                 <AlertTriangle className="w-5 h-5 text-accent" /> Forgot Password
               </h2>

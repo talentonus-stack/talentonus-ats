@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CheckCircle, X, Key, AlertTriangle } from "lucide-react"
 
 type ResetRequest = {
@@ -22,6 +22,17 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
   const [confirmPassword, setConfirmPassword] = useState("")
   const [statusMsg, setStatusMsg] = useState("")
   const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    if (isResetModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isResetModalOpen])
 
   const openResetModal = (req: ResetRequest) => {
     setSelectedRequest(req)
@@ -151,8 +162,8 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
       </div>
 
       {isResetModalOpen && selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] pb-4 px-4 overflow-y-auto bg-black/80 backdrop-blur-sm">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-lg shadow-2xl relative max-h-[85vh] overflow-y-auto flex flex-col mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[90vh] flex flex-col">
             <button
               onClick={() => setIsResetModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"
@@ -160,14 +171,14 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-6 border-b border-border">
+            <div className="p-6 border-b border-border shrink-0">
               <h2 className="text-xl font-bold text-light flex items-center gap-2">
                 <Key className="w-5 h-5 text-accent" /> Reset Recruiter Password
               </h2>
               <p className="text-sm text-muted mt-1">For {selectedRequest.recruiterName} ({selectedRequest.email})</p>
             </div>
 
-            <form onSubmit={handleResetPassword} className="p-6 space-y-5">
+            <form onSubmit={handleResetPassword} className="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
               {statusMsg && (
                 <div className={`p-3 rounded-lg text-sm font-bold flex items-start gap-2 ${statusMsg.startsWith('success:') ? 'bg-green-900/20 border border-green-800 text-green-400' : 'bg-red-900/20 border border-red-800 text-red-400'}`}>
                   {statusMsg.startsWith('success:') ? <CheckCircle className="w-4 h-4 shrink-0 mt-0.5" /> : <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />}
@@ -196,9 +207,10 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
                   className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
                 />
               </div>
+            </form>
 
-              <div className="flex justify-end gap-3 pt-2">
-                <button
+            <div className="p-6 border-t border-border flex justify-end gap-3 shrink-0 bg-primary-lighter/50 rounded-b-2xl">
+              <button
                   type="button"
                   onClick={() => setIsResetModalOpen(false)}
                   className="px-4 py-2 rounded-lg text-sm font-bold text-muted hover:text-light transition-colors"
@@ -207,14 +219,14 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  onClick={handleResetPassword}
+                  type="button"
                   disabled={isSaving}
                   className="rounded-lg bg-accent px-4 py-2 text-primary text-sm font-bold hover:bg-accent-hover transition-all duration-200 disabled:opacity-50"
                 >
                   {isSaving ? "Saving..." : "Save New Password"}
                 </button>
               </div>
-            </form>
           </div>
         </div>
       )}

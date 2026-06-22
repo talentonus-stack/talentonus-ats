@@ -30,7 +30,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault()
     setIsSaving(true)
     setSaveMessage("")
@@ -357,8 +357,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] px-4 overflow-y-auto bg-black/80 backdrop-blur-sm">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[85vh] flex flex-col overflow-y-auto mb-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] pb-4 px-4 overflow-y-auto bg-black/80 backdrop-blur-sm">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[85vh] flex flex-col mb-4">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"

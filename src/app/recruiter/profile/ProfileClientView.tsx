@@ -347,7 +347,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-2xl shadow-2xl relative">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-2xl shadow-2xl relative max-h-[90vh] flex flex-col">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"
@@ -355,12 +355,12 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
               <X className="w-6 h-6" />
             </button>
 
-            <div className="p-6 border-b border-border">
+            <div className="p-6 border-b border-border shrink-0">
               <h2 className="text-xl font-bold text-light">Edit Profile</h2>
               <p className="text-sm text-muted mt-1">Update your personal and contact information.</p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
+            <form onSubmit={handleSaveProfile} className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
 
               <div>
                 <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2">Personal Information</h3>
@@ -411,7 +411,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
             </form>
 
-            <div className="p-6 border-t border-border flex justify-end gap-3 bg-primary-lighter/50 rounded-b-2xl">
+            <div className="p-6 border-t border-border flex justify-end gap-3 bg-primary-lighter/50 rounded-b-2xl shrink-0">
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}

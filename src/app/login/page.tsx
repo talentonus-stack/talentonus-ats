@@ -1,7 +1,7 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -11,6 +11,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+
+  const formRef = useRef<HTMLFormElement>(null)
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (email && password) {
+        formRef.current?.requestSubmit();
+      }
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,7 +60,7 @@ export default function LoginPage() {
 
           {error && <div className="mb-6 p-3 rounded-lg bg-red-900/30 border border-red-800 text-red-400 text-sm text-center">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address</label>
               <input
@@ -57,6 +68,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="block w-full rounded-lg bg-primary-lighter border border-border px-4 py-3 text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
                 placeholder="admin@talentonus.com"
               />
@@ -68,6 +80,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="block w-full rounded-lg bg-primary-lighter border border-border px-4 py-3 text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200"
                 placeholder="••••••••"
               />

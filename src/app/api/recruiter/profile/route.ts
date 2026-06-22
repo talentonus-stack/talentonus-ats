@@ -19,6 +19,7 @@ export async function PUT(req: Request) {
 
     if (body.name !== undefined) updateData.name = body.name
     if (body.location !== undefined) updateData.location = body.location
+    if (body.mobile !== undefined) updateData.mobile = body.mobile
     if (body.notes !== undefined) updateData.notes = body.notes
 
     const updatedUser = await prisma.user.update({

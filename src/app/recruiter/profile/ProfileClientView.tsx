@@ -8,6 +8,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
   const [formData, setFormData] = useState({
     name: recruiter.name || "",
     location: recruiter.location || "",
+    mobile: recruiter.mobile || "",
     notes: recruiter.notes || "",
   })
 
@@ -29,7 +30,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: formData.name,
-          location: formData.location
+          location: formData.location,
+          mobile: formData.mobile
         })
       })
 
@@ -344,8 +346,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl relative my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-2xl shadow-2xl relative">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"
@@ -355,12 +357,11 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
             <div className="p-6 border-b border-border">
               <h2 className="text-xl font-bold text-light">Edit Profile</h2>
-              <p className="text-sm text-muted mt-1">Update your basic profile information.</p>
+              <p className="text-sm text-muted mt-1">Update your personal and contact information.</p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="p-6 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <form onSubmit={handleSaveProfile} className="p-6 space-y-6">
 
-              {/* Personal Information */}
               <div>
                 <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2">Personal Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -372,6 +373,27 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                     />
                   </div>
                   <div>
+                    <label className="block text-xs font-medium text-muted mb-1">Designation</label>
+                    <input
+                      type="text" value="Senior Technical Recruiter" disabled
+                      className="w-full bg-primary/50 border border-border/50 rounded-lg p-2.5 text-sm text-muted cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted mb-1">Email Address</label>
+                    <input
+                      type="email" value={recruiter.email} disabled
+                      className="w-full bg-primary/50 border border-border/50 rounded-lg p-2.5 text-sm text-muted cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted mb-1">Mobile Number</label>
+                    <input
+                      type="text" name="mobile" value={formData.mobile} onChange={handleInputChange}
+                      className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
                     <label className="block text-xs font-medium text-muted mb-1">Location</label>
                     <input
                       type="text" name="location" value={formData.location} onChange={handleInputChange}

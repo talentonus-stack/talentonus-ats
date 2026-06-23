@@ -70,14 +70,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Upload failed: " + error.message }, { status: 500 })
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('resumes')
-      .getPublicUrl(data.path)
-
+    // We no longer return the public URL. Instead we return the raw internal path
+    // so the client application can request a short-lived signed URL for security.
     return NextResponse.json({
       success: true,
-      filePath: publicUrl,
+      filePath: data.path, // Store the private internal path in DB instead of publicURL
       fileName: file.name
     })
   } catch (error: any) {

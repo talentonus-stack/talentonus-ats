@@ -154,8 +154,8 @@ export default function RecruiterLoginPage() {
 
       {/* Forgot Password Modal */}
       {isForgotModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] pb-4 px-4 overflow-y-auto bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-primary border border-border rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden max-h-[85vh] flex flex-col mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-primary border border-border rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden max-h-[90vh] overflow-y-auto flex flex-col">
             <div className="absolute top-0 left-0 w-full h-1 bg-accent"></div>
 
             <button

@@ -172,8 +172,8 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
       </div>
 
       {showSelectedModal && selectedAppInfo && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] pb-4 px-4 overflow-y-auto bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[85vh] mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-border bg-primary/30 shrink-0 rounded-t-2xl">
               <h2 className="text-xl font-bold text-light">Candidate Selected</h2>
               <p className="text-sm text-muted mt-1">Finalize placement details for {selectedAppInfo.name}</p>

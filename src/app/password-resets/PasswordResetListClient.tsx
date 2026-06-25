@@ -114,73 +114,133 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
 
   return (
     <>
-      <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
-            <thead className="bg-primary-lighter/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Email</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Request Date</th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/50">
-              {requests.map((req) => (
-                <tr key={req.id} className="hover:bg-primary/50 transition-colors group">
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-bold text-light">
-                    {req.recruiterName}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                    {req.email}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                    {new Date(req.requestDate).toLocaleString()}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-center">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${req.status === 'COMPLETED' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
-                      {req.status}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    {req.status === 'PENDING' ? (
-                      <div className="flex items-center justify-end gap-3">
-                        <button
-                          onClick={() => markCompleted(req.id)}
-                          className="text-xs text-muted hover:text-green-400 transition-colors"
-                        >
-                          Mark Completed
-                        </button>
-                        <button
-                          onClick={() => openResetModal(req)}
-                          className="px-3 py-1 rounded bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-primary transition-colors text-xs font-bold"
-                        >
-                          Reset Password
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-end gap-3">
-                        <span className="text-xs text-muted">Resolved</span>
-                        <button
-                          onClick={() => deleteRequest(req.id)}
-                          className="text-muted hover:text-red-500 transition-colors p-1"
-                          title="Delete Request"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-              {requests.length === 0 && (
+      <div className="w-full">
+        {/* Mobile Card View (<768px) */}
+        <div className="block md:hidden space-y-4">
+          {requests.map((req) => (
+            <div key={req.id} className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-5 flex flex-col gap-4 relative">
+              <div className="flex justify-between items-start">
+                <div className="pr-4 overflow-hidden">
+                  <h3 className="text-sm font-bold text-light truncate" title={req.recruiterName}>{req.recruiterName}</h3>
+                  <p className="text-xs font-semibold text-muted mt-0.5 truncate" title={req.email}>{req.email}</p>
+                </div>
+                <span className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border ${req.status === 'COMPLETED' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
+                  {req.status}
+                </span>
+              </div>
+
+              <div>
+                 <span className="block text-[10px] uppercase font-bold text-muted tracking-wider mb-1">Request Date</span>
+                 <span className="text-xs text-light">{new Date(req.requestDate).toLocaleString()}</span>
+              </div>
+
+              <div className="flex items-center justify-end border-t border-border/50 pt-4 mt-2">
+                {req.status === 'PENDING' ? (
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => markCompleted(req.id)}
+                      className="text-xs text-muted hover:text-green-400 transition-colors"
+                    >
+                      Mark Completed
+                    </button>
+                    <button
+                      onClick={() => openResetModal(req)}
+                      className="px-3 py-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-primary transition-colors text-xs font-bold"
+                    >
+                      Reset Password
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted font-semibold">Resolved</span>
+                    <button
+                      onClick={() => deleteRequest(req.id)}
+                      className="text-muted hover:text-red-500 transition-colors p-1"
+                      title="Delete Request"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          {requests.length === 0 && (
+            <div className="bg-primary-lighter rounded-2xl border border-border p-8 text-center text-sm text-muted">
+              No password reset requests found.
+            </div>
+          )}
+        </div>
+
+        {/* Responsive Table View (≥768px) */}
+        <div className="hidden md:block overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
+          <div className="w-full">
+            <table className="w-full table-fixed divide-y divide-border">
+              <thead className="bg-primary-lighter/50">
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-sm text-muted text-center">No password reset requests found.</td>
+                  <th className="w-[25%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
+                  <th className="w-[25%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Email</th>
+                  <th className="w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Request Date</th>
+                  <th className="w-[10%] px-4 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                  <th className="w-[20%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {requests.map((req) => (
+                  <tr key={req.id} className="hover:bg-primary/50 transition-colors group">
+                    <td className="px-4 py-4 text-sm font-bold text-light truncate" title={req.recruiterName}>
+                      {req.recruiterName}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-muted truncate" title={req.email}>
+                      {req.email}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-muted truncate">
+                      {new Date(req.requestDate).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase border truncate max-w-full ${req.status === 'COMPLETED' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`} title={req.status}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-right text-sm font-medium">
+                      {req.status === 'PENDING' ? (
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => markCompleted(req.id)}
+                            className="text-xs text-muted hover:text-green-400 transition-colors"
+                          >
+                            Mark Completed
+                          </button>
+                          <button
+                            onClick={() => openResetModal(req)}
+                            className="px-3 py-1 rounded bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-primary transition-colors text-xs font-bold whitespace-nowrap"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-end gap-3">
+                          <span className="text-xs text-muted">Resolved</span>
+                          <button
+                            onClick={() => deleteRequest(req.id)}
+                            className="text-muted hover:text-red-500 transition-colors p-1"
+                            title="Delete Request"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+                {requests.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-12 text-sm text-muted text-center">No password reset requests found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

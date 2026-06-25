@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CheckCircle, X, Key, AlertTriangle } from "lucide-react"
+import { CheckCircle, X, Key, AlertTriangle, Trash2 } from "lucide-react"
 
 type ResetRequest = {
   id: string
@@ -98,6 +98,20 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
     }
   }
 
+  const deleteRequest = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this completed request?")) return;
+    try {
+      const res = await fetch(`/api/password-resets/${id}`, {
+        method: "DELETE"
+      })
+      if (res.ok) {
+        setRequests(prev => prev.filter(r => r.id !== id))
+      }
+    } catch (err) {
+      console.error("Failed to delete request", err)
+    }
+  }
+
   return (
     <>
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
@@ -146,7 +160,16 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-muted">Resolved</span>
+                      <div className="flex items-center justify-end gap-3">
+                        <span className="text-xs text-muted">Resolved</span>
+                        <button
+                          onClick={() => deleteRequest(req.id)}
+                          className="text-muted hover:text-red-500 transition-colors p-1"
+                          title="Delete Request"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

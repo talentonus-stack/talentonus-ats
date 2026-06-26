@@ -45,7 +45,7 @@ export default async function DashboardPage() {
     prisma.user.count({ where: { role: "RECRUITER", status: "ACTIVE" } }),
     prisma.job.findMany({ select: { vacancies: true } }),
     prisma.candidate.count(),
-    prisma.application.count({ where: { status: "JOINED" } }),
+    prisma.placement.count(),
     prisma.placement.findMany({
       where: { OR: [ { application: { status: 'JOINED' } }, { recruiterPaymentStatus: { not: 'PAID' } } ] },
       include: { application: true }

@@ -36,8 +36,7 @@ export default async function DashboardPage() {
     allApplications,
     recruitersList,
     recentApplications,
-    recentCandidates,
-    pendingResetRequestsCount
+    recentCandidates
   ] = await Promise.all([
     prisma.company.count(),
     prisma.company.count({ where: { status: "ACTIVE" } }),
@@ -45,7 +44,7 @@ export default async function DashboardPage() {
     prisma.user.count({ where: { role: "RECRUITER", status: "ACTIVE" } }),
     prisma.job.findMany({ select: { vacancies: true } }),
     prisma.candidate.count(),
-    prisma.placement.count(),
+    prisma.application.count({ where: { status: "JOINED" } }),
     prisma.placement.findMany({
       where: { OR: [ { application: { status: 'JOINED' } }, { recruiterPaymentStatus: { not: 'PAID' } } ] },
       include: { application: true }
@@ -71,9 +70,6 @@ export default async function DashboardPage() {
       take: 5,
       orderBy: { createdAt: 'desc' },
       include: { recruiter: { select: { name: true } } }
-    }),
-    prisma.passwordResetRequest.count({
-      where: { status: "PENDING" }
     })
   ])
 
@@ -96,8 +92,8 @@ export default async function DashboardPage() {
     { name: "Total Companies", value: totalCompanies, icon: Building2 },
     { name: "Active Companies", value: activeCompanies, icon: Building2 },
     { name: "Total Recruiters", value: totalRecruiters, icon: Users },
+    { name: "Active Recruiters", value: activeRecruitersCount, icon: UserCheck },
     { name: "Total Jobs", value: totalJobs, icon: Briefcase },
-    { name: "Pending Resets", value: pendingResetRequestsCount, icon: UserCheck, color: pendingResetRequestsCount > 0 ? "text-orange-400" : undefined },
   ]
 
   const row2Stats = [
@@ -174,10 +170,10 @@ export default async function DashboardPage() {
 
               <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
                 <dt className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2 leading-tight">{stat.name}</dt>
-                <dd className={`font-black text-light group-hover:text-white transition-colors leading-none truncate ${typeof stat.value === 'string' && (stat.value as string).startsWith('₹') ? 'text-2xl' : 'text-3xl'}`}>{stat.value}</dd>
+                <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
               </div>
               <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
-                <stat.icon className={`h-5 w-5 opacity-80 ${stat.color || 'text-accent'}`} aria-hidden="true" />
+                <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />
               </div>
             </div>
           ))}
@@ -193,7 +189,7 @@ export default async function DashboardPage() {
 
               <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
                 <dt className="text-[11px] font-bold text-muted uppercase tracking-wider mb-2 leading-tight">{stat.name}</dt>
-                <dd className={`font-black text-light group-hover:text-white transition-colors leading-none truncate ${typeof stat.value === 'string' && (stat.value as string).startsWith('₹') ? 'text-2xl' : 'text-3xl'}`}>{stat.value}</dd>
+                <dd className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stat.value}</dd>
               </div>
               <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary border border-border/50 group-hover:border-accent/30 transition-colors shrink-0">
                 <stat.icon className="h-5 w-5 text-accent opacity-80" aria-hidden="true" />

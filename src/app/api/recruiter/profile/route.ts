@@ -19,7 +19,13 @@ export async function PUT(req: Request) {
 
     if (body.name !== undefined) updateData.name = body.name
     if (body.location !== undefined) updateData.location = body.location
-    if (body.mobile !== undefined) updateData.mobile = body.mobile
+    if (body.linkedinUrl !== undefined) updateData.linkedinUrl = body.linkedinUrl
+    if (body.whatsappNumber !== undefined) updateData.whatsappNumber = body.whatsappNumber
+    if (body.resumeLink !== undefined) updateData.resumeLink = body.resumeLink
+    if (body.resumeVaultUrl !== undefined) updateData.resumeVaultUrl = body.resumeVaultUrl
+    if (body.panCardUrl !== undefined) updateData.panCardUrl = body.panCardUrl
+    if (body.aadhaarUrl !== undefined) updateData.aadhaarUrl = body.aadhaarUrl
+    if (body.bankDetailsUrl !== undefined) updateData.bankDetailsUrl = body.bankDetailsUrl
     if (body.notes !== undefined) updateData.notes = body.notes
 
     const updatedUser = await prisma.user.update({

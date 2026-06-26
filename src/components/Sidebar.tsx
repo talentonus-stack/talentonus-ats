@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus, Building2, IndianRupee, Wallet, Key } from "lucide-react"
+import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus, Building2, IndianRupee, Wallet } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 
 const adminNavigation = [
@@ -16,7 +16,6 @@ const adminNavigation = [
   { name: "Applications", href: "/applications", icon: FileText },
   { name: "Recruiters", href: "/recruiters", icon: UserPlus },
   { name: "Users", href: "/users", icon: UserCheck },
-  { name: "Password Resets", href: "/password-resets", icon: Key },
 ]
 
 const recruiterNavigation = [

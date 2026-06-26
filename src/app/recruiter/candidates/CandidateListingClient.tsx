@@ -191,19 +191,19 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                       {selectedCandidate.resumeUrl ? (
                         <div className="flex gap-4 items-center">
                           <a
-                            href={`/api/resumes/${selectedCandidate.id}`}
+                            href={selectedCandidate.resumeUrl}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                           >
-                            <FileText className="h-4 w-4" /> Secure View
+                            <FileText className="h-4 w-4" /> View Resume
                           </a>
                           <a
-                            href={`/api/resumes/${selectedCandidate.id}`}
+                            href={selectedCandidate.resumeUrl}
                             download
                             className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                           >
-                            <FileText className="h-4 w-4" /> Secure Download
+                            <FileText className="h-4 w-4" /> Download Resume
                           </a>
                           {selectedCandidate.resumeFileName && <span className="text-xs text-muted">({selectedCandidate.resumeFileName})</span>}
                         </div>

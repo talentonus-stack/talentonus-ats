@@ -13,38 +13,13 @@ export default async function RecruiterJobsPage() {
   let jobs: any[] = []
 
   try {
-    const rawJobs = await prisma.job.findMany({
+    jobs = await prisma.job.findMany({
       where: { status: "OPEN" },
       include: {
         company: true
       },
       orderBy: { postedDate: "desc" }
     })
-
-    // Sanitize confidential client data before passing to client components
-    jobs = rawJobs.map((job) => {
-      if (job.company && job.company.isConfidential) {
-        return {
-          ...job,
-          company: {
-            ...job.company,
-            name: "Confidential Client",
-            email: null,
-            phone: null,
-            website: null,
-            contactPerson: null,
-            location: null,
-            logoUrl: null,
-            notes: null,
-            workingDays: null,
-            workingHours: null,
-            totalEmployees: null,
-          }
-        }
-      }
-      return job
-    })
-
   } catch (e) {
     console.error("Failed to load active jobs", e)
   }

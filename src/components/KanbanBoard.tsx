@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 const PIPELINE_STATUSES = [
@@ -36,17 +36,6 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   const [selectedAppInfo, setSelectedAppInfo] = useState<{ id: string, name: string } | null>(null);
   const [showSelectedModal, setShowSelectedModal] = useState(false);
   const [formData, setFormData] = useState({ offeredCTC: '', expectedJoiningDate: '', remarks: '' });
-
-  useEffect(() => {
-    if (showSelectedModal) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
-    }
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [showSelectedModal])
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
     if (newStatus === 'SELECTED') {
@@ -173,12 +162,12 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
 
       {showSelectedModal && selectedAppInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-border bg-primary/30 shrink-0 rounded-t-2xl">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="p-6 border-b border-border bg-primary/30">
               <h2 className="text-xl font-bold text-light">Candidate Selected</h2>
               <p className="text-sm text-muted mt-1">Finalize placement details for {selectedAppInfo.name}</p>
             </div>
-            <form onSubmit={submitSelectedModal} className="p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+            <form onSubmit={submitSelectedModal} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-light uppercase tracking-wider mb-2">Offered CTC *</label>
                 <input
@@ -210,11 +199,11 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                   placeholder="Any conditions or notes..."
                 />
               </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
+                <button type="button" onClick={cancelSelectedModal} className="px-4 py-2 rounded-lg text-sm font-bold text-muted hover:text-light transition-colors">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent-hover transition-colors">Confirm Selection</button>
+              </div>
             </form>
-            <div className="flex justify-end gap-3 p-6 border-t border-border bg-primary-lighter/50 shrink-0 rounded-b-2xl">
-              <button type="button" onClick={cancelSelectedModal} className="px-4 py-2 rounded-lg text-sm font-bold text-muted hover:text-light transition-colors">Cancel</button>
-              <button onClick={submitSelectedModal} type="button" className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent-hover transition-colors">Confirm Selection</button>
-            </div>
           </div>
         </div>
       )}

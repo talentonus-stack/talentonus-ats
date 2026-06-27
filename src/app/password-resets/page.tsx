@@ -16,8 +16,7 @@ export default async function PasswordResetsPage() {
   try {
     requests = await prisma.passwordResetRequest.findMany({
       include: {
-        user: { select: { name: true, email: true } },
-        admin: { select: { name: true } }
+        user: { select: { name: true, email: true } }
       },
       orderBy: { createdAt: "desc" }
     })

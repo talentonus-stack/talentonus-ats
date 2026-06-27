@@ -34,8 +34,7 @@ export async function processPasswordReset(requestId: string, newPasswordPlain: 
       where: { id: requestId },
       data: {
         status: "COMPLETED",
-        completedAt: new Date(),
-        completedBy: (session.user as any).id
+
       }
     })
 

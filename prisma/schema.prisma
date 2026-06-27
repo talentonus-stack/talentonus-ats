@@ -39,7 +39,6 @@ model User {
   placements       Placement[]
 
   resetRequests    PasswordResetRequest[] @relation("UserResetRequests")
-  completedResets  PasswordResetRequest[] @relation("AdminResetCompletions")
 
   // Commercial & Payment Terms (Recruiter)
   commissionPercentage    Float?    @default(0)
@@ -269,9 +268,5 @@ model PasswordResetRequest {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  completedAt DateTime?
-  completedBy String?
-  admin       User?         @relation(fields: [completedBy], references: [id], name: "AdminResetCompletions")
 
-  notes       String?
 }

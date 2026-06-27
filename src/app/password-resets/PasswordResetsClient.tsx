@@ -8,9 +8,8 @@ type ResetRequest = {
   id: string
   status: "PENDING" | "COMPLETED"
   createdAt: Date
-  completedAt: Date | null
+  updatedAt: Date
   user: { name: string | null; email: string }
-  admin: { name: string | null } | null
 }
 
 export default function PasswordResetsClient({ initialRequests }: { initialRequests: ResetRequest[] }) {
@@ -56,7 +55,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
     if (res.success) {
       setRequests(requests.map(r =>
         r.id === selectedRequest.id
-          ? { ...r, status: "COMPLETED", completedAt: new Date() }
+          ? { ...r, status: "COMPLETED", updatedAt: new Date() }
           : r
       ))
       setIsModalOpen(false)
@@ -90,7 +89,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Requested At</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Completed At</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Processed At</th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -108,7 +107,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                  {r.completedAt ? formatCreatedDate(r.completedAt) : "-"}
+                  {r.status === 'COMPLETED' ? formatCreatedDate(r.updatedAt) : "-"}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right">
                   {r.status === "PENDING" && (

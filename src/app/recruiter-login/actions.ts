@@ -29,6 +29,6 @@ export async function requestPasswordReset(email: string) {
     return { success: true }
   } catch (error) {
     console.error("Failed to request password reset", error)
-    return { success: false, error: "Failed to process request. Please try again later." }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to process request. Please try again later." }
   }
 }

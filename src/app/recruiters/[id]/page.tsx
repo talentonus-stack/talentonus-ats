@@ -4,6 +4,9 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { Users, FileText, CheckCircle, Briefcase , IndianRupee } from "lucide-react"
 
+export const dynamic = "force-dynamic"
+
+
 export default async function RecruiterDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {

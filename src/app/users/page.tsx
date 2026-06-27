@@ -5,6 +5,9 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
+
 export default async function UsersPage() {
   const session = await getServerSession(authOptions)
   if (!session) {

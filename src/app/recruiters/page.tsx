@@ -5,6 +5,9 @@ import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import DisableButton from "./DisableButton"
 
+export const dynamic = "force-dynamic"
+
+
 export default async function RecruitersPage() {
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {
@@ -18,7 +21,7 @@ export default async function RecruitersPage() {
       orderBy: { createdAt: "desc" }
     })
   } catch (e) {
-    console.error("Failed to load recruiters")
+    console.error("Failed to load recruiters", e)
   }
 
   return (

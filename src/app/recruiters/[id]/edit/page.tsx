@@ -4,6 +4,9 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 
+export const dynamic = "force-dynamic"
+
+
 export default async function EditRecruiterPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session || (session.user as any).role !== "ADMIN") {

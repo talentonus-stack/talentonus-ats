@@ -12,7 +12,6 @@ type User = {
   email: string
   role: "ADMIN" | "RECRUITER"
   status: "ACTIVE" | "INACTIVE"
-  lastLogin: Date | null
   createdAt: Date
 }
 
@@ -66,10 +65,6 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
                     {user.role}
                   </span>
                </div>
-               <div>
-                  <span className="block text-[10px] uppercase font-bold text-muted tracking-wider mb-1">Last Login</span>
-                  <span className="text-light text-xs truncate block" title={user.lastLogin ? timeAgo(new Date(user.lastLogin)) : 'Never Logged In'}>{user.lastLogin ? timeAgo(new Date(user.lastLogin)) : 'Never Logged In'}</span>
-               </div>
             </div>
 
             <div className="flex justify-end gap-2">
@@ -101,10 +96,9 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
           <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="w-[25%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
-                <th className="w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
-                <th className="w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                <th className="hidden lg:table-cell w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Last Login</th>
+                <th className="w-[35%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
+                <th className="w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
+                <th className="w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
                 <th className="w-[25%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -124,9 +118,6 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${user.status === 'ACTIVE' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
                       {user.status}
                     </span>
-                  </td>
-                  <td className="hidden lg:table-cell px-4 py-4 text-sm text-light truncate">
-                    {user.lastLogin ? timeAgo(new Date(user.lastLogin)) : 'Never Logged In'}
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -149,7 +140,7 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-12 text-sm text-muted text-center">No users found.</td>
+                  <td colSpan={4} className="px-4 py-12 text-sm text-muted text-center">No users found.</td>
                 </tr>
               )}
             </tbody>

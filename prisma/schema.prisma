@@ -31,7 +31,6 @@ model User {
   otp              String?
   otpExpiry        DateTime?
 
-  lastLogin        DateTime?
 
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt

@@ -16,6 +16,7 @@ const adminNavigation = [
   { name: "Applications", href: "/applications", icon: FileText },
   { name: "Recruiters", href: "/recruiters", icon: UserPlus },
   { name: "Users", href: "/users", icon: UserCheck },
+  { name: "Password Reset Requests", href: "/password-resets", icon: FileText },
 ]
 
 const recruiterNavigation = [

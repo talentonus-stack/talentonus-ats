@@ -7,7 +7,7 @@ import { processPasswordReset } from "./actions"
 type ResetRequest = {
   id: string
   status: "PENDING" | "COMPLETED"
-  requestedAt: Date
+  createdAt: Date
   completedAt: Date | null
   user: { name: string | null; email: string }
   admin: { name: string | null } | null
@@ -101,7 +101,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
                   <div className="text-sm font-bold text-light truncate">{r.user.name || "N/A"}</div>
                   <div className="text-xs text-muted mt-1 truncate">{r.user.email}</div>
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-light">{formatCreatedDate(r.requestedAt)}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-light">{formatCreatedDate(r.createdAt)}</td>
                 <td className="whitespace-nowrap px-6 py-4">
                   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${r.status === 'COMPLETED' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-yellow-900/20 text-yellow-400 border-yellow-800/30'}`}>
                     {r.status}

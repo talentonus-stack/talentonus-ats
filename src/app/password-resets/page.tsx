@@ -19,7 +19,7 @@ export default async function PasswordResetsPage() {
         user: { select: { name: true, email: true } },
         admin: { select: { name: true } }
       },
-      orderBy: { requestedAt: "desc" }
+      orderBy: { createdAt: "desc" }
     })
   } catch (e) {
     console.error("Database connection failed, showing empty reset requests list", e)

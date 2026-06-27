@@ -266,7 +266,8 @@ model PasswordResetRequest {
   user        User          @relation(fields: [userId], references: [id], name: "UserResetRequests")
 
   status      RequestStatus @default(PENDING)
-  requestedAt DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   completedAt DateTime?
   completedBy String?

@@ -255,6 +255,7 @@ model Placement {
 }
 
 model PasswordResetRequest {
+  @@map("password_reset_requests")
   id          String        @id @default(cuid())
   userId      String
   user        User          @relation(fields: [userId], references: [id], name: "UserResetRequests")

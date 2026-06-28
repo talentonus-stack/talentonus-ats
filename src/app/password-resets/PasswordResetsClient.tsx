@@ -6,7 +6,7 @@ import { processPasswordReset } from "./actions"
 
 type ResetRequest = {
   id: string
-  status: "PENDING" | "COMPLETED"
+  status: string
   createdAt: Date
   updatedAt: Date
   user: { name: string | null; email: string }

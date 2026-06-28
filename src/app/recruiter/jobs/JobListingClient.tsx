@@ -88,21 +88,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                      {(job as any).company?.isConfidential ? "Confidential Client" : ((job as any).company?.name || "Unknown Company")}
                   </span>
                 </div>
-                <div className="mt-3 flex flex-wrap gap-y-2 gap-x-6 text-sm text-muted">
-                  <div className="flex items-center gap-1">
-                    <Briefcase className="h-4 w-4 text-muted" />
-                    <span>{job.experience || "Experience not specified"}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-4 w-4 text-muted" />
-                    <span>{job.location}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <IndianRupee className="h-4 w-4 text-muted" />
-                    <span>{job.salaryRange ? formatSalary(job.salaryRange) : "Salary not disclosed"}</span>
-                  </div>
-                </div>
-              </div>
+                              </div>
 
               {/* Desktop action buttons */}
               <div className="flex items-center gap-3 hidden sm:flex">
@@ -118,9 +104,25 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
               </div>
             </div>
 
-            <div className="mt-4">
-              <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Required Skills</span>
-              <p className="text-sm text-light font-medium">{job.skills || 'Not specified'}</p>
+            <div className="mt-6 border-t border-border/50 pt-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Experience</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.experience || "Not specified"}>{job.experience || "Not specified"}</p>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Location</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.location}>{job.location}</p>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Salary Range</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.salaryRange ? formatSalary(job.salaryRange) : "Not disclosed"}>{job.salaryRange ? formatSalary(job.salaryRange) : "Not disclosed"}</p>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Required Skills</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.skills || "Not specified"}>{job.skills || "Not specified"}</p>
+                </div>
+              </div>
             </div>
 
             {/* Mobile action buttons */}

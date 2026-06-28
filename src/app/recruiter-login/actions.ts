@@ -22,6 +22,7 @@ export async function requestPasswordReset(email: string) {
       await prisma.passwordResetRequest.create({
         data: {
           userId: user.id,
+          status: "PENDING"
         }
       })
     }

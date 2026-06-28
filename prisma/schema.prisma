@@ -38,6 +38,8 @@ model User {
   candidates       Candidate[]
   placements       Placement[]
 
+  resetRequests    PasswordResetRequest[] @relation("UserResetRequests")
+
   // Commercial & Payment Terms (Recruiter)
   commissionPercentage    Float?    @default(0)
   paymentTermsDays        Int?
@@ -250,4 +252,16 @@ model Placement {
 
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+}
+
+model PasswordResetRequest {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], name: "UserResetRequests")
+
+  status      String    @default("PENDING")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+
 }

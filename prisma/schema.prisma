@@ -254,13 +254,18 @@ model Placement {
   updatedAt        DateTime        @updatedAt
 }
 
+
+enum PasswordResetStatus {
+  PENDING
+  COMPLETED
+}
+
 model PasswordResetRequest {
-  @@map("password_reset_requests")
   id          String        @id @default(cuid())
   userId      String
   user        User          @relation(fields: [userId], references: [id], name: "UserResetRequests")
 
-  status      String    @default("PENDING")
+  status      PasswordResetStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 

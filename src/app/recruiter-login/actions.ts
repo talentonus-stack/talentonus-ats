@@ -1,6 +1,7 @@
 "use server"
 
 import prisma from "@/lib/prisma"
+import { PasswordResetStatus } from "@prisma/client"
 
 export async function requestPasswordReset(email: string) {
   try {
@@ -15,13 +16,14 @@ export async function requestPasswordReset(email: string) {
 
     // Check if there's already a pending request to prevent spam
     const existing = await prisma.passwordResetRequest.findFirst({
-      where: { userId: user.id, status: "PENDING" }
+      where: { userId: user.id, status: PasswordResetStatus.PENDING }
     })
 
     if (!existing) {
       await prisma.passwordResetRequest.create({
         data: {
-          userId: user.id
+          userId: user.id,
+          status: PasswordResetStatus.PENDING
         }
       })
     }

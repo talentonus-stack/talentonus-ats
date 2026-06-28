@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { formatCreatedDate } from "@/lib/dateUtils"
 import { processPasswordReset } from "./actions"
+import { PasswordResetStatus } from "@prisma/client"
 
 type ResetRequest = {
   id: string
-  status: string
+  status: PasswordResetStatus
   createdAt: Date
   updatedAt: Date
   user: { name: string | null; email: string }
@@ -14,7 +15,7 @@ type ResetRequest = {
 
 export default function PasswordResetsClient({ initialRequests }: { initialRequests: ResetRequest[] }) {
   const [requests, setRequests] = useState<ResetRequest[]>(initialRequests)
-  const [filter, setFilter] = useState<"ALL" | "PENDING" | "COMPLETED">("ALL")
+  const [filter, setFilter] = useState<"ALL" | PasswordResetStatus>("ALL")
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState<ResetRequest | null>(null)
 
@@ -55,7 +56,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
     if (res.success) {
       setRequests(requests.map(r =>
         r.id === selectedRequest.id
-          ? { ...r, status: "COMPLETED", updatedAt: new Date() }
+          ? { ...r, status: PasswordResetStatus.COMPLETED, updatedAt: new Date() }
           : r
       ))
       setIsModalOpen(false)
@@ -67,7 +68,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
   return (
     <div className="w-full">
       <div className="mb-6 flex space-x-2">
-        {["ALL", "PENDING", "COMPLETED"].map(f => (
+        {["ALL", PasswordResetStatus.PENDING, PasswordResetStatus.COMPLETED].map(f => (
           <button
             key={f}
             onClick={() => setFilter(f as any)}
@@ -102,15 +103,15 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-light">{formatCreatedDate(r.createdAt)}</td>
                 <td className="whitespace-nowrap px-6 py-4">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${r.status === 'COMPLETED' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-yellow-900/20 text-yellow-400 border-yellow-800/30'}`}>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${r.status === PasswordResetStatus.COMPLETED ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-yellow-900/20 text-yellow-400 border-yellow-800/30'}`}>
                     {r.status}
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                  {r.status === 'COMPLETED' ? formatCreatedDate(r.updatedAt) : "-"}
+                  {r.status === PasswordResetStatus.COMPLETED ? formatCreatedDate(r.updatedAt) : "-"}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right">
-                  {r.status === "PENDING" && (
+                  {r.status === PasswordResetStatus.PENDING && (
                     <button
                       onClick={() => openModal(r)}
                       className="px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-primary text-xs font-bold rounded-lg transition-colors"
@@ -118,7 +119,7 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
                       Reset Password
                     </button>
                   )}
-                  {r.status === "COMPLETED" && (
+                  {r.status === PasswordResetStatus.COMPLETED && (
                     <span className="text-xs text-muted italic">Resolved</span>
                   )}
                 </td>

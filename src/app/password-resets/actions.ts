@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { revalidatePath } from "next/cache"
 import bcrypt from "bcryptjs"
+import { PasswordResetStatus } from "@prisma/client"
 
 export async function processPasswordReset(requestId: string, newPasswordPlain: string) {
   try {
@@ -17,7 +18,7 @@ export async function processPasswordReset(requestId: string, newPasswordPlain: 
       where: { id: requestId }
     })
 
-    if (!request || request.status === "COMPLETED") {
+    if (!request || request.status === PasswordResetStatus.COMPLETED) {
       throw new Error("Invalid or already completed request")
     }
 
@@ -33,7 +34,7 @@ export async function processPasswordReset(requestId: string, newPasswordPlain: 
     await prisma.passwordResetRequest.update({
       where: { id: requestId },
       data: {
-        status: "COMPLETED",
+        status: PasswordResetStatus.COMPLETED,
 
       }
     })

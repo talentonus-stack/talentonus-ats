@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Users, CheckCircle, UserPlus, Mail, Phone, MapPin, Calendar, ShieldCheck, TrendingUp, DollarSign, FileText, Link as LinkIcon, Settings, Lock, Edit3, X, UploadCloud, File, Download , ShieldAlert } from "lucide-react"
 
 export default function ProfileClientView({ recruiter, stats }: { recruiter: any, stats: any }) {
@@ -23,6 +23,17 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
   })
 
   const [isSaving, setIsSaving] = useState(false)
+
+  useEffect(() => {
+    if (isEditModalOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isEditModalOpen])
   const [saveMessage, setSaveMessage] = useState("")
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -426,7 +437,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
           {/* Placement Commission History */}
           <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden">
-            <div className="p-6 border-b border-border">
+            <div className="p-6 border-b border-border shrink-0">
               <h3 className="text-sm font-bold text-light uppercase tracking-wider flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-accent" /> Placement Commission History
               </h3>
@@ -499,8 +510,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl relative my-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl relative flex flex-col max-h-[90vh]">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"
@@ -513,7 +524,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
               <p className="text-sm text-muted mt-1">Update your professional links and documents vault.</p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="p-6 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <form id="edit-profile-form" onSubmit={handleSaveProfile} className="p-6 space-y-8 overflow-y-auto custom-scrollbar flex-1">
 
               {/* Personal Information */}
               <div>
@@ -628,7 +639,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
             </form>
 
-            <div className="p-6 border-t border-border flex justify-end gap-3 bg-primary-lighter/50 rounded-b-2xl">
+            <div className="p-6 border-t border-border flex justify-end gap-3 bg-primary-lighter/50 shrink-0 rounded-b-2xl">
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
@@ -637,7 +648,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                 Cancel
               </button>
               <button
-                onClick={handleSaveProfile}
+                type="submit"
+                form="edit-profile-form"
                 disabled={isSaving}
                 className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
               >

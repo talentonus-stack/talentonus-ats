@@ -17,17 +17,55 @@ export async function POST(req: NextRequest) {
     const selectedJobId = formData.get("jobId") as string
 
 
+
+    const candidateId = formData.get("candidateId") as string | null
+
     const resumeUrl = formData.get("resumeUrl") as string;
-    if (!resumeUrl || resumeUrl.trim() === '') {
+    if (!candidateId && (!resumeUrl || resumeUrl.trim() === '')) {
       return NextResponse.json({ error: "Resume attachment is required." }, { status: 400 });
     }
 
-    const candidate = await prisma.candidate.create({
+    let candidate;
 
-      data: {
+    if (candidateId) {
+      // EDIT MODE
+      const existing = await prisma.candidate.findUnique({ where: { id: candidateId } });
+      if (!existing || existing.recruiterId !== recruiterId) {
+        return NextResponse.json({ error: "Unauthorized or not found." }, { status: 403 });
+      }
+
+      const updateData: any = {
         firstName: formData.get("firstName") as string,
         lastName: formData.get("lastName") as string,
         email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+        currentLocation: formData.get("currentLocation") as string,
+        experience: formData.get("experience") as string,
+        currentSalary: formData.get("currentSalary") as string,
+        expectedSalary: formData.get("expectedSalary") as string,
+        noticePeriod: formData.get("noticePeriod") as string,
+        skills: formData.get("skills") as string,
+        portfolioUrl: formData.get("portfolioUrl") as string,
+        remarks: formData.get("remarks") as string,
+      };
+
+      if (resumeUrl && resumeUrl.trim() !== '') {
+        updateData.resumeUrl = resumeUrl;
+        updateData.resumeFileName = formData.get("resumeFileName") as string;
+      }
+
+      candidate = await prisma.candidate.update({
+        where: { id: candidateId },
+        data: updateData
+      });
+
+    } else {
+      // CREATE MODE
+      candidate = await prisma.candidate.create({
+        data: {
+          firstName: formData.get("firstName") as string,
+          lastName: formData.get("lastName") as string,
+          email: formData.get("email") as string,
         phone: formData.get("phone") as string,
         currentLocation: formData.get("currentLocation") as string,
         experience: formData.get("experience") as string,
@@ -42,6 +80,7 @@ export async function POST(req: NextRequest) {
         recruiterId,
       }
     })
+    }
 
     if (selectedJobId) {
       await prisma.application.create({

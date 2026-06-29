@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJobs: any[], jobId?: string }) {
+export default function NewCandidateClientForm({ activeJobs, jobId, existingCandidate }: { activeJobs: any[], jobId?: string, existingCandidate?: any }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
@@ -12,6 +12,9 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
     e.preventDefault()
 
     const formData = new FormData(e.currentTarget)
+    if (existingCandidate) {
+      formData.append("candidateId", existingCandidate.id)
+    }
     const file = formData.get("resumeFile") as File
 
     if (!file || file.size === 0) {
@@ -178,7 +181,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
             Cancel
           </a>
           <button disabled={isSubmitting} type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] disabled:opacity-50">
-            {isSubmitting ? "Submitting..." : "Submit Candidate"}
+            {isSubmitting ? "Saving..." : (existingCandidate ? "Save Changes" : "Submit Candidate")}
           </button>
         </div>
       </form>

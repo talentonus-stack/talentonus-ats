@@ -166,7 +166,7 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
                 <a
                   href={candidate.resumeUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                 >
                   View Resume
@@ -174,6 +174,8 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
                 <a
                   href={candidate.resumeUrl}
                   download
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                 >
                   Download Resume

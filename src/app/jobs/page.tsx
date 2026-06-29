@@ -136,6 +136,9 @@ export default async function JobsPage({
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{new Date(job.postedDate).toLocaleDateString()}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                    <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors mr-3">
+                      View
+                    </Link>
                     <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors">
                       Edit
                     </Link>

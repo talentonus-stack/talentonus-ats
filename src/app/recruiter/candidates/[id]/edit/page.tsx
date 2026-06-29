@@ -41,16 +41,9 @@ export default async function EditCandidatePage({ params }: { params: { id: stri
 
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-light">Edit Candidate</h1>
-        <p className="mt-2 text-sm text-muted">Modify candidate information.</p>
-      </div>
-
-      <div className="bg-primary-lighter rounded-2xl shadow-xl border border-border overflow-hidden">
-        {candidate && (
-          <NewCandidateClientForm activeJobs={jobs} jobId={jobId} existingCandidate={candidate} />
-        )}
-      </div>
+            {candidate && (
+        <NewCandidateClientForm activeJobs={jobs} jobId={jobId} existingCandidate={candidate} />
+      )}
     </div>
   )
 }

@@ -7,6 +7,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId, existingCand
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+  const [successMsg, setSuccessMsg] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -81,8 +82,14 @@ export default function NewCandidateClientForm({ activeJobs, jobId, existingCand
       })
 
       if (res.ok) {
-        router.push("/recruiter/candidates")
-        router.refresh()
+        if (existingCandidate) {
+           setSuccessMsg("Candidate updated successfully.");
+           router.refresh();
+           // Optional: clear message after a few seconds or leave it
+        } else {
+           router.push("/recruiter/candidates")
+           router.refresh()
+        }
       } else {
         const errData = await res.json()
         setError(errData.error || "Failed to create candidate.")
@@ -97,15 +104,23 @@ export default function NewCandidateClientForm({ activeJobs, jobId, existingCand
 
   return (
     <div className="max-w-4xl animate-fade-in mx-auto">
-      <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Submit New Candidate</h1>
+            {existingCandidate ? (
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-light">Edit Candidate</h1>
+          <p className="mt-2 text-sm text-muted">Update candidate information.</p>
+        </div>
+      ) : (
+        <h1 className="mb-8 text-3xl font-bold tracking-tight text-light">Submit New Candidate</h1>
+      )}
 
       {error && <div className="mb-6 p-4 bg-red-900/20 border border-red-800 text-red-400 rounded-lg">{error}</div>}
+      {successMsg && <div className="mb-6 p-4 bg-green-900/20 border border-green-800 text-green-400 rounded-lg font-medium">{successMsg}</div>}
 
-      <form onSubmit={handleSubmit} className="bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border">
+      <form onSubmit={handleSubmit} className={existingCandidate ? "p-8" : "bg-primary-lighter p-8 rounded-2xl shadow-xl border border-border"}>
 
         <div className="mb-6 border-b pb-6">
           <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Select Job Applied For</label>
-          <select required name="jobId" defaultValue={jobId || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
+          <select required name="jobId" defaultValue={jobId || ""} disabled={!!existingCandidate} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
             <option value="">-- Please select an active job opening --</option>
             {activeJobs.map((j) => (
               <option key={j.id} value={j.id}>{j.title} ({j.location})</option>
@@ -117,52 +132,52 @@ export default function NewCandidateClientForm({ activeJobs, jobId, existingCand
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">First Name</label>
-            <input required type="text" name="firstName" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="firstName" defaultValue={existingCandidate?.firstName || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Last Name</label>
-            <input type="text" name="lastName" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input type="text" name="lastName" defaultValue={existingCandidate?.lastName || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address</label>
-            <input required type="email" name="email" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="email" name="email" defaultValue={existingCandidate?.email || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Mobile Number</label>
-            <input required type="text" name="phone" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="phone" defaultValue={existingCandidate?.phone || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Current Location</label>
-            <input required type="text" name="currentLocation" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="currentLocation" defaultValue={existingCandidate?.currentLocation || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Total Experience</label>
-            <input required type="text" name="experience" placeholder="e.g. 5 Years" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="experience" defaultValue={existingCandidate?.experience || ""} placeholder="e.g. 5 Years" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Current Salary</label>
-            <input type="text" name="currentSalary" placeholder="e.g. ₹10,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input type="text" name="currentSalary" defaultValue={existingCandidate?.currentSalary || ""} placeholder="e.g. ₹10,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Expected Salary</label>
-            <input required type="text" name="expectedSalary" placeholder="e.g. ₹15,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="expectedSalary" defaultValue={existingCandidate?.expectedSalary || ""} placeholder="e.g. ₹15,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Notice Period</label>
-            <input required type="text" name="noticePeriod" placeholder="e.g. 30 Days" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="noticePeriod" defaultValue={existingCandidate?.noticePeriod || ""} placeholder="e.g. 30 Days" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Portfolio / Profile URL</label>
-            <input type="url" name="portfolioUrl" placeholder="https://linkedin.com/in/..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input type="url" name="portfolioUrl" defaultValue={existingCandidate?.portfolioUrl || ""} placeholder="https://linkedin.com/in/..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Key Skills</label>
-            <input required type="text" name="skills" placeholder="React, Node, SQL..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="skills" defaultValue={existingCandidate?.skills || ""} placeholder="React, Node, SQL..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div className="sm:col-span-2">
@@ -172,7 +187,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId, existingCand
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Recruiter Remarks</label>
-            <textarea name="remarks" rows={4} placeholder="Any notes on the candidate..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <textarea name="remarks" defaultValue={existingCandidate?.remarks || ""} rows={4} placeholder="Any notes on the candidate..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
         </div>
 

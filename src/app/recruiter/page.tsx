@@ -32,6 +32,10 @@ export default async function RecruiterDashboardPage() {
     orderBy: { updatedAt: 'desc' }
   })
 
+  const totalOpenJobs = await prisma.job.count({
+    where: { status: 'OPEN' }
+  })
+
   // Calculate Performance Metrics
   const totalSubmitted = applications.length
   const interviewScheduled = applications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length
@@ -40,6 +44,7 @@ export default async function RecruiterDashboardPage() {
   const selectionRatio = totalSubmitted > 0 ? Math.round((selected / totalSubmitted) * 100) : 0
 
   const performanceStats = [
+    { name: "Total Open Jobs", value: totalOpenJobs, icon: Briefcase },
     { name: "Total Submitted", value: totalSubmitted, icon: Users },
     { name: "Interviews", value: interviewScheduled, icon: Calendar },
     { name: "Selected", value: selected, icon: CheckCircle },
@@ -127,7 +132,7 @@ export default async function RecruiterDashboardPage() {
       {/* 1. My Performance (Top Row) */}
       <section>
         <h2 className="text-lg font-semibold text-light mb-4">My Performance</h2>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
           {performanceStats.map((stat) => (
             <div
               key={stat.name}

@@ -18,9 +18,27 @@ export async function POST(req: NextRequest) {
 
 
 
+
     const candidateId = formData.get("candidateId") as string | null
 
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
+
+    // Check for duplicate phone number globally if phone is provided
+    if (phone && phone.trim() !== '') {
+      const existingPhone = await prisma.candidate.findFirst({
+        where: {
+           phone,
+           ...(candidateId ? { id: { not: candidateId } } : {})
+        }
+      });
+      if (existingPhone) {
+        return NextResponse.json({ error: "A candidate with this mobile number already exists." }, { status: 400 });
+      }
+    }
+
     const resumeUrl = formData.get("resumeUrl") as string;
+
     if (!candidateId && (!resumeUrl || resumeUrl.trim() === '')) {
       return NextResponse.json({ error: "Resume attachment is required." }, { status: 400 });
     }

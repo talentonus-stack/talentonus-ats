@@ -9,6 +9,9 @@ type Application = {
   job: {
     title: string
   }
+  placement?: {
+    tentativeJoiningDate: string | Date | null
+  } | null
 }
 
 type Candidate = {
@@ -78,6 +81,7 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Contact</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Applied</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Application Status</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Tentative DOJ</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Submitted On</th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Action</th>
             </tr>
@@ -85,6 +89,8 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
           <tbody className="divide-y divide-border bg-primary-lighter">
             {candidates.map((candidate) => {
               const latestApp = candidate.applications[0];
+              const tentativeDOJ = latestApp?.placement?.tentativeJoiningDate ? new Date(latestApp.placement.tentativeJoiningDate).toLocaleDateString() : null;
+
               return (
                 <tr key={candidate.id} className="hover:bg-primary/50 transition-colors group">
                   <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
@@ -108,6 +114,9 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                         {latestApp.status.replace(/_/g, ' ')}
                       </span>
                     ) : 'N/A'}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
+                    {latestApp && ['SELECTED', 'JOINED'].includes(latestApp.status) && tentativeDOJ ? tentativeDOJ : '—'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
                     {new Date(candidate.createdAt).toLocaleDateString()}
@@ -306,6 +315,16 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                               <h4 className={`text-sm tracking-wide ${textClass}`}>
                                 {stage.replace(/_/g, ' ')}
                               </h4>
+                              {stage === 'SELECTED' && isCompleted && selectedCandidate.applications[0].placement?.tentativeJoiningDate && (
+                                <p className="text-xs mt-1 text-muted">
+                                  Tentative DOJ: <span className="font-medium text-light">{new Date(selectedCandidate.applications[0].placement.tentativeJoiningDate).toLocaleDateString()}</span>
+                                </p>
+                              )}
+                              {stage === 'SELECTED' && isCurrent && selectedCandidate.applications[0].placement?.tentativeJoiningDate && (
+                                <p className="text-xs mt-1 text-accent">
+                                  Tentative DOJ: <span className="font-bold">{new Date(selectedCandidate.applications[0].placement.tentativeJoiningDate).toLocaleDateString()}</span>
+                                </p>
+                              )}
                             </div>
                           )
                         })

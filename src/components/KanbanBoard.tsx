@@ -25,6 +25,8 @@ type Application = {
 export default function KanbanBoard({ initialApplications }: { initialApplications: Application[] }) {
   const [applications, setApplications] = useState(initialApplications)
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
+  const [selectedModalState, setSelectedModalState] = useState<{ appId: string, show: boolean }>({ appId: '', show: false })
+  const [modalForm, setModalForm] = useState({ offeredCTC: '', tentativeJoiningDate: '' })
   const router = useRouter()
 
   const showToast = (text: string, type: 'success' | 'error') => {
@@ -33,19 +35,16 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   }
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
-    let offeredCTC = undefined
-
     if (newStatus === 'SELECTED') {
-      const ctcInput = prompt("Enter the final Offered CTC for this candidate to calculate placement fees:")
-      if (!ctcInput || isNaN(parseFloat(ctcInput))) {
-        alert("Offered CTC is required to move a candidate to SELECTED.")
-        // Reset the select dropdown to its original status by forcing a re-render
-        setApplications([...applications])
-        return
-      }
-      offeredCTC = parseFloat(ctcInput)
+      setSelectedModalState({ appId, show: true })
+      setModalForm({ offeredCTC: '', tentativeJoiningDate: '' })
+      return
     }
 
+    await performStatusUpdate(appId, newStatus)
+  }
+
+  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, tentativeJoiningDate?: string }) => {
     // Save previous state for rollback
     const previousApplications = [...applications]
 
@@ -58,7 +57,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
       const res = await fetch(`/api/applications/${appId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus, offeredCTC })
+        body: JSON.stringify({ status: newStatus, ...payload })
       })
 
       if (!res.ok) {
@@ -76,6 +75,28 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     }
   }
 
+  const handleModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const offeredCTC = parseFloat(modalForm.offeredCTC)
+    if (isNaN(offeredCTC) || !modalForm.tentativeJoiningDate) {
+      alert("Both Final Offered CTC and Tentative Date of Joining are required.")
+      return
+    }
+
+    const { appId } = selectedModalState
+    setSelectedModalState({ appId: '', show: false })
+    await performStatusUpdate(appId, 'SELECTED', {
+      offeredCTC,
+      tentativeJoiningDate: new Date(modalForm.tentativeJoiningDate).toISOString()
+    })
+  }
+
+  const handleModalCancel = () => {
+    setSelectedModalState({ appId: '', show: false })
+    setApplications([...applications])
+  }
+
   return (
     <div className="relative">
       {toastMessage && (
@@ -89,6 +110,58 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
       )}
 
       <div className="flex h-[calc(100vh-12rem)] space-x-4 overflow-x-auto pb-4 custom-scrollbar">
+        {selectedModalState.show && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 p-4 bg-black/50" style={{ backdropFilter: 'blur(4px)' }}>
+            <div className="bg-primary border border-border rounded-xl shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100vh-96px)]">
+              <div className="p-6 border-b border-border shrink-0">
+                <h3 className="text-xl font-bold text-light">Candidate Selected</h3>
+                <p className="text-sm text-muted mt-1">Please provide the final offer details to proceed.</p>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <form id="selected-form" onSubmit={handleModalSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-light mb-1">Final Offered CTC</label>
+                    <input
+                      type="number"
+                      required
+                      value={modalForm.offeredCTC}
+                      onChange={(e) => setModalForm(prev => ({ ...prev, offeredCTC: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      placeholder="e.g. 1500000"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-light mb-1">Tentative Date of Joining</label>
+                    <input
+                      type="date"
+                      required
+                      value={modalForm.tentativeJoiningDate}
+                      onChange={(e) => setModalForm(prev => ({ ...prev, tentativeJoiningDate: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button
+                  type="button"
+                  onClick={handleModalCancel}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="selected-form"
+                  className="px-4 py-2 bg-accent text-primary rounded-md text-sm font-bold hover:bg-accent-hover transition-colors"
+                >
+                  Confirm Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {PIPELINE_STATUSES.map(status => (
           <div key={status} className="flex w-80 flex-shrink-0 flex-col rounded-2xl bg-primary-lighter border border-border p-4 shadow-sm">
             <h3 className="mb-4 text-xs font-bold text-muted uppercase tracking-wider border-b border-border pb-2">{status.replace(/_/g, ' ')}</h3>

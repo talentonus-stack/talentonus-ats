@@ -17,7 +17,7 @@ export default async function RecruiterCandidatesPage() {
   try {
     candidates = await prisma.candidate.findMany({
       where: { recruiterId },
-      include: { applications: { include: { job: true } } },
+      include: { applications: { include: { job: true, placement: true } } },
       orderBy: { createdAt: "desc" }
     })
   } catch (e) {

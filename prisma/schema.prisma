@@ -240,6 +240,7 @@ model Placement {
   talentonusShare  Float
 
   joiningDate      DateTime?
+  tentativeJoiningDate DateTime?
   invoiceNumber    String?
   invoiceDate      DateTime?
   invoiceAmount    Float?

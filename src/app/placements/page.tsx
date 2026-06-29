@@ -43,6 +43,7 @@ export default async function PlacementsPage() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Company</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Offered CTC</th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Tentative DOJ</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Total Value</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Our Share</th>
                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
@@ -60,6 +61,9 @@ export default async function PlacementsPage() {
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-light font-medium">{p.company.name}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{p.recruiter ? p.recruiter.name || p.recruiter.email : 'Admin (Direct)'}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-medium">₹{(p.offeredCTC).toLocaleString('en-IN')}</td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-medium">
+                    {p.tentativeJoiningDate ? new Date(p.tentativeJoiningDate).toLocaleDateString() : '—'}
+                  </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{(p.placementValue).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
                   <td className="whitespace-nowrap px-6 py-4 text-center">

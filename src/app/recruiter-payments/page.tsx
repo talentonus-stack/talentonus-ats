@@ -20,7 +20,8 @@ export default async function RecruiterPaymentsPage() {
       candidate: true,
       company: true,
       job: true,
-      recruiter: true
+      recruiter: true,
+      application: true
     },
     orderBy: { createdAt: "desc" }
   })

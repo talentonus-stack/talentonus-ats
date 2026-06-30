@@ -1,12 +1,25 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { markRecruiterPaid } from "./actions"
 
 export default function RecruiterPaymentsClient({ placements }: { placements: any[] }) {
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
+  const [validationModal, setValidationModal] = useState<any | null>(null)
+  const router = useRouter()
 
-  const handleMarkPaid = async (id: string) => {
+  const handleMarkPaidClick = (p: any) => {
+    if (p.application?.status === 'SELECTED') {
+      setValidationModal(p)
+      return
+    }
+
+    // Proceed if not SELECTED
+    processPayment(p.id)
+  }
+
+  const processPayment = async (id: string) => {
     setIsProcessing(id)
     try {
       await markRecruiterPaid(id)
@@ -18,6 +31,7 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
   }
 
   return (
+    <>
     <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-border">
@@ -55,7 +69,7 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
                 <td className="whitespace-nowrap px-6 py-4 text-right">
                   {p.recruiterPaymentStatus === 'PENDING' ? (
                     <button
-                      onClick={() => handleMarkPaid(p.id)}
+                      onClick={() => handleMarkPaidClick(p)}
                       disabled={isProcessing === p.id}
                       className="px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent text-xs font-bold rounded-lg hover:bg-accent hover:text-primary transition-colors disabled:opacity-50"
                     >
@@ -76,5 +90,38 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
         </table>
       </div>
     </div>
+
+    {/* Validation Modal */}
+    {validationModal && (
+      <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 p-4 bg-black/50" style={{ backdropFilter: 'blur(4px)' }}>
+        <div className="bg-primary border border-border rounded-xl shadow-2xl w-full max-w-md flex flex-col">
+          <div className="p-6 border-b border-border shrink-0">
+            <h3 className="text-xl font-bold text-light">Candidate Join Confirmation Required</h3>
+          </div>
+          <div className="p-6">
+            <p className="text-sm text-muted">
+              Please confirm that <span className="font-bold text-light">"{validationModal.candidate.firstName} {validationModal.candidate.lastName}"</span> has joined <span className="font-bold text-light">"{validationModal.company.name}"</span> before releasing the recruiter payout.
+            </p>
+          </div>
+          <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
+            <button
+              type="button"
+              onClick={() => setValidationModal(null)}
+              className="px-4 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/applications')}
+              className="px-4 py-2 bg-accent text-primary rounded-md text-sm font-bold hover:bg-accent-hover transition-colors"
+            >
+              Go to Application
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }

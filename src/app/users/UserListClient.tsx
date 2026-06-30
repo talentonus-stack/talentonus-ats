@@ -77,10 +77,6 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
             </div>
 
             <div className="flex justify-end gap-2">
-              <Link href={`/users/${user.id}`} className="px-3 py-1.5 bg-primary border border-border text-light hover:text-accent hover:border-accent text-xs font-bold rounded-lg transition-colors flex items-center gap-2">
-                <Eye className="w-3 h-3" />
-                View
-              </Link>
               <button
                 onClick={() => handleToggleStatus(user)}
                 disabled={isProcessing === user.id || user.id === currentUserId}
@@ -138,10 +134,6 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Link href={`/users/${user.id}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary border border-border text-light hover:text-accent hover:border-accent text-xs font-bold rounded-lg transition-colors">
-                        <Eye className="w-3 h-3" />
-                        View
-                      </Link>
                       <button
                         onClick={() => handleToggleStatus(user)}
                         disabled={isProcessing === user.id || user.id === currentUserId}

@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md animate-fade-in z-10">
         <div className="glass rounded-2xl p-10 shadow-2xl">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-2">
              <Image
                 src="/logo.png"
                 alt="Talentonus Logo"

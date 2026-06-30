@@ -64,9 +64,9 @@ export default function RecruiterLoginPage() {
              <Image
                 src="/logo.png"
                 alt="Talentonus Logo"
-                width={200}
-                height={80}
-                className="brightness-0 invert opacity-90"
+                width={240}
+                height={96}
+                className="brightness-0 invert opacity-90 object-contain"
              />
           </div>
           <p className="mb-8 text-center text-sm font-medium tracking-widest uppercase text-accent">Recruiter Portal</p>

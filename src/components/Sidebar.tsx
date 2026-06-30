@@ -43,12 +43,12 @@ export default function Sidebar() {
           <Image
             src="/logo.png"
             alt="Talentonus Logo"
-            width={240}
-            height={120}
-            className="object-contain w-full max-w-[180px] h-auto brightness-0 invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+            width={288}
+            height={144}
+            className="object-contain w-full max-w-[216px] h-auto brightness-0 invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             priority
           />
-          <span className="text-[10px] font-medium text-accent -mt-4 uppercase tracking-[0.2em] shadow-accent">
+          <span className="text-[10px] font-medium text-accent -mt-2 uppercase tracking-[0.2em] shadow-accent">
             {role === "RECRUITER" ? "Recruiter Portal" : "ATS Admin"}
           </span>
         </div>

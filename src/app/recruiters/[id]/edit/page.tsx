@@ -34,6 +34,7 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
         mobile: formData.get("mobile") as string,
 
         location: formData.get("location") as string,
+        status: formData.get("status") as any,
         commissionPercentage: formData.get("commissionPercentage") ? parseFloat(formData.get("commissionPercentage") as string) : 0,
         paymentTermsDays: formData.get("paymentTermsDays") ? parseInt(formData.get("paymentTermsDays") as string) : null,
         paymentReleaseCondition: formData.get("paymentReleaseCondition") as string || null,

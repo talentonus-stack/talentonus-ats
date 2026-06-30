@@ -20,7 +20,7 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    const { status, offeredCTC, tentativeJoiningDate } = await request.json()
+    const { status, offeredCTC, expectedJoiningDate } = await request.json()
 
     // If changing to SELECTED, handle Placement creation logic
     if (status === 'SELECTED') {
@@ -41,8 +41,8 @@ export async function PATCH(
         return NextResponse.json({ error: "Offered CTC is required for Selected candidates" }, { status: 400 })
       }
 
-      if (!tentativeJoiningDate) {
-        return NextResponse.json({ error: "Tentative Date of Joining is required for Selected candidates" }, { status: 400 })
+      if (!expectedJoiningDate) {
+        return NextResponse.json({ error: "Expected Joining Date is required for Selected candidates" }, { status: 400 })
       }
 
       const finalCTC = offeredCTC || application.offeredCTC
@@ -80,7 +80,7 @@ export async function PATCH(
             recruiterShare,
             talentonusShare,
             status: 'SELECTED',
-            tentativeJoiningDate: new Date(tentativeJoiningDate)
+            expectedJoiningDate: new Date(expectedJoiningDate)
           },
           create: {
             applicationId: id,
@@ -94,7 +94,7 @@ export async function PATCH(
             recruiterShare,
             talentonusShare,
             status: 'SELECTED',
-            tentativeJoiningDate: new Date(tentativeJoiningDate)
+            expectedJoiningDate: new Date(expectedJoiningDate)
           }
         })
 

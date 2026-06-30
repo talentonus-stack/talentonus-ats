@@ -26,7 +26,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   const [applications, setApplications] = useState(initialApplications)
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
   const [selectedModalState, setSelectedModalState] = useState<{ appId: string, show: boolean }>({ appId: '', show: false })
-  const [modalForm, setModalForm] = useState({ offeredCTC: '', tentativeJoiningDate: '' })
+  const [modalForm, setModalForm] = useState({ offeredCTC: '', expectedJoiningDate: '' })
   const router = useRouter()
 
   const showToast = (text: string, type: 'success' | 'error') => {
@@ -37,14 +37,14 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   const handleStatusChange = async (appId: string, newStatus: string) => {
     if (newStatus === 'SELECTED') {
       setSelectedModalState({ appId, show: true })
-      setModalForm({ offeredCTC: '', tentativeJoiningDate: '' })
+      setModalForm({ offeredCTC: '', expectedJoiningDate: '' })
       return
     }
 
     await performStatusUpdate(appId, newStatus)
   }
 
-  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, tentativeJoiningDate?: string }) => {
+  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string }) => {
     // Save previous state for rollback
     const previousApplications = [...applications]
 
@@ -79,8 +79,8 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     e.preventDefault()
 
     const offeredCTC = parseFloat(modalForm.offeredCTC)
-    if (isNaN(offeredCTC) || !modalForm.tentativeJoiningDate) {
-      alert("Both Final Offered CTC and Tentative Date of Joining are required.")
+    if (isNaN(offeredCTC) || !modalForm.expectedJoiningDate) {
+      alert("Both Final Offered CTC and Expected Joining Date are required.")
       return
     }
 
@@ -88,7 +88,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     setSelectedModalState({ appId: '', show: false })
     await performStatusUpdate(appId, 'SELECTED', {
       offeredCTC,
-      tentativeJoiningDate: new Date(modalForm.tentativeJoiningDate).toISOString()
+      expectedJoiningDate: new Date(modalForm.expectedJoiningDate).toISOString()
     })
   }
 
@@ -131,12 +131,12 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-light mb-1">Tentative Date of Joining</label>
+                    <label className="block text-sm font-medium text-light mb-1">Expected Joining Date</label>
                     <input
                       type="date"
                       required
-                      value={modalForm.tentativeJoiningDate}
-                      onChange={(e) => setModalForm(prev => ({ ...prev, tentativeJoiningDate: e.target.value }))}
+                      value={modalForm.expectedJoiningDate}
+                      onChange={(e) => setModalForm(prev => ({ ...prev, expectedJoiningDate: e.target.value }))}
                       className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                     />
                   </div>

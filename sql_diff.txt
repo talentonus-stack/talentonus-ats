@@ -1,1 +1,0 @@
-ALTER TABLE "Placement" ADD COLUMN "tentativeJoiningDate" TIMESTAMP(3);

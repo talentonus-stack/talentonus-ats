@@ -95,6 +95,12 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                 <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
                   {job.priority} PRIORITY
                 </span>
+                <button
+                  onClick={() => setSelectedJob(job)}
+                  className="bg-primary border border-border px-4 py-2 rounded-md hover:border-accent hover:text-accent font-medium text-sm text-light transition-colors"
+                >
+                  View
+                </button>
                 <Link
                   href={`/recruiter/candidates/new?jobId=${job.id}`}
                   className="bg-accent/10 text-accent px-4 py-2 rounded-md hover:bg-accent/20 font-medium text-sm border border-accent/20"
@@ -126,16 +132,24 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
             </div>
 
             {/* Mobile action buttons */}
-            <div className="mt-5 sm:hidden flex flex-row items-center gap-3">
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
+            <div className="mt-5 sm:hidden flex flex-col gap-3">
+              <span className={`inline-flex items-center self-start rounded-full px-2.5 py-1 text-xs font-semibold border ${getPriorityColor(job.priority)}`}>
                 {job.priority} PRIORITY
               </span>
-              <Link
-                href={`/recruiter/candidates/new?jobId=${job.id}`}
-                className="flex-1 text-center bg-accent/10 text-accent px-4 py-2 rounded-md hover:bg-accent/20 font-medium text-sm border border-accent/20"
-              >
-                Submit Candidate
-              </Link>
+              <div className="flex flex-row items-center gap-3 w-full">
+                <button
+                  onClick={() => setSelectedJob(job)}
+                  className="flex-1 text-center bg-primary border border-border px-4 py-2 rounded-md hover:border-accent hover:text-accent font-medium text-sm text-light transition-colors"
+                >
+                  View
+                </button>
+                <Link
+                  href={`/recruiter/candidates/new?jobId=${job.id}`}
+                  className="flex-1 text-center bg-accent/10 text-accent px-4 py-2 rounded-md hover:bg-accent/20 font-medium text-sm border border-accent/20"
+                >
+                  Submit Candidate
+                </Link>
+              </div>
             </div>
           </div>
         ))}

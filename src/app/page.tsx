@@ -96,21 +96,29 @@ export default async function DashboardPage() {
 
   // Funnel Data Calculations
   const pipeline = {
-    SUBMITTED: allApplications.length,
-    SHORTLISTED: allApplications.filter(a => !['REJECTED'].includes(a.status)).length,
-    INTERVIEW_SCHEDULED: allApplications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
-    SELECTED: allApplications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length,
+    SUBMITTED: allApplications.filter(a => a.status === 'SUBMITTED').length,
+    SCREENING: allApplications.filter(a => a.status === 'SCREENING').length,
+    INTERVIEW_SCHEDULED: allApplications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length,
+    L1_CLEARED: allApplications.filter(a => a.status === 'L1_CLEARED').length,
+    L2_CLEARED: allApplications.filter(a => a.status === 'L2_CLEARED').length,
+    SELECTED: allApplications.filter(a => a.status === 'SELECTED').length,
+    REJECTED: allApplications.filter(a => a.status === 'REJECTED').length,
     JOINED: allApplications.filter(a => a.status === 'JOINED').length,
+    BACKED_OUT: allApplications.filter(a => a.status === 'BACKED_OUT').length,
   }
 
   const funnelStages = [
-    { label: "Applications", count: pipeline.SUBMITTED },
-    { label: "Shortlisted", count: pipeline.SHORTLISTED },
+    { label: "Submitted", count: pipeline.SUBMITTED },
+    { label: "Screening", count: pipeline.SCREENING },
     { label: "Interview Scheduled", count: pipeline.INTERVIEW_SCHEDULED },
+    { label: "L1 Cleared", count: pipeline.L1_CLEARED },
+    { label: "L2 Cleared", count: pipeline.L2_CLEARED },
     { label: "Selected", count: pipeline.SELECTED },
+    { label: "Rejected", count: pipeline.REJECTED },
     { label: "Joined", count: pipeline.JOINED },
+    { label: "Backed Out", count: pipeline.BACKED_OUT },
   ]
-  const maxFunnel = pipeline.SUBMITTED > 0 ? pipeline.SUBMITTED : 1
+  const maxFunnel = Math.max(1, ...funnelStages.map(s => s.count))
 
   // Recruiter Leaderboard Calculation
   const recruiterStats = recruitersList.map(recruiter => {
@@ -191,12 +199,12 @@ export default async function DashboardPage() {
 
       {/* FULL WIDTH RECRUITMENT FUNNEL */}
       <section>
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-sm">
-          <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-border/50 pb-3">
+        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-sm overflow-x-auto custom-scrollbar">
+          <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-border/50 pb-3 min-w-[800px]">
             <TrendingUp className="w-4 h-4 text-accent" />
             Recruitment Funnel
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+          <div className="grid grid-cols-9 gap-4 min-w-[800px]">
             {funnelStages.map((stage, idx) => {
               const widthPercent = maxFunnel > 0 ? (stage.count / maxFunnel) * 100 : 0;
               return (

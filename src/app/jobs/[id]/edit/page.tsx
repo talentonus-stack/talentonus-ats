@@ -44,6 +44,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           industry: formData.get("industry") as string,
           jobTiming: formData.get("jobTiming") as any,
           workingDays: formData.get("workingDays") as string,
+          workingHours: formData.get("workingHours") as string,
           priority: formData.get("priority") as any,
           status: formData.get("status") as any,
           gender: formData.get("gender") as any,
@@ -111,6 +112,11 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div>
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Working Hours</label>
+            <input type="text" name="workingHours" defaultValue={job.workingHours || ""} placeholder="e.g. 9:00 AM - 6:00 PM" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+          </div>
+
+          <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Vacancies</label>
             <input required type="number" name="vacancies" defaultValue={job.vacancies} min={1} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
@@ -120,7 +126,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Job Timing</label>
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Employment Type</label>
             <select name="jobTiming" defaultValue={job.jobTiming} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
               <option value="FULL_TIME">Full Time</option>
               <option value="PART_TIME">Part Time</option>

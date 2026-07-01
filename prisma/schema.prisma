@@ -143,6 +143,7 @@ model Job {
   industry     String?
   jobTiming    JobTiming     @default(FULL_TIME)
   workingDays  String?
+  workingHours String?
   priority     JobPriority   @default(MEDIUM)
   gender       JobGender     @default(BOTH)
   vacancies    Int           @default(1)

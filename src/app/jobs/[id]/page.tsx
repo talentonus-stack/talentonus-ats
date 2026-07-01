@@ -188,6 +188,10 @@ export default async function ViewJobPage({ params }: { params: { id: string } }
                 <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Working Days</span>
                 <p className="text-sm text-light font-medium">{job.workingDays || "Not specified"}</p>
               </div>
+              <div>
+                <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Working Hours</span>
+                <p className="text-sm text-light font-medium">{job.workingHours || "Not specified"}</p>
+              </div>
             </div>
           </div>
 

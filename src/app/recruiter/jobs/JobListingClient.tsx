@@ -189,7 +189,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                   <p className="text-sm font-semibold text-white">{selectedJob.salaryRange ? formatSalary(selectedJob.salaryRange) : "N/A"}</p>
                 </div>
                 <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
-                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Job Timing</span>
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Employment Type</span>
                   <p className="text-sm font-semibold text-white">{selectedJob.jobTiming.replace(/_/g, ' ')}</p>
                 </div>
                 <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">

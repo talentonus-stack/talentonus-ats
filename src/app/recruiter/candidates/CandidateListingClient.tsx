@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, User, Briefcase, FileText, CheckCircle, Clock } from "lucide-react"
+import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2 } from "lucide-react"
 
 type Application = {
   id: string
@@ -74,17 +74,17 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
   return (
     <>
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="min-w-full divide-y divide-border">
+        <div className="w-full">
+          <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
-                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Contact</th>
-                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Applied</th>
-                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Application Status</th>
-                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
-                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Submitted On</th>
-                <th className="px-4 xl:px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider sticky right-0 bg-primary-lighter/90 backdrop-blur-sm shadow-[-5px_0_15px_-5px_rgba(0,0,0,0.5)] md:static md:bg-transparent md:shadow-none">Action</th>
+                <th className="w-[15%] px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
+                <th className="w-[20%] px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Contact</th>
+                <th className="w-[20%] px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Applied</th>
+                <th className="w-[15%] px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Application Status</th>
+                <th className="w-[10%] px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
+                <th className="w-[10%] px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Submitted</th>
+                <th className="w-[10%] px-4 xl:px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-primary-lighter">
@@ -94,56 +94,61 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
                 return (
                   <tr key={candidate.id} className="hover:bg-primary/50 transition-colors group">
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm font-medium">
+                    <td className="px-4 xl:px-6 py-4 overflow-hidden">
                       <button
                         onClick={() => setSelectedCandidate(candidate)}
-                        className="text-light group-hover:text-accent hover:underline transition-colors text-left font-semibold focus:outline-none"
+                        className="text-light group-hover:text-accent hover:underline transition-colors text-left focus:outline-none flex flex-col"
                       >
-                        {candidate.firstName} {candidate.lastName || ''}
+                        <span className="text-sm font-semibold truncate w-full" title={candidate.firstName}>{candidate.firstName}</span>
+                        {candidate.lastName && <span className="text-xs text-muted truncate w-full" title={candidate.lastName}>{candidate.lastName}</span>}
                       </button>
                     </td>
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm text-muted">
-                      <div className="truncate max-w-[150px] xl:max-w-[200px]" title={candidate.email}>{candidate.email}</div>
-                      <div className="truncate max-w-[150px] xl:max-w-[200px]" title={candidate.phone || 'N/A'}>{candidate.phone || 'N/A'}</div>
+                    <td className="px-4 xl:px-6 py-4 overflow-hidden">
+                      <div className="text-sm text-muted truncate" title={candidate.email}>{candidate.email}</div>
+                      <div className="text-xs text-muted truncate mt-0.5" title={candidate.phone || 'N/A'}>{candidate.phone || 'N/A'}</div>
                     </td>
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
-                      <div className="truncate max-w-[150px] xl:max-w-[200px]" title={latestApp ? latestApp.job.title : 'N/A'}>
+                    <td className="px-4 xl:px-6 py-4 overflow-hidden">
+                      <div className="text-sm font-medium text-light group-hover:text-accent transition-colors truncate" title={latestApp ? latestApp.job.title : 'N/A'}>
                         {latestApp ? latestApp.job.title : 'N/A'}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm">
+                    <td className="px-4 xl:px-6 py-4 overflow-hidden">
                       {latestApp ? (
-                        <span className="inline-flex rounded-full bg-accent/10 px-2 text-xs font-semibold leading-5 text-accent border-accent/20">
+                        <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase leading-tight text-accent border border-accent/20 truncate">
                           {latestApp.status.replace(/_/g, ' ')}
                         </span>
-                      ) : 'N/A'}
+                      ) : <span className="text-sm text-muted">N/A</span>}
                     </td>
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
-                      {latestApp && ['SELECTED', 'JOINED'].includes(latestApp.status) && expectedDOJ ? expectedDOJ : '—'}
+                    <td className="px-4 xl:px-6 py-4 text-sm font-medium text-light overflow-hidden">
+                      {latestApp && ['SELECTED', 'JOINED'].includes(latestApp.status) && expectedDOJ ? <span className="truncate">{expectedDOJ}</span> : <span className="text-muted">—</span>}
                     </td>
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm text-muted">
-                      {new Date(candidate.createdAt).toLocaleDateString()}
+                    <td className="px-4 xl:px-6 py-4 text-sm text-muted overflow-hidden">
+                      <span className="truncate">{new Date(candidate.createdAt).toLocaleDateString()}</span>
                     </td>
-                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-right text-sm font-medium space-x-4 sticky right-0 bg-primary-lighter group-hover:bg-[#1a1a1a] md:static md:bg-transparent transition-colors">
-                      <button
-                        onClick={() => setSelectedCandidate(candidate)}
-                        className="text-muted hover:text-accent transition-colors focus:outline-none"
-                      >
-                        View
-                      </button>
-                      <a
-                        href={`/recruiter/candidates/${candidate.id}/edit`}
-                        className="text-muted hover:text-accent transition-colors"
-                      >
-                        Edit
-                      </a>
+                    <td className="px-4 xl:px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <button
+                          onClick={() => setSelectedCandidate(candidate)}
+                          className="text-muted hover:text-accent transition-colors focus:outline-none p-1"
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <a
+                          href={`/recruiter/candidates/${candidate.id}/edit`}
+                          className="text-muted hover:text-accent transition-colors p-1"
+                          title="Edit Candidate"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 )
               })}
               {candidates.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="whitespace-nowrap px-6 py-12 text-sm text-muted text-center">No candidates submitted yet.</td>
+                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">No candidates submitted yet.</td>
                 </tr>
               )}
             </tbody>

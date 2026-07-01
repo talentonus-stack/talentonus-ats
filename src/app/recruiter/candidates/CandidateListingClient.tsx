@@ -74,77 +74,81 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
   return (
     <>
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
-        <table className="min-w-full divide-y divide-border">
-          <thead className="bg-primary-lighter/50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Contact</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Applied</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Application Status</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Submitted On</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border bg-primary-lighter">
-            {candidates.map((candidate) => {
-              const latestApp = candidate.applications[0];
-              const expectedDOJ = latestApp?.placement?.expectedJoiningDate ? new Date(latestApp.placement.expectedJoiningDate).toLocaleDateString() : null;
-
-              return (
-                <tr key={candidate.id} className="hover:bg-primary/50 transition-colors group">
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium">
-                    <button
-                      onClick={() => setSelectedCandidate(candidate)}
-                      className="text-light group-hover:text-accent hover:underline transition-colors text-left font-semibold focus:outline-none"
-                    >
-                      {candidate.firstName} {candidate.lastName || ''}
-                    </button>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                    <div>{candidate.email}</div>
-                    <div>{candidate.phone || 'N/A'}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
-                    {latestApp ? latestApp.job.title : 'N/A'}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    {latestApp ? (
-                      <span className="inline-flex rounded-full bg-accent/10 px-2 text-xs font-semibold leading-5 text-accent border-accent/20">
-                        {latestApp.status.replace(/_/g, ' ')}
-                      </span>
-                    ) : 'N/A'}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
-                    {latestApp && ['SELECTED', 'JOINED'].includes(latestApp.status) && expectedDOJ ? expectedDOJ : '—'}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
-                    {new Date(candidate.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
-                    <button
-                      onClick={() => setSelectedCandidate(candidate)}
-                      className="text-muted hover:text-accent transition-colors focus:outline-none"
-                    >
-                      View
-                    </button>
-                    <a
-                      href={`/recruiter/candidates/${candidate.id}/edit`}
-                      className="text-muted hover:text-accent transition-colors"
-                    >
-                      Edit
-                    </a>
-                  </td>
-                </tr>
-              )
-            })}
-            {candidates.length === 0 && (
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-primary-lighter/50">
               <tr>
-                <td colSpan={6} className="whitespace-nowrap px-6 py-12 text-sm text-muted text-center">No candidates submitted yet.</td>
+                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
+                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Contact</th>
+                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Applied</th>
+                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Application Status</th>
+                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
+                <th className="px-4 xl:px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Submitted On</th>
+                <th className="px-4 xl:px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider sticky right-0 bg-primary-lighter/90 backdrop-blur-sm shadow-[-5px_0_15px_-5px_rgba(0,0,0,0.5)] md:static md:bg-transparent md:shadow-none">Action</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border bg-primary-lighter">
+              {candidates.map((candidate) => {
+                const latestApp = candidate.applications[0];
+                const expectedDOJ = latestApp?.placement?.expectedJoiningDate ? new Date(latestApp.placement.expectedJoiningDate).toLocaleDateString() : null;
+
+                return (
+                  <tr key={candidate.id} className="hover:bg-primary/50 transition-colors group">
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm font-medium">
+                      <button
+                        onClick={() => setSelectedCandidate(candidate)}
+                        className="text-light group-hover:text-accent hover:underline transition-colors text-left font-semibold focus:outline-none"
+                      >
+                        {candidate.firstName} {candidate.lastName || ''}
+                      </button>
+                    </td>
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm text-muted">
+                      <div className="truncate max-w-[150px] xl:max-w-[200px]" title={candidate.email}>{candidate.email}</div>
+                      <div className="truncate max-w-[150px] xl:max-w-[200px]" title={candidate.phone || 'N/A'}>{candidate.phone || 'N/A'}</div>
+                    </td>
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
+                      <div className="truncate max-w-[150px] xl:max-w-[200px]" title={latestApp ? latestApp.job.title : 'N/A'}>
+                        {latestApp ? latestApp.job.title : 'N/A'}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm">
+                      {latestApp ? (
+                        <span className="inline-flex rounded-full bg-accent/10 px-2 text-xs font-semibold leading-5 text-accent border-accent/20">
+                          {latestApp.status.replace(/_/g, ' ')}
+                        </span>
+                      ) : 'N/A'}
+                    </td>
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
+                      {latestApp && ['SELECTED', 'JOINED'].includes(latestApp.status) && expectedDOJ ? expectedDOJ : '—'}
+                    </td>
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-sm text-muted">
+                      {new Date(candidate.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="whitespace-nowrap px-4 xl:px-6 py-4 text-right text-sm font-medium space-x-4 sticky right-0 bg-primary-lighter group-hover:bg-[#1a1a1a] md:static md:bg-transparent transition-colors">
+                      <button
+                        onClick={() => setSelectedCandidate(candidate)}
+                        className="text-muted hover:text-accent transition-colors focus:outline-none"
+                      >
+                        View
+                      </button>
+                      <a
+                        href={`/recruiter/candidates/${candidate.id}/edit`}
+                        className="text-muted hover:text-accent transition-colors"
+                      >
+                        Edit
+                      </a>
+                    </td>
+                  </tr>
+                )
+              })}
+              {candidates.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="whitespace-nowrap px-6 py-12 text-sm text-muted text-center">No candidates submitted yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Candidate Details Modal */}

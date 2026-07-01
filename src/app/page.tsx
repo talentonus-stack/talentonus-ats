@@ -118,7 +118,6 @@ export default async function DashboardPage() {
     { label: "Joined", count: pipeline.JOINED },
     { label: "Backed Out", count: pipeline.BACKED_OUT },
   ]
-  const maxFunnel = Math.max(1, ...funnelStages.map(s => s.count))
 
   // Recruiter Leaderboard Calculation
   const recruiterStats = recruitersList.map(recruiter => {
@@ -204,26 +203,17 @@ export default async function DashboardPage() {
             <TrendingUp className="w-4 h-4 text-accent" />
             Recruitment Funnel
           </h2>
-          <div className="grid grid-cols-9 gap-4 min-w-[800px]">
-            {funnelStages.map((stage, idx) => {
-              const widthPercent = maxFunnel > 0 ? (stage.count / maxFunnel) * 100 : 0;
-              return (
-                <div key={stage.label} className="relative flex flex-col">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-xs font-bold text-muted uppercase tracking-wide">{stage.label}</span>
-                    <span className="text-lg font-black text-light leading-none">{stage.count}</span>
-                  </div>
-                  <div className="w-full bg-primary rounded-full h-2 border border-border/50 overflow-hidden mt-auto">
-                    <div
-                      className="bg-accent h-full rounded-full transition-all duration-1000 ease-out relative"
-                      style={{ width: `${widthPercent}%` }}
-                    >
-                       <div className="absolute inset-0 bg-white/20 w-full h-full"></div>
-                    </div>
-                  </div>
+          <div className="grid grid-cols-9 gap-3 min-w-[800px]">
+            {funnelStages.map((stage) => (
+              <div key={stage.label} className="flex flex-col items-center">
+                <div className="bg-primary border border-border/50 rounded-xl w-full h-24 flex flex-col items-center justify-center shadow-sm hover:border-accent/30 hover:bg-primary-lighter transition-all group">
+                  <span className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stage.count}</span>
                 </div>
-              )
-            })}
+                <span className="text-[10px] font-bold text-muted uppercase tracking-wider text-center mt-3 leading-tight px-1">
+                  {stage.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>

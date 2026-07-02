@@ -26,6 +26,7 @@ model User {
   mobile           String?    @unique
   location         String?
   status           UserStatus @default(ACTIVE)
+  lastLogin        DateTime?
 
   // OTP Fields (from DB)
   otp              String?

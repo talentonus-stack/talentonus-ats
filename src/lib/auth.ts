@@ -28,6 +28,12 @@ export const authOptions: AuthOptions = {
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (isPasswordValid) {
+          // Update lastLogin on successful authentication
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLogin: new Date() }
+          })
+
           return { id: user.id, email: user.email, name: user.name, role: user.role }
         }
 

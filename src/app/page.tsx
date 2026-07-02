@@ -72,7 +72,18 @@ export default async function DashboardPage() {
     prisma.candidate.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
-      include: { recruiter: { select: { name: true } } }
+      include: {
+        recruiter: { select: { name: true } },
+        applications: {
+          include: {
+            job: {
+              include: {
+                company: true
+              }
+            }
+          }
+        }
+      }
     })
   ])
 
@@ -317,38 +328,57 @@ export default async function DashboardPage() {
           <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center justify-between border-b border-border/50 pb-3">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-accent" />
-              Latest Submissions
+              Latest Candidates Submitted
             </div>
             <Link href="/candidates" className="text-xs text-accent hover:underline">View Directory</Link>
           </h2>
           <div className="overflow-x-auto">
-             <table className="min-w-full divide-y divide-border/50">
+             <table className="min-w-full divide-y divide-border/50 table-fixed">
                 <thead>
                   <tr>
-                    <th className="pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Candidate Name</th>
-                    <th className="pb-3 px-4 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Submitted By</th>
-                    <th className="pb-3 px-4 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Experience</th>
-                    <th className="pb-3 text-right text-[10px] font-bold text-muted uppercase tracking-wider">Date Added</th>
+                    <th className="w-1/6 pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Candidate Name</th>
+                    <th className="w-1/6 pb-3 px-4 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Applied Position</th>
+                    <th className="w-1/6 pb-3 px-4 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Company Name</th>
+                    <th className="w-[10%] pb-3 px-4 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Experience</th>
+                    <th className="w-1/6 pb-3 px-4 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Submitted By</th>
+                    <th className="w-[10%] pb-3 text-right text-[10px] font-bold text-muted uppercase tracking-wider">Date Added</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/30">
-                  {recentCandidates.map((candidate) => (
-                    <tr key={candidate.id} className="group hover:bg-primary/20 transition-colors">
-                      <td className="py-3 whitespace-nowrap">
-                        <Link href={`/candidates/${candidate.id}`} className="text-sm font-semibold text-light hover:text-accent transition-colors">
-                          {candidate.firstName} {candidate.lastName || ''}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-muted">
-                        {candidate.recruiter?.name || 'System Admin'}
-                      </td>
-                      <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-light">{candidate.experience || 'N/A'}</td>
-                      <td className="py-3 text-right whitespace-nowrap text-sm text-muted">{new Date(candidate.createdAt).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
+                  {recentCandidates.map((candidate) => {
+                    const firstApp = candidate.applications?.[0];
+                    const appliedJob = firstApp?.job;
+
+                    return (
+                      <tr key={candidate.id} className="group hover:bg-primary/20 transition-colors">
+                        <td className="py-3 overflow-hidden">
+                          <Link href={`/candidates/${candidate.id}`} className="text-sm font-semibold text-light hover:text-accent transition-colors block truncate" title={`${candidate.firstName} ${candidate.lastName || ''}`}>
+                            {candidate.firstName} {candidate.lastName || ''}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 overflow-hidden text-sm text-light">
+                          <div className="truncate" title={appliedJob?.title || 'N/A'}>
+                            {appliedJob?.title || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 overflow-hidden text-sm text-muted">
+                          <div className="truncate" title={appliedJob?.company?.name || 'N/A'}>
+                            {appliedJob?.company?.name || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center whitespace-nowrap text-sm text-light">{candidate.experience || 'N/A'}</td>
+                        <td className="px-4 py-3 overflow-hidden text-sm text-muted">
+                          <div className="truncate" title={candidate.recruiter?.name || 'System Admin'}>
+                            {candidate.recruiter?.name || 'System Admin'}
+                          </div>
+                        </td>
+                        <td className="py-3 text-right whitespace-nowrap text-sm text-muted">{new Date(candidate.createdAt).toLocaleDateString()}</td>
+                      </tr>
+                    );
+                  })}
                   {recentCandidates.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-sm text-muted">No candidates submitted recently.</td>
+                      <td colSpan={6} className="py-8 text-center text-sm text-muted">No candidates submitted recently.</td>
                     </tr>
                   )}
                 </tbody>

@@ -41,28 +41,29 @@ export default async function DashboardPage() {
     recentCandidates
   ] = await Promise.all([
     prisma.job.count(),
-    prisma.candidate.count(),
-    prisma.application.count(),
-    prisma.application.count({ where: { status: "JOINED" } }),
+    prisma.candidate.count({ where: { status: "ACTIVE" } }),
+    prisma.application.count({ where: { candidate: { status: "ACTIVE" } } }),
+    prisma.application.count({ where: { status: "JOINED", candidate: { status: "ACTIVE" } } }),
     prisma.job.count({ where: { status: "OPEN" } }),
     prisma.user.count({ where: { role: "RECRUITER" } }),
     prisma.user.findMany({
       where: { role: "RECRUITER", candidates: { some: { createdAt: { gte: thirtyDaysAgo } } } }
     }),
-    prisma.application.count({ where: { status: "INTERVIEW_SCHEDULED" } }),
+    prisma.application.count({ where: { status: "INTERVIEW_SCHEDULED", candidate: { status: "ACTIVE" } } }),
     prisma.company.count(),
     prisma.company.count({ where: { status: "ACTIVE" } }),
-    prisma.application.findMany({ select: { status: true } }),
+    prisma.application.findMany({ where: { candidate: { status: "ACTIVE" } }, select: { status: true } }),
     prisma.user.findMany({
       where: { role: "RECRUITER" },
       include: {
         candidates: {
-          include: { applications: { select: { status: true } } }
+          where: { status: "ACTIVE" }, include: { applications: { select: { status: true } } }
         }
       }
     }),
     prisma.application.findMany({
       take: 5,
+      where: { candidate: { status: "ACTIVE" } },
       orderBy: { updatedAt: 'desc' },
       include: {
         candidate: { select: { firstName: true, lastName: true, recruiter: { select: { name: true } } } },
@@ -71,6 +72,7 @@ export default async function DashboardPage() {
     }),
     prisma.candidate.findMany({
       take: 5,
+      where: { status: "ACTIVE" },
       orderBy: { createdAt: 'desc' },
       include: {
         recruiter: { select: { name: true } },

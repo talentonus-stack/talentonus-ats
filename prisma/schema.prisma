@@ -12,6 +12,11 @@ enum Role {
   RECRUITER
 }
 
+enum CandidateStatus {
+  ACTIVE
+  ARCHIVED
+}
+
 enum UserStatus {
   ACTIVE
   INACTIVE
@@ -162,6 +167,7 @@ model Job {
 model Candidate {
   id              String        @id @default(cuid())
   firstName       String
+  status          CandidateStatus @default(ACTIVE)
   lastName        String?
   email           String        @unique
   phone           String?

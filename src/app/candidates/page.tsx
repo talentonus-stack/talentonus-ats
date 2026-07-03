@@ -27,6 +27,7 @@ export default async function CandidatesPage() {
   let candidates: any[] = []
   try {
     candidates = await prisma.candidate.findMany({
+      where: { status: "ACTIVE" },
       include: {
         recruiter: true,
         applications: {

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
+import JobListingClient from "./JobListingClient"
 
 export default async function JobsPage({
   searchParams,
@@ -102,59 +103,7 @@ export default async function JobsPage({
         </form>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
-            <thead className="bg-primary-lighter/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title / Company</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Location</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Posted</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-primary-lighter">
-              {jobs.map((job) => (
-                <tr key={job.id} className="hover:bg-primary/50 transition-colors group">
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
-                    <div className="text-xs text-muted mt-1">{job.company?.name || 'No Company'}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.experience || 'N/A'}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.location}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : job.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
-                      {job.priority}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{new Date(job.postedDate).toLocaleDateString()}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors mr-3">
-                      View
-                    </Link>
-                    <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors">
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {jobs.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">No jobs found matching your criteria.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <JobListingClient initialJobs={jobs} />
     </div>
   )
 }

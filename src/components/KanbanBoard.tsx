@@ -32,20 +32,29 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     setTimeout(() => setToastMessage(null), 3000)
   }
 
-  const handleStatusChange = async (appId: string, newStatus: string) => {
-    let offeredCTC = undefined
 
+  const [selectedAppInfo, setSelectedAppInfo] = useState<{ id: string, name: string } | null>(null);
+  const [showSelectedModal, setShowSelectedModal] = useState(false);
+  const [formData, setFormData] = useState({ offeredCTC: '', expectedJoiningDate: '', remarks: '' });
+
+  const handleStatusChange = async (appId: string, newStatus: string) => {
     if (newStatus === 'SELECTED') {
-      const ctcInput = prompt("Enter the final Offered CTC for this candidate to calculate placement fees:")
-      if (!ctcInput || isNaN(parseFloat(ctcInput))) {
-        alert("Offered CTC is required to move a candidate to SELECTED.")
+      const app = applications.find(a => a.id === appId);
+      if (app) {
+        setSelectedAppInfo({ id: appId, name: `${app.candidate.firstName} ${app.candidate.lastName || ''}` });
+        setShowSelectedModal(true);
+        setFormData({ offeredCTC: '', expectedJoiningDate: '', remarks: '' });
+      } else {
         // Reset the select dropdown to its original status by forcing a re-render
         setApplications([...applications])
-        return
       }
-      offeredCTC = parseFloat(ctcInput)
+      return;
     }
 
+    await processStatusUpdate(appId, newStatus);
+  }
+
+  const processStatusUpdate = async (appId: string, newStatus: string, extraData?: any) => {
     // Save previous state for rollback
     const previousApplications = [...applications]
 
@@ -55,10 +64,11 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     )
 
     try {
+      const payload = { status: newStatus, ...(extraData || {}) };
       const res = await fetch(`/api/applications/${appId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus, offeredCTC })
+        body: JSON.stringify(payload)
       })
 
       if (!res.ok) {
@@ -75,6 +85,37 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
       showToast(e.message || "Failed to update status. Changes reverted.", 'error')
     }
   }
+
+  const submitSelectedModal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppInfo) return;
+
+    if (!formData.offeredCTC || isNaN(parseFloat(formData.offeredCTC))) {
+      showToast("Valid Offered CTC is required", "error");
+      return;
+    }
+
+    if (!formData.expectedJoiningDate) {
+      showToast("Expected Joining Date is required", "error");
+      return;
+    }
+
+    const extraData = {
+      offeredCTC: parseFloat(formData.offeredCTC),
+      expectedJoiningDate: new Date(formData.expectedJoiningDate).toISOString(),
+      remarks: formData.remarks
+    };
+
+    setShowSelectedModal(false);
+    await processStatusUpdate(selectedAppInfo.id, 'SELECTED', extraData);
+  }
+
+  const cancelSelectedModal = () => {
+    setShowSelectedModal(false);
+    setSelectedAppInfo(null);
+    setApplications([...applications]); // Force re-render to reset dropdown
+  }
+
 
   return (
     <div className="relative">
@@ -118,6 +159,55 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
           </div>
         ))}
       </div>
+
+      {showSelectedModal && selectedAppInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden">
+            <div className="p-6 border-b border-border bg-primary/30">
+              <h2 className="text-xl font-bold text-light">Candidate Selected</h2>
+              <p className="text-sm text-muted mt-1">Finalize placement details for {selectedAppInfo.name}</p>
+            </div>
+            <form onSubmit={submitSelectedModal} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-light uppercase tracking-wider mb-2">Offered CTC *</label>
+                <input
+                  type="number"
+                  required
+                  value={formData.offeredCTC}
+                  onChange={(e) => setFormData({...formData, offeredCTC: e.target.value})}
+                  className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                  placeholder="e.g. 1500000"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-light uppercase tracking-wider mb-2">Expected Joining Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={formData.expectedJoiningDate}
+                  onChange={(e) => setFormData({...formData, expectedJoiningDate: e.target.value})}
+                  className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-light uppercase tracking-wider mb-2">Remarks (Optional)</label>
+                <textarea
+                  rows={3}
+                  value={formData.remarks}
+                  onChange={(e) => setFormData({...formData, remarks: e.target.value})}
+                  className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent custom-scrollbar resize-none"
+                  placeholder="Any conditions or notes..."
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
+                <button type="button" onClick={cancelSelectedModal} className="px-4 py-2 rounded-lg text-sm font-bold text-muted hover:text-light transition-colors">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent-hover transition-colors">Confirm Selection</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

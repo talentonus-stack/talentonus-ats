@@ -69,4 +69,3 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
     </div>
   )
 }
-*/

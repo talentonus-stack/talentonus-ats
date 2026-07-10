@@ -499,8 +499,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-hidden">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[calc(100vh-32px)] relative">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 p-4 bg-black/80 backdrop-blur-sm overflow-hidden">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[calc(100vh-96px)] relative">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"

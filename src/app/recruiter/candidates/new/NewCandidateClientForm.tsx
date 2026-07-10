@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
-export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJobs: any[], jobId?: string }) {
+export default function NewCandidateClientForm({ activeJobs, jobId, existingCandidate }: { activeJobs: any[], jobId?: string, existingCandidate?: any }) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
@@ -114,62 +114,65 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">First Name</label>
-            <input required type="text" name="firstName" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="firstName" defaultValue={existingCandidate?.firstName || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Last Name</label>
-            <input type="text" name="lastName" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input type="text" name="lastName" defaultValue={existingCandidate?.lastName || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Email Address</label>
-            <input required type="email" name="email" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="email" name="email" defaultValue={existingCandidate?.email || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Mobile Number</label>
-            <input required type="text" name="phone" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="phone" defaultValue={existingCandidate?.phone || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Current Location</label>
-            <input required type="text" name="currentLocation" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="currentLocation" defaultValue={existingCandidate?.currentLocation || ""} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Total Experience</label>
-            <input required type="text" name="experience" placeholder="e.g. 5 Years" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="experience" defaultValue={existingCandidate?.experience || ""} placeholder="e.g. 5 Years" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Current Salary</label>
-            <input type="text" name="currentSalary" placeholder="e.g. ₹10,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="currentSalary" defaultValue={existingCandidate?.currentSalary || ""} placeholder="e.g. ₹10,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Expected Salary</label>
-            <input required type="text" name="expectedSalary" placeholder="e.g. ₹15,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="expectedSalary" defaultValue={existingCandidate?.expectedSalary || ""} placeholder="e.g. ₹15,00,000" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Notice Period</label>
-            <input required type="text" name="noticePeriod" placeholder="e.g. 30 Days" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="noticePeriod" defaultValue={existingCandidate?.noticePeriod || ""} placeholder="e.g. 30 Days" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Portfolio / Profile URL</label>
-            <input type="url" name="portfolioUrl" placeholder="https://linkedin.com/in/..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input type="url" name="portfolioUrl" defaultValue={existingCandidate?.portfolioUrl || ""} placeholder="https://linkedin.com/in/..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Key Skills</label>
-            <input required type="text" name="skills" placeholder="React, Node, SQL..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <input required type="text" name="skills" defaultValue={existingCandidate?.skills || ""} placeholder="React, Node, SQL..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Resume Upload (PDF, DOC, DOCX - Max 5MB)</label>
             <input type="file" name="resumeFile" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            {existingCandidate?.resumeFileName && (
+              <p className="mt-2 text-xs text-muted">Current file: {existingCandidate.resumeFileName}</p>
+            )}
           </div>
 
           <div className="sm:col-span-2">
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Recruiter Remarks</label>
-            <textarea name="remarks" rows={4} placeholder="Any notes on the candidate..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
+            <textarea name="remarks" defaultValue={existingCandidate?.remarks || ""} rows={4} placeholder="Any notes on the candidate..." className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
           </div>
         </div>
 
@@ -178,7 +181,7 @@ export default function NewCandidateClientForm({ activeJobs, jobId }: { activeJo
             Cancel
           </a>
           <button disabled={isSubmitting} type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] disabled:opacity-50">
-            {isSubmitting ? "Submitting..." : "Submit Candidate"}
+            {isSubmitting ? "Saving..." : existingCandidate ? "Update Candidate" : "Submit Candidate"}
           </button>
         </div>
       </form>

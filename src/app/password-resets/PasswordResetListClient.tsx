@@ -48,13 +48,10 @@ export default function PasswordResetListClient({ initialRequests }: { initialRe
     setStatusMsg("")
 
     try {
-      const res = await fetch(`/api/password-resets/${selectedRequest.id}/reset`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPassword, userId: selectedRequest.userId })
-      })
+      const { processPasswordReset } = await import('./actions')
+      const res = await processPasswordReset(selectedRequest.id, newPassword)
 
-      if (!res.ok) throw new Error("Failed to reset password")
+      if (!res.success) throw new Error(res.error || "Failed to reset password")
 
       setStatusMsg("success: Password updated successfully!")
 

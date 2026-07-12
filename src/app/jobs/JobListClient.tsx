@@ -14,6 +14,7 @@ type Job = {
   priority: string
   status: string
   postedDate: Date
+  publishOnWebsite: boolean
   _count: {
     applications: number
     placements: number
@@ -112,11 +113,12 @@ export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
           <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="w-[30%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title / Company</th>
+                <th className="w-[25%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title / Company</th>
                 <th className="hidden lg:table-cell w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
                 <th className="w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Location</th>
                 <th className="w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Priority</th>
                 <th className="w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                <th className="hidden lg:table-cell w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Published</th>
                 <th className="hidden lg:table-cell w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Posted</th>
                 <th className="w-[10%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
@@ -138,6 +140,11 @@ export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
                   <td className="px-4 py-4 text-sm">
                     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-semibold border truncate max-w-full ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`} title={job.status}>
                       {job.status}
+                    </span>
+                  </td>
+                  <td className="hidden lg:table-cell px-4 py-4 text-sm text-muted">
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-semibold border ${job.publishOnWebsite ? 'bg-accent/10 text-accent border-accent/20' : 'bg-border text-muted border-border'}`}>
+                      {job.publishOnWebsite ? 'Yes' : 'No'}
                     </span>
                   </td>
                   <td className="hidden lg:table-cell px-4 py-4 text-sm text-muted truncate">{new Date(job.postedDate).toLocaleDateString()}</td>

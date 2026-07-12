@@ -148,6 +148,7 @@ model Job {
   gender       JobGender     @default(BOTH)
   vacancies    Int           @default(1)
   education    String?
+  publishOnWebsite Boolean     @default(false)
 
   companyId    String?
   company      Company?      @relation(fields: [companyId], references: [id])

@@ -8,7 +8,7 @@ import JobListClient from "./JobListClient"
 export default async function JobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; priority?: string; location?: string }>
+  searchParams: Promise<{ q?: string; status?: string; priority?: string; location?: string; published?: string }>
 }) {
   const session = await getServerSession(authOptions)
   if (!session) {
@@ -18,7 +18,7 @@ export default async function JobsPage({
     redirect("/recruiter")
   }
 
-  const { q, status, priority, location } = await searchParams;
+  const { q, status, priority, location, published } = await searchParams;
 
   let jobs: any[] = []
 
@@ -35,6 +35,9 @@ export default async function JobsPage({
   }
   if (location) {
     whereClause.location = { contains: location, mode: "insensitive" }
+  }
+  if (published) {
+    whereClause.publishOnWebsite = published === "true"
   }
 
   try {
@@ -85,6 +88,14 @@ export default async function JobsPage({
               <option value="OPEN">Open</option>
               <option value="ON_HOLD">On Hold</option>
               <option value="CLOSED">Closed</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Published</label>
+            <select name="published" defaultValue={published || ""} className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light focus:border-accent focus:ring-1 focus:ring-accent transition-colors">
+              <option value="">All Jobs</option>
+              <option value="true">Published Jobs</option>
+              <option value="false">Unpublished Jobs</option>
             </select>
           </div>
           <div>

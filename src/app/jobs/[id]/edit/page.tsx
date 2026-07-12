@@ -53,6 +53,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           vacancies: parseInt(formData.get("vacancies") as string) || 1,
           education: formData.get("education") as string,
           description: formData.get("description") as string,
+          publishOnWebsite: formData.get("status") === "OPEN" ? formData.get("publishOnWebsite") === "on" : false,
         }
       })
     } catch(e) {

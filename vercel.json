@@ -1,0 +1,9 @@
+{
+  "buildCommand": "prisma generate && npx prisma migrate deploy && next build",
+  "crons": [
+    {
+      "path": "/api/cron/retention",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

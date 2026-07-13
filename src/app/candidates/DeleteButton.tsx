@@ -2,6 +2,8 @@
 
 import { deleteCandidate } from "./actions"
 
+import { Trash2 } from "lucide-react"
+
 export default function DeleteButton({ id }: { id: string }) {
   const handleDelete = async () => {
     if (confirm("Are you sure you want to permanently delete this candidate and all their applications?")) {
@@ -12,9 +14,10 @@ export default function DeleteButton({ id }: { id: string }) {
   return (
     <button
       onClick={handleDelete}
-      className="text-red-400 hover:text-red-300 transition-colors text-sm font-medium"
+      className="text-muted hover:text-red-500 transition-colors p-1"
+      title="Delete"
     >
-      Delete
+      <Trash2 className="w-4 h-4" />
     </button>
   )
 }

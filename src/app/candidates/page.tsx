@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import DeleteButton from "./DeleteButton"
+import { Eye, Edit2 } from "lucide-react"
 
 export default async function CandidatesPage() {
   const formatSalary = (salary: string | null) => {
@@ -111,11 +112,16 @@ export default async function CandidatesPage() {
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
-                      <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors">
-                        Edit
-                      </Link>
-                      <DeleteButton id={candidate.id} />
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-3">
+                        <Link href={`/candidates/${candidate.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View">
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors p-1" title="Edit">
+                          <Edit2 className="w-4 h-4" />
+                        </Link>
+                        <DeleteButton id={candidate.id} />
+                      </div>
                     </td>
                   </tr>
                 )

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Trash2, Edit2 } from "lucide-react"
+import { Trash2, Edit2, Eye } from "lucide-react"
 import { deleteJob } from "./actions"
 
 type Job = {
@@ -143,6 +143,9 @@ export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
                   <td className="hidden lg:table-cell px-4 py-4 text-sm text-muted truncate">{new Date(job.postedDate).toLocaleDateString()}</td>
                   <td className="px-4 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
+                      <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View">
+                        <Eye className="w-4 h-4" />
+                      </Link>
                       <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors p-1" title="Edit">
                         <Edit2 className="w-4 h-4" />
                       </Link>

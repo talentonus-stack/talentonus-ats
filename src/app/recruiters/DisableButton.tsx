@@ -2,6 +2,8 @@
 
 import { disableRecruiter } from "./actions"
 
+import { UserX } from "lucide-react"
+
 export default function DisableButton({ id, status }: { id: string, status: string }) {
   const isInactive = status === "INACTIVE"
 
@@ -12,15 +14,16 @@ export default function DisableButton({ id, status }: { id: string, status: stri
   }
 
   if (isInactive) {
-    return <span className="text-gray-400 text-sm">Disabled</span>
+    return <span className="text-gray-400 text-sm p-1 inline-block" title="Disabled"><UserX className="w-4 h-4 opacity-50" /></span>
   }
 
   return (
     <button
       onClick={handleDisable}
-      className="text-red-400 hover:text-red-300 transition-colors text-sm font-medium"
+      className="text-muted hover:text-red-500 transition-colors p-1"
+      title="Disable"
     >
-      Disable
+      <UserX className="w-4 h-4" />
     </button>
   )
 }

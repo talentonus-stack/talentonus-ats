@@ -8,7 +8,7 @@ import JobListClient from "./JobListClient"
 export default async function JobsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; priority?: string; location?: string; published?: string }>
+  searchParams: Promise<{ q?: string; status?: string; priority?: string; location?: string }>
 }) {
   const session = await getServerSession(authOptions)
   if (!session) {
@@ -18,7 +18,7 @@ export default async function JobsPage({
     redirect("/recruiter")
   }
 
-  const { q, status, priority, location, published } = await searchParams;
+  const { q, status, priority, location } = await searchParams;
 
   let jobs: any[] = []
 
@@ -35,9 +35,6 @@ export default async function JobsPage({
   }
   if (location) {
     whereClause.location = { contains: location, mode: "insensitive" }
-  }
-  if (published) {
-    whereClause.publishOnWebsite = published === "true"
   }
 
   try {
@@ -75,13 +72,13 @@ export default async function JobsPage({
         </div>
       </div>
 
-      <div className="mb-8 rounded-2xl bg-primary-lighter border border-border p-5 overflow-x-auto custom-scrollbar">
-        <form className="flex flex-col sm:flex-row gap-4 min-w-[900px]" method="GET" action="/jobs">
-          <div className="flex-1">
+      <div className="mb-8 rounded-2xl bg-primary-lighter border border-border p-5">
+        <form className="grid grid-cols-1 gap-4 sm:grid-cols-4" method="GET" action="/jobs">
+          <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Search Title</label>
             <input type="text" name="q" defaultValue={q || ""} placeholder="Software Engineer..." className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
           </div>
-          <div className="w-[150px]">
+          <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Status</label>
             <select name="status" defaultValue={status || ""} className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light focus:border-accent focus:ring-1 focus:ring-accent transition-colors">
               <option value="">All Statuses</option>
@@ -90,15 +87,7 @@ export default async function JobsPage({
               <option value="CLOSED">Closed</option>
             </select>
           </div>
-          <div className="w-[150px]">
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Published</label>
-            <select name="published" defaultValue={published || ""} className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light focus:border-accent focus:ring-1 focus:ring-accent transition-colors">
-              <option value="">All Jobs</option>
-              <option value="true">Published</option>
-              <option value="false">Unpublished</option>
-            </select>
-          </div>
-          <div className="w-[150px]">
+          <div>
             <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Priority</label>
             <select name="priority" defaultValue={priority || ""} className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light focus:border-accent focus:ring-1 focus:ring-accent transition-colors">
               <option value="">All Priorities</option>
@@ -107,12 +96,12 @@ export default async function JobsPage({
               <option value="LOW">Low</option>
             </select>
           </div>
-          <div className="flex-1">
-            <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Location</label>
-            <input type="text" name="location" defaultValue={location || ""} placeholder="Remote, NY..." className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
-          </div>
-          <div className="flex items-end">
-            <button type="submit" className="rounded-lg bg-primary border border-border px-6 py-2 h-[38px] text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">
+          <div className="flex items-end gap-3">
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Location</label>
+              <input type="text" name="location" defaultValue={location || ""} placeholder="Remote, NY..." className="block w-full rounded-lg bg-primary border border-border px-3 py-2 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
+            </div>
+            <button type="submit" className="rounded-lg bg-primary border border-border px-5 py-2 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">
               Filter
             </button>
           </div>

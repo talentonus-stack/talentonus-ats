@@ -4,7 +4,6 @@ import { useState } from "react"
 export default function JobFormClient({ companies, createJob, initialData }: { companies: any[], createJob: any, initialData?: any }) {
   const [workingDays, setWorkingDays] = useState(initialData?.workingDays || "")
   const [workingHours, setWorkingHours] = useState(initialData?.workingHours || "")
-  const [jobStatus, setJobStatus] = useState(initialData?.status || "OPEN")
 
   const handleCompanyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCompany = companies.find(c => c.id === e.target.value)
@@ -96,7 +95,7 @@ export default function JobFormClient({ companies, createJob, initialData }: { c
 
         <div>
           <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Status</label>
-          <select name="status" defaultValue={initialData?.status || "OPEN"} onChange={(e) => setJobStatus(e.target.value)} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
+          <select name="status" defaultValue={initialData?.status || "OPEN"} className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200">
             <option value="OPEN" >Open</option>
             <option value="ON_HOLD">On Hold</option>
             <option value="CLOSED">Closed</option>
@@ -109,20 +108,6 @@ export default function JobFormClient({ companies, createJob, initialData }: { c
             <option value="MALE">Male</option>
             <option value="FEMALE">Female</option>
           </select>
-        </div>
-
-        <div className="sm:col-span-2">
-          <label className="flex items-center gap-3 p-4 bg-primary rounded-lg border border-border cursor-pointer hover:border-accent transition-all">
-            <div className="relative flex items-center">
-              <input type="checkbox" name="publishOnWebsite" defaultChecked={initialData?.publishOnWebsite} disabled={jobStatus !== "OPEN"} className="peer sr-only" />
-              <div className={`block h-6 w-11 rounded-full border border-border bg-primary-lighter transition-all peer-checked:bg-accent peer-checked:border-accent peer-disabled:opacity-50`}></div>
-              <div className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-muted transition-all peer-checked:translate-x-5 peer-checked:bg-primary peer-disabled:bg-border`}></div>
-            </div>
-            <div>
-              <span className="block text-sm font-bold text-light">Publish on Website</span>
-              <span className="block text-xs text-muted mt-0.5">When enabled, this job will appear on the public Careers page. Only Open jobs can be published.</span>
-            </div>
-          </label>
         </div>
 
         <div className="sm:col-span-2">

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Trash2, Edit2, Eye, X, MapPin, Briefcase, IndianRupee } from "lucide-react"
+import { Trash2, Edit2, Eye } from "lucide-react"
 import { deleteJob } from "./actions"
 
 type Job = {

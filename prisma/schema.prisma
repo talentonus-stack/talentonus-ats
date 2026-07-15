@@ -143,7 +143,6 @@ model Job {
   industry     String?
   jobTiming    JobTiming     @default(FULL_TIME)
   workingDays  String?
-  workingHours String?
   priority     JobPriority   @default(MEDIUM)
   gender       JobGender     @default(BOTH)
   vacancies    Int           @default(1)
@@ -255,17 +254,12 @@ model Placement {
   updatedAt        DateTime        @updatedAt
 }
 
-enum PasswordResetStatus {
-  PENDING
-  COMPLETED
-}
-
 model PasswordResetRequest {
   id          String        @id @default(cuid())
   userId      String
   user        User          @relation(fields: [userId], references: [id], name: "UserResetRequests")
 
-  status      PasswordResetStatus    @default(PENDING)
+  status      String    @default("PENDING")
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 

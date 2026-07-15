@@ -499,8 +499,8 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
       {/* Edit Profile Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 p-4 bg-black/80 backdrop-blur-sm overflow-hidden">
-          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[calc(100vh-96px)] relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-primary-lighter border border-border rounded-2xl w-full max-w-3xl shadow-2xl relative my-8">
             <button
               onClick={() => setIsEditModalOpen(false)}
               className="absolute top-4 right-4 text-muted hover:text-light transition-colors"
@@ -508,12 +508,12 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
               <X className="w-6 h-6" />
             </button>
 
-            <div className="p-6 border-b border-border shrink-0">
+            <div className="p-6 border-b border-border">
               <h2 className="text-xl font-bold text-light">Edit Profile</h2>
               <p className="text-sm text-muted mt-1">Update your professional links and documents vault.</p>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="flex-1 p-6 space-y-8 overflow-y-auto custom-scrollbar">
+            <form onSubmit={handleSaveProfile} className="p-6 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
 
               {/* Personal Information */}
               <div>
@@ -628,7 +628,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
 
             </form>
 
-            <div className="p-6 border-t border-border flex justify-end gap-3 bg-primary-lighter/50 rounded-b-2xl shrink-0">
+            <div className="p-6 border-t border-border flex justify-end gap-3 bg-primary-lighter/50 rounded-b-2xl">
               <button
                 type="button"
                 onClick={() => setIsEditModalOpen(false)}
@@ -637,7 +637,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                 Cancel
               </button>
               <button
-                onClick={(e) => handleSaveProfile(e as any)}
+                onClick={handleSaveProfile}
                 disabled={isSaving}
                 className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
               >

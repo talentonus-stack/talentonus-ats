@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import DeleteButton from "./DeleteButton"
-import { Eye, Edit2 } from "lucide-react"
 
 export default async function CandidatesPage() {
   const formatSalary = (salary: string | null) => {
@@ -60,8 +59,8 @@ export default async function CandidatesPage() {
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="min-w-full divide-y divide-border min-w-[1000px]">
             <thead className="bg-primary-lighter/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate Info</th>
@@ -112,16 +111,11 @@ export default async function CandidatesPage() {
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-3">
-                        <Link href={`/candidates/${candidate.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View">
-                          <Eye className="w-4 h-4" />
-                        </Link>
-                        <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors p-1" title="Edit">
-                          <Edit2 className="w-4 h-4" />
-                        </Link>
-                        <DeleteButton id={candidate.id} />
-                      </div>
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
+                      <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors">
+                        Edit
+                      </Link>
+                      <DeleteButton id={candidate.id} />
                     </td>
                   </tr>
                 )

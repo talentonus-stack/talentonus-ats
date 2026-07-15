@@ -61,9 +61,8 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
   return (
     <>
-      <div className="rounded-2xl border border-border bg-primary-lighter shadow-lg overflow-hidden">
-        <div className="overflow-x-auto custom-scrollbar">
-        <table className="min-w-full divide-y divide-border min-w-[800px]">
+      <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
+        <table className="min-w-full divide-y divide-border">
           <thead className="bg-primary-lighter/50">
             <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Name</th>
@@ -71,7 +70,6 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Applied</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Application Status</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Submitted On</th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border bg-primary-lighter">
@@ -104,24 +102,6 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
                     {new Date(candidate.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => setSelectedCandidate(candidate)}
-                        className="p-2 bg-primary border border-border rounded-md hover:border-accent hover:text-accent text-muted transition-colors"
-                        title="View Candidate"
-                      >
-                        <User className="h-4 w-4" />
-                      </button>
-                      <a
-                        href={`/recruiter/candidates/new?candidateId=${candidate.id}`}
-                        className="p-2 bg-primary border border-border rounded-md hover:border-accent hover:text-accent text-muted transition-colors"
-                        title="Edit Candidate"
-                      >
-                        <FileText className="h-4 w-4" />
-                      </a>
-                    </div>
-                  </td>
                 </tr>
               )
             })}
@@ -132,13 +112,12 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
             )}
           </tbody>
         </table>
-        </div>
       </div>
 
       {/* Candidate Details Modal */}
       {selectedCandidate && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 backdrop-blur-md pt-12 p-4 animate-fade-in">
-          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-4xl flex flex-col relative overflow-hidden max-h-[calc(100vh-96px)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in overflow-y-auto">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-4xl flex flex-col relative overflow-hidden my-auto max-h-[90vh]">
 
             {/* Modal Header */}
             <div className="flex justify-between items-start p-6 sm:p-8 border-b border-border bg-primary/30">
@@ -162,7 +141,7 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-primary custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-primary">
 
               {/* Left Column: Details */}
               <div className="space-y-8">
@@ -214,7 +193,7 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                           <a
                             href={selectedCandidate.resumeUrl}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noreferrer"
                             className="inline-flex items-center gap-2 text-sm font-medium bg-primary border border-border px-4 py-2 rounded text-light hover:text-accent hover:border-accent transition-colors"
                           >
                             <FileText className="h-4 w-4" /> View Resume

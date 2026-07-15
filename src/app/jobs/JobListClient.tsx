@@ -14,6 +14,16 @@ type Job = {
   priority: string
   status: string
   postedDate: Date
+  department?: string
+  skills?: string | null
+  salaryRange?: string | null
+  industry?: string | null
+  workingDays?: string | null
+  workingHours?: string | null
+  gender?: string
+  vacancies?: number
+  description?: string | null
+  jobTiming?: string
   _count: {
     applications: number
     placements: number
@@ -23,6 +33,16 @@ type Job = {
 export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null)
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'HIGH': return 'bg-red-900/20 text-red-400 border-red-800/30'
+      case 'MEDIUM': return 'bg-orange-900/20 text-orange-400 border-orange-800/30'
+      case 'LOW': return 'bg-blue-900/20 text-blue-400 border-blue-800/30'
+      default: return 'bg-accent/10 text-accent border-accent/20'
+    }
+  }
 
   const handleDelete = async (id: string, countApp: number, countPlace: number) => {
     if (countApp > 0 || countPlace > 0) {
@@ -58,6 +78,9 @@ export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
                 <p className="text-xs font-semibold text-muted mt-1 truncate" title={job.company?.name || 'No Company'}>{job.company?.name || 'No Company'}</p>
               </div>
               <div className="flex items-center gap-2 -mt-2 -mr-2">
+                <button onClick={() => setSelectedJob(job as any)} className="text-xs font-bold text-muted hover:text-accent transition-colors p-2 shrink-0" title="View">
+                  <Eye className="w-4 h-4" />
+                </button>
                 <Link href={`/jobs/${job.id}/edit`} className="text-xs font-bold text-muted hover:text-accent transition-colors p-2 shrink-0">
                   <Edit2 className="w-4 h-4" />
                 </Link>
@@ -143,9 +166,9 @@ export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
                   <td className="hidden lg:table-cell px-4 py-4 text-sm text-muted truncate">{new Date(job.postedDate).toLocaleDateString()}</td>
                   <td className="px-4 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
-                      <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View">
+                      <button onClick={() => setSelectedJob(job as any)} className="text-muted hover:text-accent transition-colors p-1" title="View">
                         <Eye className="w-4 h-4" />
-                      </Link>
+                      </button>
                       <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors p-1" title="Edit">
                         <Edit2 className="w-4 h-4" />
                       </Link>

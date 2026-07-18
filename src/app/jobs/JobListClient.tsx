@@ -218,7 +218,7 @@ export default function JobListClient({ initialJobs }: { initialJobs: Job[] }) {
       {/* Modal */}
       {selectedJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in overflow-hidden">
-          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-3xl flex flex-col relative overflow-hidden max-h-[90vh]">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-3xl flex flex-col relative overflow-hidden max-h-[90vh] my-auto">
 
             {/* Modal Header */}
             <div className="flex justify-between items-start p-6 border-b border-border bg-primary/30 shrink-0">

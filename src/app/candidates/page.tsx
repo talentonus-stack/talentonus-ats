@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import DeleteButton from "./DeleteButton"
+import { Eye, Pencil } from "lucide-react"
 
 export default async function CandidatesPage() {
   const formatSalary = (salary: string | null) => {
@@ -69,7 +70,7 @@ export default async function CandidatesPage() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Notice</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Applied Job</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="sticky right-0 bg-primary-lighter/50 z-10 px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-primary-lighter">
@@ -111,11 +112,16 @@ export default async function CandidatesPage() {
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
-                      <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors">
-                        Edit
-                      </Link>
-                      <DeleteButton id={candidate.id} />
+                    <td className="sticky right-0 bg-primary-lighter z-10 whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
+                      <div className="flex items-center justify-end gap-3">
+                        <Link href={`/candidates/${candidate.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View">
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors p-1" title="Edit">
+                          <Pencil className="w-4 h-4" />
+                        </Link>
+                        <DeleteButton id={candidate.id} />
+                      </div>
                     </td>
                   </tr>
                 )

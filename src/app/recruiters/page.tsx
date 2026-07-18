@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import DisableButton from "./DisableButton"
+import { Eye, Pencil } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -65,13 +66,15 @@ export default async function RecruitersPage() {
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
-                  <Link href={`/recruiters/${r.id}`} className="text-muted hover:text-accent transition-colors">
-                    View
-                  </Link>
-                  <Link href={`/recruiters/${r.id}/edit`} className="text-muted hover:text-accent transition-colors">
-                    Edit
-                  </Link>
-                  <DisableButton id={r.id} status={r.status} />
+                  <div className="flex items-center justify-end gap-3">
+                    <Link href={`/recruiters/${r.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View">
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    <Link href={`/recruiters/${r.id}/edit`} className="text-muted hover:text-accent transition-colors p-1" title="Edit">
+                      <Pencil className="w-4 h-4" />
+                    </Link>
+                    <DisableButton id={r.id} status={r.status} />
+                  </div>
                 </td>
               </tr>
             ))}

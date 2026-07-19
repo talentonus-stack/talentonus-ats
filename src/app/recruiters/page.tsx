@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
-import RecruiterActions from "./RecruiterActions"
+import DisableButton from "./DisableButton"
 
 export const dynamic = "force-dynamic"
 
@@ -64,8 +64,14 @@ export default async function RecruitersPage() {
                     {r.status}
                   </span>
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                  <RecruiterActions recruiter={r} />
+                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
+                  <Link href={`/recruiters/${r.id}`} className="text-muted hover:text-accent transition-colors">
+                    View
+                  </Link>
+                  <Link href={`/recruiters/${r.id}/edit`} className="text-muted hover:text-accent transition-colors">
+                    Edit
+                  </Link>
+                  <DisableButton id={r.id} status={r.status} />
                 </td>
               </tr>
             ))}

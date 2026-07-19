@@ -4,6 +4,7 @@ import { useState } from "react"
 import { formatCreatedDate } from "@/lib/dateUtils"
 import { processPasswordReset } from "./actions"
 import { PasswordResetStatus } from "@prisma/client"
+import SubmitButton from "@/components/SubmitButton"
 
 type ResetRequest = {
   id: string
@@ -176,14 +177,14 @@ export default function PasswordResetsClient({ initialRequests }: { initialReque
               >
                 Cancel
               </button>
-              <button
+              <SubmitButton
                 type="submit"
                 form="reset-form"
-                disabled={isSubmitting}
-                className="px-4 py-2 text-sm font-bold rounded-lg bg-accent text-primary hover:bg-accent-hover transition-colors disabled:opacity-50"
+                isLoading={isSubmitting}
+                loadingText="Resetting..."
               >
-                {isSubmitting ? "Resetting..." : "Confirm Reset"}
-              </button>
+                Confirm Reset
+              </SubmitButton>
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
-import DeleteButton from "./DeleteButton"
+import CandidateActions from "./CandidateActions"
 
 export default async function CandidatesPage() {
   const formatSalary = (salary: string | null) => {
@@ -61,16 +61,16 @@ export default async function CandidatesPage() {
 
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border">
+          <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate Info</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Salary Info (C/E)</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Notice</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Applied Job</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate Info</th>
+                <th className="w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
+                <th className="w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Salary Info (C/E)</th>
+                <th className="w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Notice</th>
+                <th className="w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Applied Job</th>
+                <th className="w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter</th>
+                <th className="w-[10%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-primary-lighter">
@@ -78,29 +78,29 @@ export default async function CandidatesPage() {
                 const latestApp = candidate.applications[0];
                 return (
                   <tr key={candidate.id} className="hover:bg-primary/50 transition-colors group">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <Link href={`/candidates/${candidate.id}`} className="font-semibold text-light group-hover:text-accent transition-colors">
+                    <td className="px-4 py-4 text-sm truncate" title={`${candidate.firstName} ${candidate.lastName || ''}`}>
+                      <Link href={`/candidates/${candidate.id}`} className="font-semibold text-light group-hover:text-accent transition-colors truncate block">
                         {candidate.firstName} {candidate.lastName || ''}
                       </Link>
-                      <div className="text-gray-500 text-xs mt-1">{candidate.email}</div>
-                      <div className="text-gray-500 text-xs">{candidate.phone || 'No phone'}</div>
+                      <div className="text-gray-500 text-xs mt-1 truncate" title={candidate.email}>{candidate.email}</div>
+                      <div className="text-gray-500 text-xs truncate" title={candidate.phone || 'No phone'}>{candidate.phone || 'No phone'}</div>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
+                    <td className="px-4 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors truncate" title={candidate.experience || 'N/A'}>
                       {candidate.experience || 'N/A'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-xs text-muted">
-                      <div>Cur: <span className="font-medium text-light">{formatSalary(candidate.currentSalary)}</span></div>
-                      <div>Exp: <span className="font-medium text-light">{formatSalary(candidate.expectedSalary)}</span></div>
+                    <td className="px-4 py-4 text-xs text-muted truncate">
+                      <div className="truncate" title={`Cur: ${formatSalary(candidate.currentSalary)}`}>Cur: <span className="font-medium text-light">{formatSalary(candidate.currentSalary)}</span></div>
+                      <div className="truncate" title={`Exp: ${formatSalary(candidate.expectedSalary)}`}>Exp: <span className="font-medium text-light">{formatSalary(candidate.expectedSalary)}</span></div>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
+                    <td className="px-4 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors truncate" title={candidate.noticePeriod || 'N/A'}>
                       {candidate.noticePeriod || 'N/A'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
+                    <td className="px-4 py-4 text-sm font-medium text-light group-hover:text-accent transition-colors">
                       {latestApp ? (
-                        <div>
-                          <span className="font-medium">{latestApp.job.title}</span>
-                          <div className="mt-1">
-                            <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent border-accent/20">
+                        <div className="flex flex-col min-w-0">
+                          <span className="font-medium truncate" title={latestApp.job.title}>{latestApp.job.title}</span>
+                          <div className="mt-1 flex">
+                            <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent border-accent/20 truncate" title={latestApp.status.replace(/_/g, ' ')}>
                               {latestApp.status.replace(/_/g, ' ')}
                             </span>
                           </div>
@@ -109,14 +109,11 @@ export default async function CandidatesPage() {
                         <span className="text-gray-400">Not applied</span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">
+                    <td className="px-4 py-4 text-sm text-muted truncate" title={candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}>
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
-                      <Link href={`/candidates/${candidate.id}/edit`} className="text-muted hover:text-accent transition-colors">
-                        Edit
-                      </Link>
-                      <DeleteButton id={candidate.id} />
+                    <td className="px-4 py-4 text-right text-sm font-medium">
+                      <CandidateActions candidate={candidate} />
                     </td>
                   </tr>
                 )

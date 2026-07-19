@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth/next"
 
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
-import SubmitButton from "@/components/SubmitButton"
 
 export default async function NewCandidatePage() {
   const session = await getServerSession(authOptions)
@@ -56,13 +55,9 @@ export default async function NewCandidatePage() {
           <label className="block text-xs font-medium text-muted uppercase tracking-wider mb-2">Phone</label>
           <input type="tel" name="phone" className="block w-full rounded-lg bg-primary border border-border px-4 py-3 text-sm text-light placeholder-muted focus:border-accent focus:ring-1 focus:ring-accent transition-all duration-200" />
         </div>
-        <SubmitButton
-          type="submit"
-          loadingText="Saving..."
-          className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] flex justify-center items-center disabled:opacity-70 disabled:hover:scale-100 disabled:cursor-not-allowed"
-        >
+        <button type="submit" className="w-full rounded-lg bg-accent px-5 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
           Save Candidate
-        </SubmitButton>
+        </button>
       </form>
     </div>
   )

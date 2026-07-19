@@ -5,18 +5,15 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import SubmitButton from "@/components/SubmitButton"
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     const result = await signIn("credentials", {
       email,
       password,
@@ -25,7 +22,6 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError("Invalid credentials")
-      setIsSubmitting(false)
     } else {
       router.push("/")
       router.refresh()
@@ -76,14 +72,12 @@ export default function LoginPage() {
                 placeholder="••••••••"
               />
             </div>
-            <SubmitButton
+            <button
               type="submit"
-              isLoading={isSubmitting}
-              loadingText="Signing in..."
-              className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+              className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200"
             >
               Sign In to Workspace
-            </SubmitButton>
+            </button>
           </form>
 
 

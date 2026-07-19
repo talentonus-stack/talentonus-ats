@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import SubmitButton from "@/components/SubmitButton"
 
 export default function NewJobClientForm({ companies, createJobAction }: { companies: any[], createJobAction: (formData: FormData) => void }) {
   const [selectedCompanyId, setSelectedCompanyId] = useState("")
@@ -131,15 +130,12 @@ export default function NewJobClientForm({ companies, createJobAction }: { compa
       </div>
 
       <div className="mt-8 flex justify-end gap-4 border-t border-border pt-8">
-        <a href="/jobs" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200 flex items-center">
+        <a href="/jobs" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">
           Cancel
         </a>
-        <SubmitButton
-          type="submit"
-          loadingText="Creating..."
-        >
+        <button type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]">
           Create Job
-        </SubmitButton>
+        </button>
       </div>
     </form>
   )

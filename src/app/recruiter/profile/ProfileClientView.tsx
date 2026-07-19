@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Users, CheckCircle, UserPlus, Mail, Phone, MapPin, Calendar, ShieldCheck, TrendingUp, DollarSign, FileText, Link as LinkIcon, Settings, Lock, Edit3, X, UploadCloud, File, Download , ShieldAlert } from "lucide-react"
-import SubmitButton from "@/components/SubmitButton"
 
 export default function ProfileClientView({ recruiter, stats }: { recruiter: any, stats: any }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -648,15 +647,14 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
               >
                 Cancel
               </button>
-              <SubmitButton
+              <button
                 type="submit"
                 form="edit-profile-form"
-                isLoading={isSaving}
-                loadingText="Saving..."
+                disabled={isSaving}
                 className="px-4 py-2 rounded-lg text-sm font-bold bg-accent text-primary hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
-                Save Changes
-              </SubmitButton>
+                {isSaving ? "Saving..." : "Save Changes"}
+              </button>
             </div>
           </div>
         </div>

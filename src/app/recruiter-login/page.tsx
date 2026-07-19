@@ -7,7 +7,6 @@ import Link from "next/link"
 import Image from "next/image"
 import { requestPasswordReset } from "./actions"
 import { CheckCircle2 } from "lucide-react"
-import SubmitButton from "@/components/SubmitButton"
 
 export default function RecruiterLoginPage() {
   const router = useRouter()
@@ -38,7 +37,6 @@ export default function RecruiterLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-    setIsResetting(true)
 
     const result = await signIn("credentials", {
       email,
@@ -48,7 +46,6 @@ export default function RecruiterLoginPage() {
 
     if (result?.error) {
       setError("Invalid email or password")
-      setIsResetting(false)
     } else {
       router.push("/recruiter")
       router.refresh()
@@ -113,14 +110,13 @@ export default function RecruiterLoginPage() {
                 </div>
 
                 <div className="pt-2 flex flex-col gap-3">
-                  <SubmitButton
+                  <button
                     type="submit"
-                    isLoading={isResetting}
-                    loadingText="Submitting..."
-                    className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+                    disabled={isResetting}
+                    className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200 disabled:opacity-70"
                   >
-                    Submit Request
-                  </SubmitButton>
+                    {isResetting ? "Submitting..." : "Submit Request"}
+                  </button>
                   <button
                     type="button"
                     onClick={() => { setResetMode(false); setError(""); }}
@@ -162,14 +158,12 @@ export default function RecruiterLoginPage() {
                 </a>
               </div>
 
-              <SubmitButton
+              <button
                 type="submit"
-                isLoading={isResetting}
-                loadingText="Signing in..."
-                className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+                className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200"
               >
                 Sign In to Portal
-              </SubmitButton>
+              </button>
             </form>
           )}
 

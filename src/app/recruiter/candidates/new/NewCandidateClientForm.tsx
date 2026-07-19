@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import SubmitButton from "@/components/SubmitButton"
 
 export default function NewCandidateClientForm({ activeJobs, jobId, existingCandidate }: { activeJobs: any[], jobId?: string, existingCandidate?: any }) {
   const router = useRouter()
@@ -193,16 +192,12 @@ export default function NewCandidateClientForm({ activeJobs, jobId, existingCand
         </div>
 
         <div className="mt-8 flex justify-end gap-4 border-t border-border pt-8">
-          <a href="/recruiter/candidates" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200 flex items-center">
+          <a href="/recruiter/candidates" className="rounded-lg border border-border bg-primary px-5 py-2.5 text-sm font-medium text-light hover:border-accent hover:text-accent transition-all duration-200">
             Cancel
           </a>
-          <SubmitButton
-            type="submit"
-            isLoading={isSubmitting}
-            loadingText="Saving..."
-          >
-            {existingCandidate ? "Save Changes" : "Submit Candidate"}
-          </SubmitButton>
+          <button disabled={isSubmitting} type="submit" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-bold text-primary hover:bg-accent-hover hover:scale-[1.02] transition-all duration-200 shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] disabled:opacity-50">
+            {isSubmitting ? "Saving..." : (existingCandidate ? "Save Changes" : "Submit Candidate")}
+          </button>
         </div>
       </form>
     </div>

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import Link from "next/link"
+import { Eye, Pencil } from "lucide-react"
 import { authOptions } from "@/lib/auth"
 import DisableButton from "./DisableButton"
 
@@ -64,12 +65,12 @@ export default async function RecruitersPage() {
                     {r.status}
                   </span>
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-4">
-                  <Link href={`/recruiters/${r.id}`} className="text-muted hover:text-accent transition-colors">
-                    View
+                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium flex items-center justify-end gap-3 text-muted">
+                  <Link href={`/recruiters/${r.id}`} className="hover:text-accent transition-colors" title="View Recruiter">
+                    <Eye className="w-4 h-4" />
                   </Link>
-                  <Link href={`/recruiters/${r.id}/edit`} className="text-muted hover:text-accent transition-colors">
-                    Edit
+                  <Link href={`/recruiters/${r.id}/edit`} className="hover:text-accent transition-colors" title="Edit Recruiter">
+                    <Pencil className="w-4 h-4" />
                   </Link>
                   <DisableButton id={r.id} status={r.status} />
                 </td>

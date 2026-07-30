@@ -170,7 +170,7 @@ export default async function DashboardPage() {
 
       {/* 1. TOP STATISTICS ROW - COMPACT LAYOUT */}
       <div className="space-y-3">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {row1Stats.map((stat) => (
             <div
               key={stat.name}
@@ -189,7 +189,7 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {row2Stats.map((stat) => (
             <div
               key={stat.name}
@@ -211,12 +211,12 @@ export default async function DashboardPage() {
 
       {/* FULL WIDTH RECRUITMENT FUNNEL */}
       <section>
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-sm overflow-x-auto custom-scrollbar">
-          <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-border/50 pb-3 min-w-[800px]">
+        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-sm ">
+          <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-border/50 pb-3">
             <TrendingUp className="w-4 h-4 text-accent" />
             Recruitment Funnel
           </h2>
-          <div className="grid grid-cols-9 gap-3 min-w-[800px]">
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
             {funnelStages.map((stage) => (
               <div key={stage.label} className="flex flex-col items-center">
                 <div className="bg-primary border border-border/50 rounded-xl w-full h-24 flex flex-col items-center justify-center shadow-sm hover:border-accent/30 hover:bg-primary-lighter transition-all group">
@@ -241,7 +241,7 @@ export default async function DashboardPage() {
               Recruiter Performance
             </h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border/50">
+              <table className="w-full min-w-[500px] divide-y divide-border/50">
                 <thead>
                   <tr>
                     <th className="pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Rank</th>
@@ -335,7 +335,7 @@ export default async function DashboardPage() {
             <Link href="/candidates" className="text-xs text-accent hover:underline">View Directory</Link>
           </h2>
           <div className="overflow-x-auto">
-             <table className="min-w-full divide-y divide-border/50 table-fixed">
+             <table className="w-full min-w-[800px] divide-y divide-border/50 table-fixed">
                 <thead>
                   <tr>
                     <th className="w-1/6 pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Candidate Name</th>

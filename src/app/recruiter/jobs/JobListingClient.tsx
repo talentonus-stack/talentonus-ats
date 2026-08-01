@@ -14,6 +14,7 @@ type Job = {
   salaryRange: string | null
   industry: string | null
   workingDays: string | null
+  workingHours: string | null
   priority: string
   gender: string
   vacancies: number
@@ -215,10 +216,14 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                   <p className="text-sm font-semibold text-white">{selectedJob.workingDays || "N/A"}</p>
                 </div>
                 <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
+                  <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Working Hours</span>
+                  <p className="text-sm font-semibold text-white">{selectedJob.workingHours || "N/A"}</p>
+                </div>
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors">
                   <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Industry</span>
                   <p className="text-sm font-semibold text-white truncate" title={selectedJob.industry || "N/A"}>{selectedJob.industry || "N/A"}</p>
                 </div>
-                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors sm:col-span-2">
+                <div className="bg-primary-lighter p-3 rounded-xl border border-border/50 shadow-sm hover:border-border transition-colors ">
                   <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Gender Preference</span>
                   <p className="text-sm font-semibold text-white">{selectedJob.gender}</p>
                 </div>

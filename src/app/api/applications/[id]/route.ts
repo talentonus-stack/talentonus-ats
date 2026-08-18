@@ -22,27 +22,6 @@ export async function PATCH(
   try {
     const { status, offeredCTC, expectedJoiningDate } = await request.json()
 
-    // --- NOTIFICATION PRE-CHECK ---
-    const previousApplication = await prisma.application.findUnique({
-      where: { id },
-      include: {
-        job: true,
-        candidate: true,
-        placement: true
-      }
-    })
-
-    if (!previousApplication) {
-      return NextResponse.json({ error: "Application not found" }, { status: 404 })
-    }
-
-    const isMeaningfulStatusChange = previousApplication.status !== status;
-    const recruiterId = previousApplication.candidate.recruiterId;
-    let computedRecruiterShare: number | null = null;
-    let isShareAmountChanged = false;
-    let newShareAmount: number | null = null;
-    // ------------------------------
-
     // If changing to SELECTED, handle Placement creation logic
     if (status === 'SELECTED') {
       const application = await prisma.application.findUnique({
@@ -81,14 +60,6 @@ export async function PATCH(
       const placementValue = finalCTC * (companyFeePct / 100)
       const recruiterShare = placementValue * (recruiterCommPct / 100)
       const talentonusShare = placementValue - recruiterShare
-
-      computedRecruiterShare = recruiterShare;
-
-      // Check if share amount actually changed during this update
-      if (previousApplication.placement && previousApplication.placement.recruiterShare !== recruiterShare) {
-        isShareAmountChanged = true;
-        newShareAmount = recruiterShare;
-      }
 
       // Perform transaction: Update app status, CTC, and create/update Placement
       const updatedApplication = await prisma.$transaction(async (tx) => {
@@ -170,78 +141,6 @@ export async function PATCH(
 
       return updated
     })
-
-    // --- NOTIFICATION CREATION ---
-    if (recruiterId) {
-      const candidateName = `${previousApplication.candidate.firstName} ${previousApplication.candidate.lastName || ''}`.trim()
-
-      // 1. Share Amount Change Notification
-      if (isShareAmountChanged && newShareAmount !== null && !isMeaningfulStatusChange) {
-        try {
-          await prisma.notification.create({
-            data: {
-              userId: recruiterId,
-              message: `Recruiter share for Candidate ${candidateName} has been updated to ₹${(newShareAmount as number).toLocaleString('en-IN')}.`,
-              type: "SUCCESS",
-            }
-          })
-        } catch (notifError) {
-          console.error("Failed to create share update notification:", notifError)
-        }
-      }
-
-      // 2. Status Change Notification
-      if (isMeaningfulStatusChange) {
-        let formattedStatus = status.replace(/_/g, ' ')
-        if (status === 'INTERVIEW_SCHEDULED') formattedStatus = 'Interview Scheduled'
-        else if (status === 'L1_CLEARED') formattedStatus = 'cleared L1'
-        else if (status === 'L2_CLEARED') formattedStatus = 'cleared L2'
-        else if (status === 'SCREENING') formattedStatus = 'the Screening stage'
-        else if (status === 'SUBMITTED') formattedStatus = 'Submitted'
-        else if (status === 'REJECTED') formattedStatus = 'Rejected'
-        else if (status === 'BACKED_OUT') formattedStatus = 'Backed Out'
-
-        let type: "SUCCESS" | "ERROR" | "NEUTRAL" = "SUCCESS"
-        let message = ""
-
-        if (status === 'BACKED_OUT') {
-          type = "ERROR"
-          message = `Candidate ${candidateName} has backed out.`
-        } else if (status === 'REJECTED') {
-          type = "ERROR"
-          message = `Candidate ${candidateName} has been rejected.`
-        } else if (status === 'SELECTED') {
-          if (computedRecruiterShare !== null) {
-            message = `Candidate ${candidateName} has been Selected and ₹${(computedRecruiterShare as number).toLocaleString('en-IN')} recruiter revenue has been generated.`
-          } else {
-            message = `Candidate ${candidateName} has been Selected.`
-          }
-        } else if (status === 'JOINED') {
-          message = `Congratulations. Candidate ${candidateName} has been selected and has Joined.`
-        } else if (status === 'SCREENING') {
-          message = `Candidate ${candidateName} is now in ${formattedStatus}.`
-        } else if (status === 'INTERVIEW_SCHEDULED') {
-          message = `Candidate ${candidateName} has been moved to ${formattedStatus}.`
-        } else if (status === 'L1_CLEARED' || status === 'L2_CLEARED') {
-          message = `Candidate ${candidateName} has ${formattedStatus}.`
-        } else {
-          message = `Candidate ${candidateName} has been moved to ${formattedStatus}.`
-        }
-
-        try {
-          await prisma.notification.create({
-            data: {
-              userId: recruiterId,
-              message,
-              type,
-            }
-          })
-        } catch (notifError) {
-          console.error("Failed to create status notification:", notifError)
-        }
-      }
-    }
-    // -----------------------------
 
     return NextResponse.json(updatedApplication)
   } catch (error: any) {

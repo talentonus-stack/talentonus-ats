@@ -20,7 +20,17 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    const { status, offeredCTC, expectedJoiningDate } = await request.json()
+    let { status, offeredCTC, expectedJoiningDate, statusChangeReason } = await request.json()
+
+    // Validate statusChangeReason logic
+    if (status === 'REJECTED' || status === 'BACKED_OUT') {
+      if (!statusChangeReason || statusChangeReason.trim() === '') {
+        return NextResponse.json({ error: `A reason is required when changing status to ${status.replace('_', ' ')}` }, { status: 400 })
+      }
+      statusChangeReason = statusChangeReason.trim();
+    } else {
+      statusChangeReason = null;
+    }
 
     // --- NOTIFICATION PRE-CHECK ---
     const previousApplication = await prisma.application.findUnique({
@@ -96,6 +106,7 @@ export async function PATCH(
           where: { id },
           data: {
             status,
+            statusChangeReason: null,
             offeredCTC: finalCTC
           },
         })
@@ -138,7 +149,10 @@ export async function PATCH(
       const updatedApplication = await prisma.$transaction(async (tx) => {
         const updated = await tx.application.update({
           where: { id },
-          data: { status },
+          data: {
+            status,
+            statusChangeReason: null
+          },
         })
 
         await tx.placement.updateMany({
@@ -160,7 +174,10 @@ export async function PATCH(
     const updatedApplication = await prisma.$transaction(async (tx) => {
       const updated = await tx.application.update({
         where: { id },
-        data: { status },
+        data: {
+          status,
+          statusChangeReason
+        },
       })
 
       // If moving FROM Selected TO any other status (e.g., BACKED_OUT, REJECTED), remove placement
@@ -206,10 +223,10 @@ export async function PATCH(
 
         if (status === 'BACKED_OUT') {
           type = "ERROR"
-          message = `Candidate ${candidateName} has backed out.`
+          message = `Candidate ${candidateName} has backed out.${statusChangeReason ? `\nReason: ${statusChangeReason.trim()}` : ''}`
         } else if (status === 'REJECTED') {
           type = "ERROR"
-          message = `Candidate ${candidateName} has been rejected.`
+          message = `Candidate ${candidateName} has been rejected.${statusChangeReason ? `\nReason: ${statusChangeReason.trim()}` : ''}`
         } else if (status === 'SELECTED') {
           if (computedRecruiterShare !== null) {
             message = `Candidate ${candidateName} has been selected. ₹${(computedRecruiterShare as number).toLocaleString('en-IN')} recruiter share has been generated.`

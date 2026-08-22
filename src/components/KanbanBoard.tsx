@@ -27,6 +27,9 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
   const [selectedModalState, setSelectedModalState] = useState<{ appId: string, show: boolean }>({ appId: '', show: false })
   const [modalForm, setModalForm] = useState({ offeredCTC: '', expectedJoiningDate: '' })
+
+  const [reasonModalState, setReasonModalState] = useState<{ appId: string, show: boolean, status: 'REJECTED' | 'BACKED_OUT', candidateName: string }>({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+  const [reasonForm, setReasonForm] = useState({ reason: '' })
   const router = useRouter()
 
   const showToast = (text: string, type: 'success' | 'error') => {
@@ -35,16 +38,25 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   }
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
+    const app = applications.find(a => a.id === appId);
+    if (!app) return;
+
     if (newStatus === 'SELECTED') {
       setSelectedModalState({ appId, show: true })
       setModalForm({ offeredCTC: '', expectedJoiningDate: '' })
       return
     }
 
+    if (newStatus === 'REJECTED' || newStatus === 'BACKED_OUT') {
+      setReasonModalState({ appId, show: true, status: newStatus as 'REJECTED' | 'BACKED_OUT', candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim() })
+      setReasonForm({ reason: '' })
+      return
+    }
+
     await performStatusUpdate(appId, newStatus)
   }
 
-  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string }) => {
+  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string, statusChangeReason?: string }) => {
     // Save previous state for rollback
     const previousApplications = [...applications]
 
@@ -94,6 +106,26 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
 
   const handleModalCancel = () => {
     setSelectedModalState({ appId: '', show: false })
+    setApplications([...applications])
+  }
+
+  const handleReasonModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const reason = reasonForm.reason.trim();
+    if (!reason) {
+      alert("A reason is required.");
+      return;
+    }
+
+    const { appId, status } = reasonModalState
+    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+
+    await performStatusUpdate(appId, status, { statusChangeReason: reason })
+  }
+
+  const handleReasonModalCancel = () => {
+    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
     setApplications([...applications])
   }
 
@@ -156,6 +188,47 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                   className="px-4 py-2 bg-accent text-primary rounded-md text-sm font-bold hover:bg-accent-hover transition-colors"
                 >
                   Confirm Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {reasonModalState.show && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 p-4 bg-black/50" style={{ backdropFilter: 'blur(4px)' }}>
+            <div className="bg-primary border border-border rounded-xl shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100vh-96px)]">
+              <div className="p-6 border-b border-border shrink-0">
+                <h3 className="text-xl font-bold text-light">{reasonModalState.status === 'REJECTED' ? 'Reject Candidate' : 'Back Out Candidate'}</h3>
+                <p className="text-sm text-accent font-medium mt-2">{reasonModalState.candidateName}</p>
+                <p className="text-sm text-muted mt-1">Please provide a reason for {reasonModalState.status === 'REJECTED' ? 'rejecting' : 'backing out'} this candidate.</p>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <form id="reason-form" onSubmit={handleReasonModalSubmit} className="space-y-4">
+                  <div>
+                    <textarea
+                      required
+                      value={reasonForm.reason}
+                      onChange={(e) => setReasonForm({ reason: e.target.value })}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 min-h-[100px] resize-y custom-scrollbar"
+                      placeholder={`Enter ${reasonModalState.status === 'REJECTED' ? 'rejection' : 'back out'} reason...`}
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button
+                  type="button"
+                  onClick={handleReasonModalCancel}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="reason-form"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-bold hover:bg-red-700 transition-colors"
+                >
+                  {reasonModalState.status === 'REJECTED' ? 'Reject Candidate' : 'Back Out Candidate'}
                 </button>
               </div>
             </div>

@@ -49,7 +49,7 @@ export default async function RecruiterProfilePage() {
 
   // Placement Statistics
   const totalSubmitted = applications.length
-  const interviewed = applications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
+  const interviewed = applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
   const selected = applications.filter(a => a.status === "SELECTED" || a.status === "JOINED").length
   const joined = applications.filter(a => a.status === "JOINED").length
 

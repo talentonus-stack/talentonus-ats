@@ -6,6 +6,7 @@ import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2 } from "lu
 type Application = {
   id: string
   status: string
+  statusChangeReason?: string | null
   job: {
     title: string
   }
@@ -37,9 +38,11 @@ type Candidate = {
 const STAGES = [
   "SUBMITTED",
   "SCREENING",
-  "INTERVIEW_SCHEDULED",
+  "L1_SCHEDULED",
   "L1_CLEARED",
+  "L2_SCHEDULED",
   "L2_CLEARED",
+  "FINAL_ROUND_SCHEDULED",
   "SELECTED",
   "JOINED"
 ]
@@ -115,7 +118,7 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                     <td className="px-4 xl:px-6 py-4 overflow-hidden">
                       {latestApp ? (
                         <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase leading-tight text-accent border border-accent/20 truncate">
-                          {latestApp.status.replace(/_/g, ' ')}
+                          {latestApp.status === "L1_SCHEDULED" ? "L1 Schedule" : latestApp.status === "L2_SCHEDULED" ? "L2 Schedule" : latestApp.status === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : latestApp.status.replace(/_/g, ' ')}
                         </span>
                       ) : <span className="text-sm text-muted">N/A</span>}
                     </td>
@@ -281,18 +284,20 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
                     <div className="relative border-l-2 border-border ml-3 mt-6">
                       {(() => {
-                        const currentStatus = selectedCandidate.applications[0].status;
+                        const application = selectedCandidate.applications[0];
+                        const currentStatus = application.status;
                         const isRejected = currentStatus === "REJECTED";
-                        const currentIndex = isRejected ? -1 : getStageIndex(currentStatus);
+                        const isBackedOut = currentStatus === "BACKED_OUT";
+                        const currentIndex = (isRejected || isBackedOut) ? -1 : getStageIndex(currentStatus);
 
-                        if (isRejected) {
+                        if (isRejected || isBackedOut) {
                           return (
                             <div className="mb-8 ml-6 relative">
                               <span className="absolute -left-[35px] flex items-center justify-center w-6 h-6 bg-red-900 rounded-full ring-4 ring-primary">
                                 <X className="w-3 h-3 text-red-400" />
                               </span>
-                              <h4 className="text-sm font-bold text-red-400">Application Rejected</h4>
-                              <p className="text-xs text-muted">This candidate was not selected.</p>
+                              <h4 className="text-sm font-bold text-red-400">Application {isRejected ? 'Rejected' : 'Backed Out'}</h4>
+                              <p className="text-xs text-muted whitespace-pre-wrap">{application.statusChangeReason || (isRejected ? 'This candidate was not selected.' : 'This candidate has backed out.')}</p>
                             </div>
                           )
                         }
@@ -322,7 +327,7 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                                 {icon}
                               </span>
                               <h4 className={`text-sm tracking-wide ${textClass}`}>
-                                {stage.replace(/_/g, ' ')}
+                                {stage === "L1_SCHEDULED" ? "L1 Schedule" : stage === "L2_SCHEDULED" ? "L2 Schedule" : stage === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : stage.replace(/_/g, ' ')}
                               </h4>
                               {stage === 'SELECTED' && isCompleted && selectedCandidate.applications[0].placement?.expectedJoiningDate && (
                                 <p className="text-xs mt-1 text-muted">

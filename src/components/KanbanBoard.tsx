@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation"
 const PIPELINE_STATUSES = [
   "SUBMITTED",
   "SCREENING",
-  "INTERVIEW_SCHEDULED",
+  "L1_SCHEDULED",
   "L1_CLEARED",
+  "L2_SCHEDULED",
   "L2_CLEARED",
+  "FINAL_ROUND_SCHEDULED",
   "SELECTED",
   "REJECTED",
   "JOINED",
@@ -237,7 +239,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
 
         {PIPELINE_STATUSES.map(status => (
           <div key={status} className="flex w-80 flex-shrink-0 flex-col rounded-2xl bg-primary-lighter border border-border p-4 shadow-sm">
-            <h3 className="mb-4 text-xs font-bold text-muted uppercase tracking-wider border-b border-border pb-2">{status.replace(/_/g, ' ')}</h3>
+            <h3 className="mb-4 text-xs font-bold text-muted uppercase tracking-wider border-b border-border pb-2">{status === "L1_SCHEDULED" ? "L1 Schedule" : status === "L2_SCHEDULED" ? "L2 Schedule" : status === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : status.replace(/_/g, ' ')}</h3>
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar pr-1">
               {applications.filter(app => app.status === status).map(app => (
                 <div key={app.id} className="rounded-xl bg-primary border border-border hover:border-accent/50 transition-colors p-4 shadow-sm text-light">

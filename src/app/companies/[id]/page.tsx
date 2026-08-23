@@ -54,8 +54,8 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
       }
 
       recruiterStats[recId].submitted++
-      if (['SCREENING', 'INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].shortlisted++
-      if (['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].interviews++
+      if (['SCREENING', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].shortlisted++
+      if (['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].interviews++
       if (['SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].selected++
       if (app.status === 'JOINED') recruiterStats[recId].joined++
     })
@@ -85,7 +85,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
   const totalActiveJobs = company.jobs.filter(j => j.status === 'OPEN').length
   const allApplications = company.jobs.flatMap(j => j.applications)
   const totalCandidates = allApplications.length
-  const totalInterviews = allApplications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
+  const totalInterviews = allApplications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
   const totalSelected = allApplications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
   const totalJoined = allApplications.filter(a => a.status === 'JOINED').length
 
@@ -416,7 +416,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                  <tbody className="divide-y divide-border/50 bg-primary/20">
                    {company.jobs.map((job) => {
                      const totalCands = job.applications.length
-                     const ints = job.applications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
+                     const ints = job.applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
                      const sel = job.applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
                      const joined = job.applications.filter(a => a.status === 'JOINED').length
 

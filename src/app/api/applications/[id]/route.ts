@@ -210,7 +210,9 @@ export async function PATCH(
       // 2. Status Change Notification
       if (isMeaningfulStatusChange) {
         let formattedStatus = status.replace(/_/g, ' ')
-        if (status === 'INTERVIEW_SCHEDULED') formattedStatus = 'Interview Scheduled'
+        if (status === 'L1_SCHEDULED') formattedStatus = 'L1 Schedule'
+        else if (status === 'L2_SCHEDULED') formattedStatus = 'L2 Schedule'
+        else if (status === 'FINAL_ROUND_SCHEDULED') formattedStatus = 'Final Round Schedule'
         else if (status === 'L1_CLEARED') formattedStatus = 'cleared L1'
         else if (status === 'L2_CLEARED') formattedStatus = 'cleared L2'
         else if (status === 'SCREENING') formattedStatus = 'the Screening stage'
@@ -237,8 +239,12 @@ export async function PATCH(
           message = `Candidate ${candidateName} has joined.`
         } else if (status === 'SCREENING') {
           message = `Candidate ${candidateName} is now in the Screening stage.`
-        } else if (status === 'INTERVIEW_SCHEDULED') {
-          message = `Candidate ${candidateName} has been moved to Interview Scheduled.`
+        } else if (status === 'L1_SCHEDULED') {
+          message = `Candidate ${candidateName} is now in L1 Schedule.`
+        } else if (status === 'L2_SCHEDULED') {
+          message = `Candidate ${candidateName} is now in L2 Schedule.`
+        } else if (status === 'FINAL_ROUND_SCHEDULED') {
+          message = `Candidate ${candidateName} is now in Final Round Schedule.`
         } else if (status === 'L1_CLEARED') {
           message = `Candidate ${candidateName} has cleared L1.`
         } else if (status === 'L2_CLEARED') {

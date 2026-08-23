@@ -38,7 +38,7 @@ export default async function RecruiterDashboardPage() {
 
   // Calculate Performance Metrics
   const totalSubmitted = applications.length
-  const interviewScheduled = applications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length
+  const interviewScheduled = applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(a.status)).length
   const selected = applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
   const rejected = applications.filter(a => a.status === 'REJECTED').length
   const selectionRatio = totalSubmitted > 0 ? Math.round((selected / totalSubmitted) * 100) : 0
@@ -56,7 +56,7 @@ export default async function RecruiterDashboardPage() {
   const pipeline = {
     SUBMITTED: applications.length,
     SCREENING: applications.filter(a => !['REJECTED'].includes(a.status)).length,
-    INTERVIEW: applications.filter(a => ['INTERVIEW_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
+    INTERVIEW: applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
     SELECTED: applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length,
     JOINED: applications.filter(a => a.status === 'JOINED').length,
   }
@@ -71,19 +71,19 @@ export default async function RecruiterDashboardPage() {
   const maxFunnel = pipeline.SUBMITTED > 0 ? pipeline.SUBMITTED : 1
 
   // Action Center Stats
-  const interviewFeedbackPending = applications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length;
+  const interviewFeedbackPending = applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(a.status)).length;
   const candidateFollowUpsPending = applications.filter(a => ['SCREENING', 'L1_CLEARED', 'L2_CLEARED'].includes(a.status)).length;
   const newApplicationsReceived = applications.filter(a => a.status === 'SUBMITTED').length;
   const offerAcceptancePending = applications.filter(a => a.status === 'SELECTED').length;
 
   // Priority Tasks
   const priorityTasks = applications
-    .filter(a => ['SCREENING', 'INTERVIEW_SCHEDULED', 'SELECTED'].includes(a.status))
+    .filter(a => ['SCREENING', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'SELECTED'].includes(a.status))
     .map(app => {
       let action = "Check screening status"
       let priority = "LOW"
 
-      if (app.status === 'INTERVIEW_SCHEDULED') {
+      if (app.status === 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED') {
         action = "Get interview feedback"
         priority = "HIGH"
       } else if (app.status === 'SELECTED') {

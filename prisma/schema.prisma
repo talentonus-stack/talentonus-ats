@@ -338,7 +338,6 @@ model Interview {
   mode          InterviewMode
   interviewDate DateTime
   meetingLink   String?
-  location      String?
   status        InterviewStatus @default(SCHEDULED)
 
   createdAt     DateTime        @default(now())

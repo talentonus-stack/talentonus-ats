@@ -153,6 +153,17 @@ export async function PATCH(
       }
 
       finalUpdatedApplication = await prisma.$transaction(async (tx) => {
+        // Cancel any pending SCHEDULED interviews BEFORE creating the new one
+        await tx.interview.updateMany({
+          where: {
+            applicationId: id,
+            status: 'SCHEDULED'
+          },
+          data: {
+            status: 'CANCELLED'
+          }
+        });
+
         // Create the new Interview record
         await tx.interview.create({
           data: {
@@ -164,7 +175,6 @@ export async function PATCH(
             mode: interviewData.mode,
             interviewDate: new Date(interviewData.interviewDate),
             meetingLink: interviewData.meetingLink || null,
-            location: interviewData.location || null,
             status: "SCHEDULED"
           }
         });
@@ -176,17 +186,6 @@ export async function PATCH(
             status,
             statusChangeReason: null
           },
-        });
-
-        // Cancel any pending SCHEDULED interviews since we are creating a new one or moving backwards
-        await tx.interview.updateMany({
-          where: {
-            applicationId: id,
-            status: 'SCHEDULED'
-          },
-          data: {
-            status: 'CANCELLED'
-          }
         });
 
         // Remove placement if moving backwards

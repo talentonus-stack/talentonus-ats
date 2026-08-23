@@ -22,7 +22,7 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    const { status } = await request.json();
+    const { status, interviewDate, mode, meetingLink } = await request.json();
 
     if (!status) {
       return NextResponse.json({ error: "Missing required status field" }, { status: 400 });
@@ -37,6 +37,30 @@ export async function PATCH(
       return NextResponse.json({ error: "Interview not found" }, { status: 404 });
     }
 
+    // Handle Rescheduling (Updating an existing NO_SHOW or CANCELLED interview back to SCHEDULED)
+    if (status === "SCHEDULED") {
+      if (existingInterview.status !== "NO_SHOW" && existingInterview.status !== "CANCELLED") {
+        return NextResponse.json({ error: "Can only reschedule NO_SHOW or CANCELLED interviews." }, { status: 400 });
+      }
+
+      if (!interviewDate || !mode) {
+        return NextResponse.json({ error: "Missing required scheduling fields for reschedule." }, { status: 400 });
+      }
+
+      const updatedInterview = await prisma.interview.update({
+        where: { id },
+        data: {
+          status: "SCHEDULED",
+          interviewDate: new Date(interviewDate),
+          mode,
+          meetingLink: meetingLink || null
+        }
+      });
+
+      return NextResponse.json(updatedInterview);
+    }
+
+    // Handle standard status updates (SCHEDULED -> COMPLETED/CANCELLED/NO_SHOW)
     if (existingInterview.status !== "SCHEDULED") {
       return NextResponse.json({ error: "Cannot modify an interview that is already COMPLETED, CANCELLED, or NO_SHOW." }, { status: 400 });
     }

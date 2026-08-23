@@ -2,15 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { CalendarSync, CheckCircle, XCircle, Clock } from "lucide-react"
+import { MoreHorizontal } from "lucide-react"
 
 export default function AdminInterviewsClient({ initialInterviews }: { initialInterviews: any[] }) {
   const [interviews, setInterviews] = useState(initialInterviews)
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
 
   // Reschedule Modal State
   const [rescheduleModalState, setRescheduleModalState] = useState<{ interview: any, show: boolean }>({ interview: null, show: false })
-  const [rescheduleForm, setRescheduleForm] = useState({ date: '', time: '', mode: 'ONLINE', meetingLink: '', location: '' })
+  const [rescheduleForm, setRescheduleForm] = useState({ date: '', time: '', mode: 'ONLINE', meetingLink: '' })
 
   const router = useRouter()
 
@@ -56,10 +57,10 @@ export default function AdminInterviewsClient({ initialInterviews }: { initialIn
       date: '',
       time: '',
       mode: 'ONLINE',
-      meetingLink: '',
-      location: ''
+      meetingLink: ''
     })
     setRescheduleModalState({ interview, show: true })
+    setOpenDropdownId(null)
   }
 
   const handleRescheduleSubmit = async (e: React.FormEvent) => {
@@ -73,32 +74,17 @@ export default function AdminInterviewsClient({ initialInterviews }: { initialIn
       return
     }
 
-    if (rescheduleForm.mode === 'ONLINE' && !rescheduleForm.meetingLink) {
-        alert("Meeting Link is required for Online interviews.")
-        return
-    }
-
-    if (rescheduleForm.mode === 'OFFLINE' && !rescheduleForm.location) {
-        alert("Location is required for Offline interviews.")
-        return
-    }
-
     const combinedDate = new Date(`${rescheduleForm.date}T${rescheduleForm.time}`)
 
     try {
-      const res = await fetch(`/api/interviews`, {
-        method: "POST",
+      const res = await fetch(`/api/interviews/${interview.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          applicationId: interview.applicationId,
-          candidateId: interview.candidateId,
-          jobId: interview.jobId,
-          recruiterId: interview.recruiterId,
-          round: interview.round,
+          status: "SCHEDULED",
           mode: rescheduleForm.mode,
           interviewDate: combinedDate.toISOString(),
-          meetingLink: rescheduleForm.meetingLink,
-          location: rescheduleForm.location
+          meetingLink: rescheduleForm.meetingLink
         })
       })
 
@@ -106,14 +92,9 @@ export default function AdminInterviewsClient({ initialInterviews }: { initialIn
         throw new Error("Failed to reschedule interview")
       }
 
-      const newInterview = await res.json()
+      const updatedInterview = await res.json()
 
-      // Merge candidate, job, recruiter objects for UI since they aren't returned from create
-      newInterview.candidate = interview.candidate;
-      newInterview.job = interview.job;
-      newInterview.recruiter = interview.recruiter;
-
-      setInterviews([newInterview, ...interviews])
+      setInterviews(prev => prev.map(i => i.id === interview.id ? { ...i, ...updatedInterview } : i))
       setRescheduleModalState({ interview: null, show: false })
       showToast("Interview rescheduled successfully", 'success')
       router.refresh()
@@ -209,19 +190,32 @@ export default function AdminInterviewsClient({ initialInterviews }: { initialIn
                       {interview.status.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="px-4 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                        {interview.status === 'SCHEDULED' && (
+                  <td className="px-4 py-4 text-right relative">
+                    <button
+                      onClick={() => setOpenDropdownId(openDropdownId === interview.id ? null : interview.id)}
+                      className="p-1 rounded-md hover:bg-primary transition-colors text-muted hover:text-light"
+                    >
+                      <MoreHorizontal className="w-5 h-5" />
+                    </button>
+                    {openDropdownId === interview.id && (
+                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary ring-1 ring-black ring-opacity-5 z-10 border border-border">
+                        <div className="py-1" role="menu">
+                          {interview.status === 'SCHEDULED' && (
                             <>
-                                <button onClick={() => handleStatusChange(interview.id, 'COMPLETED')} className="text-green-400 hover:text-green-300 transition-colors" title="Mark Completed"><CheckCircle className="w-4 h-4" /></button>
-                                <button onClick={() => handleStatusChange(interview.id, 'NO_SHOW')} className="text-orange-400 hover:text-orange-300 transition-colors" title="Mark No Show"><Clock className="w-4 h-4" /></button>
-                                <button onClick={() => handleStatusChange(interview.id, 'CANCELLED')} className="text-red-400 hover:text-red-300 transition-colors" title="Cancel"><XCircle className="w-4 h-4" /></button>
+                              <button onClick={() => { handleStatusChange(interview.id, 'COMPLETED'); setOpenDropdownId(null); }} className="w-full text-left px-4 py-2 text-sm text-green-400 hover:bg-primary-lighter transition-colors">Mark Completed</button>
+                              <button onClick={() => { handleStatusChange(interview.id, 'CANCELLED'); setOpenDropdownId(null); }} className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-primary-lighter transition-colors">Mark Cancelled</button>
+                              <button onClick={() => { handleStatusChange(interview.id, 'NO_SHOW'); setOpenDropdownId(null); }} className="w-full text-left px-4 py-2 text-sm text-orange-400 hover:bg-primary-lighter transition-colors">Mark No Show</button>
                             </>
-                        )}
-                        {(interview.status === 'NO_SHOW' || interview.status === 'CANCELLED') && (
-                            <button onClick={() => openRescheduleModal(interview)} className="text-accent hover:text-accent-hover transition-colors" title="Reschedule"><CalendarSync className="w-4 h-4" /></button>
-                        )}
-                    </div>
+                          )}
+                          {(interview.status === 'NO_SHOW' || interview.status === 'CANCELLED') && (
+                            <button onClick={() => openRescheduleModal(interview)} className="w-full text-left px-4 py-2 text-sm text-accent hover:bg-primary-lighter transition-colors">Reschedule</button>
+                          )}
+                          {interview.status === 'COMPLETED' && (
+                            <span className="w-full text-left px-4 py-2 text-sm text-muted block italic">No actions available</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -292,31 +286,16 @@ export default function AdminInterviewsClient({ initialInterviews }: { initialIn
                     </div>
                   </div>
 
-                  {rescheduleForm.mode === 'ONLINE' && (
-                    <div>
-                      <label className="block text-sm font-medium text-light mb-1">Meeting Link <span className="text-red-500">*</span></label>
-                      <input
-                        type="url"
-                        required
-                        value={rescheduleForm.meetingLink}
-                        onChange={(e) => setRescheduleForm(prev => ({ ...prev, meetingLink: e.target.value }))}
-                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                      />
-                    </div>
-                  )}
-
-                  {rescheduleForm.mode === 'OFFLINE' && (
-                    <div>
-                      <label className="block text-sm font-medium text-light mb-1">Location <span className="text-red-500">*</span></label>
-                      <input
-                        type="text"
-                        required
-                        value={rescheduleForm.location}
-                        onChange={(e) => setRescheduleForm(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-light mb-1">Meeting Link (Optional)</label>
+                    <input
+                      type="url"
+                      value={rescheduleForm.meetingLink}
+                      onChange={(e) => setRescheduleForm(prev => ({ ...prev, meetingLink: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      placeholder="https://meet.google.com/..."
+                    />
+                  </div>
                 </form>
               </div>
               <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">

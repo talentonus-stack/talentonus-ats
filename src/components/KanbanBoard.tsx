@@ -34,7 +34,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   const [reasonForm, setReasonForm] = useState({ reason: '' })
 
   const [interviewModalState, setInterviewModalState] = useState<{ appId: string, show: boolean, status: string, candidateName: string }>({ appId: '', show: false, status: '', candidateName: '' })
-  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', mode: 'ONLINE', round: 'L1', meetingLink: '', location: '' })
+  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', mode: 'ONLINE', round: 'L1', meetingLink: '' })
 
   const router = useRouter()
 
@@ -65,8 +65,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
         time: '',
         mode: 'ONLINE',
         round: newStatus === 'L1_SCHEDULED' ? 'L1' : newStatus === 'L2_SCHEDULED' ? 'L2' : 'FINAL_ROUND',
-        meetingLink: '',
-        location: ''
+        meetingLink: ''
       })
       setInterviewModalState({ appId, show: true, status: newStatus, candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim() })
       return
@@ -156,16 +155,6 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
       return
     }
 
-    if (interviewForm.mode === 'ONLINE' && !interviewForm.meetingLink) {
-      alert("Meeting Link is required for Online interviews.")
-      return
-    }
-
-    if (interviewForm.mode === 'OFFLINE' && !interviewForm.location) {
-      alert("Location is required for Offline interviews.")
-      return
-    }
-
     const { appId, status } = interviewModalState
     setInterviewModalState({ appId: '', show: false, status: '', candidateName: '' })
 
@@ -176,8 +165,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
         interviewDate: combinedDate.toISOString(),
         mode: interviewForm.mode,
         round: interviewForm.round,
-        meetingLink: interviewForm.meetingLink,
-        location: interviewForm.location
+        meetingLink: interviewForm.meetingLink
       }
     })
   }
@@ -314,33 +302,16 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                     </div>
                   </div>
 
-                  {interviewForm.mode === 'ONLINE' && (
-                    <div>
-                      <label className="block text-sm font-medium text-light mb-1">Meeting Link <span className="text-red-500">*</span></label>
-                      <input
-                        type="url"
-                        required
-                        value={interviewForm.meetingLink}
-                        onChange={(e) => setInterviewForm(prev => ({ ...prev, meetingLink: e.target.value }))}
-                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                        placeholder="https://meet.google.com/..."
-                      />
-                    </div>
-                  )}
-
-                  {interviewForm.mode === 'OFFLINE' && (
-                    <div>
-                      <label className="block text-sm font-medium text-light mb-1">Location <span className="text-red-500">*</span></label>
-                      <input
-                        type="text"
-                        required
-                        value={interviewForm.location}
-                        onChange={(e) => setInterviewForm(prev => ({ ...prev, location: e.target.value }))}
-                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                        placeholder="123 Main St, Office 4B"
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-light mb-1">Meeting Link (Optional)</label>
+                    <input
+                      type="url"
+                      value={interviewForm.meetingLink}
+                      onChange={(e) => setInterviewForm(prev => ({ ...prev, meetingLink: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      placeholder="https://meet.google.com/..."
+                    />
+                  </div>
                 </form>
               </div>
               <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">

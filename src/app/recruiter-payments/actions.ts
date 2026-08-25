@@ -38,6 +38,25 @@ export async function markRecruiterPaid(placementId: string) {
     }
   })
 
+  // --- NOTIFICATION CREATION ---
+  if (placement.recruiterPaymentStatus !== "PAID" && placement.recruiterId) {
+    const candidateName = `${placement.candidate?.firstName} ${placement.candidate?.lastName || ''}`.trim()
+    const message = `Payment status for Candidate ${candidateName} has been updated to Paid.`
+
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: placement.recruiterId,
+          message,
+          type: "SUCCESS",
+        }
+      })
+    } catch (notifError) {
+      console.error("Failed to create notification:", notifError)
+    }
+  }
+  // -----------------------------
+
   revalidatePath("/recruiter-payments")
   revalidatePath("/recruiter")
   revalidatePath("/recruiter/profile")

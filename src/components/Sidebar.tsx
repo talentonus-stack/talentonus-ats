@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus, Building2, IndianRupee, Wallet, KeyRound } from "lucide-react"
+import { Users, Briefcase, UserCheck, LayoutDashboard, LogOut, FileText, UserPlus, Building2, IndianRupee, Wallet, KeyRound, Settings, CalendarDays } from "lucide-react"
 import { signOut, useSession } from "next-auth/react"
 
 const adminNavigation = [
@@ -14,15 +14,18 @@ const adminNavigation = [
   { name: "Jobs", href: "/jobs", icon: Briefcase },
   { name: "Candidates", href: "/candidates", icon: Users },
   { name: "Applications", href: "/applications", icon: FileText },
+  { name: "Interviews", href: "/interviews", icon: CalendarDays },
   { name: "Recruiters", href: "/recruiters", icon: UserPlus },
   { name: "Users", href: "/users", icon: UserCheck },
   { name: "Password Reset", href: "/password-resets", icon: KeyRound },
+  { name: "Settings", href: "/settings", icon: Settings },
 ]
 
 const recruiterNavigation = [
   { name: "Dashboard", href: "/recruiter", icon: LayoutDashboard },
   { name: "Job Openings", href: "/recruiter/jobs", icon: Briefcase },
   { name: "My Candidates", href: "/recruiter/candidates", icon: Users },
+  { name: "Interviews", href: "/recruiter/interviews", icon: CalendarDays },
   { name: "My Profile", href: "/recruiter/profile", icon: UserCheck },
 ]
 

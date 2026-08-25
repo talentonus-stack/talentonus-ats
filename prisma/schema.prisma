@@ -23,28 +23,29 @@ enum UserStatus {
 }
 
 model User {
-  id               String     @id @default(cuid())
-  role             Role       @default(ADMIN)
-  name             String?
-  email            String     @unique
-  password         String?
-  mobile           String?    @unique
-  location         String?
-  status           UserStatus @default(ACTIVE)
-  lastLogin        DateTime?
+  id        String     @id @default(cuid())
+  role      Role       @default(ADMIN)
+  name      String?
+  email     String     @unique
+  password  String?
+  mobile    String?    @unique
+  location  String?
+  status    UserStatus @default(ACTIVE)
+  lastLogin DateTime?
 
   // OTP Fields (from DB)
-  otp              String?
-  otpExpiry        DateTime?
+  otp       String?
+  otpExpiry DateTime?
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  candidates Candidate[]
+  placements Placement[]
+  interviews Interview[]
 
-  candidates       Candidate[]
-  placements       Placement[]
-
-  resetRequests    PasswordResetRequest[] @relation("UserResetRequests")
+  resetRequests PasswordResetRequest[] @relation("UserResetRequests")
+  notifications Notification[]
 
   // Commercial & Payment Terms (Recruiter)
   commissionPercentage    Float?    @default(0)
@@ -80,50 +81,50 @@ enum CompanyStatus {
 }
 
 model Company {
-  id                 String        @id @default(cuid())
-  name               String
-  industry           String?
-  logoUrl            String?
-  website            String?
-  contactPerson      String?
-  email              String?
-  phone              String?
-  status             CompanyStatus @default(ACTIVE)
-  notes              String?
-  isConfidential     Boolean       @default(false)
+  id             String        @id @default(cuid())
+  name           String
+  industry       String?
+  logoUrl        String?
+  website        String?
+  contactPerson  String?
+  email          String?
+  phone          String?
+  status         CompanyStatus @default(ACTIVE)
+  notes          String?
+  isConfidential Boolean       @default(false)
 
   // Physical & Logical info
-  totalEmployees     String?
-  workingDays        String?
-  workingHours       String?
-  location           String?
-  clientSince        DateTime?
+  totalEmployees String?
+  workingDays    String?
+  workingHours   String?
+  location       String?
+  clientSince    DateTime?
 
   // Interview Process Details
-  round1Name         String?
-  round1Desc         String?
+  round1Name String?
+  round1Desc String?
 
-  round2Name         String?
-  round2Desc         String?
+  round2Name String?
+  round2Desc String?
 
-  round3Name         String?
-  round3Desc         String?
+  round3Name String?
+  round3Desc String?
 
-  finalRoundName     String?
-  finalRoundDesc     String?
+  finalRoundName String?
+  finalRoundDesc String?
 
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  jobs               Job[]
-  placements         Placement[]
+  jobs       Job[]
+  placements Placement[]
 
   // Commercial Terms (Admin Only)
   recruitmentFeePercentage Float?
   paymentTermsDays         Int?
   replacementPeriodDays    Int?
-  gstApplicable            Boolean?      @default(true)
-  clientAgreementSigned    Boolean?      @default(false)
+  gstApplicable            Boolean?  @default(true)
+  clientAgreementSigned    Boolean?  @default(false)
   agreementExpiryDate      DateTime?
   commercialRemarks        String?
 }
@@ -135,42 +136,43 @@ enum JobGender {
 }
 
 model Job {
-  id           String        @id @default(cuid())
-  title        String
-  department   String
-  location     String
-  status       JobStatus     @default(OPEN)
-  description  String?
+  id          String    @id @default(cuid())
+  title       String
+  department  String
+  location    String
+  status      JobStatus @default(OPEN)
+  description String?
 
-  postedDate   DateTime      @default(now())
+  postedDate   DateTime    @default(now())
   experience   String?
   skills       String?
   salaryRange  String?
   industry     String?
-  jobTiming    JobTiming     @default(FULL_TIME)
+  jobTiming    JobTiming   @default(FULL_TIME)
   workingDays  String?
   workingHours String?
-  priority     JobPriority   @default(MEDIUM)
-  gender       JobGender     @default(BOTH)
-  vacancies    Int           @default(1)
+  priority     JobPriority @default(MEDIUM)
+  gender       JobGender   @default(BOTH)
+  vacancies    Int         @default(1)
   education    String?
 
-  companyId    String?
-  company      Company?      @relation(fields: [companyId], references: [id])
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   applications Application[]
   placements   Placement[]
+  interviews   Interview[]
 }
 
 model Candidate {
-  id              String        @id @default(cuid())
-  firstName       String
-  status          CandidateStatus @default(ACTIVE)
-  lastName        String?
-  email           String        @unique
-  phone           String?
+  id        String          @id @default(cuid())
+  firstName String
+  status    CandidateStatus @default(ACTIVE)
+  lastName  String?
+  email     String          @unique
+  phone     String?
 
   currentLocation String?
   experience      String?
@@ -183,19 +185,22 @@ model Candidate {
   resumeFileName  String?
   portfolioUrl    String?
 
-  recruiterId     String?
-  recruiter       User?         @relation(fields: [recruiterId], references: [id])
+  recruiterId String?
+  recruiter   User?   @relation(fields: [recruiterId], references: [id])
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  applications    Application[]
-  placements      Placement[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  applications Application[]
+  placements   Placement[]
+  interviews   Interview[]
 }
 
 enum ApplicationStatus {
   SUBMITTED
   SCREENING
-  INTERVIEW_SCHEDULED
+  L1_SCHEDULED
+  L2_SCHEDULED
+  FINAL_ROUND_SCHEDULED
   L1_CLEARED
   L2_CLEARED
   SELECTED
@@ -205,17 +210,19 @@ enum ApplicationStatus {
 }
 
 model Application {
-  id          String            @id @default(cuid())
-  jobId       String
-  candidateId String
-  status      ApplicationStatus @default(SUBMITTED)
-  offeredCTC  Float?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id                 String            @id @default(cuid())
+  jobId              String
+  candidateId        String
+  status             ApplicationStatus @default(SUBMITTED)
+  statusChangeReason String?
+  offeredCTC         Float?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
-  job       Job       @relation(fields: [jobId], references: [id])
-  candidate Candidate @relation(fields: [candidateId], references: [id])
+  job       Job        @relation(fields: [jobId], references: [id])
+  candidate Candidate  @relation(fields: [candidateId], references: [id])
   placement Placement?
+  interviews Interview[]
 }
 
 enum PlacementStatus {
@@ -227,42 +234,41 @@ enum PlacementStatus {
 }
 
 model Placement {
-  id               String          @id @default(cuid())
+  id String @id @default(cuid())
 
-  applicationId    String          @unique
-  candidateId      String
-  companyId        String
-  jobId            String
-  recruiterId      String?
+  applicationId String  @unique
+  candidateId   String
+  companyId     String
+  jobId         String
+  recruiterId   String?
 
-  application      Application     @relation(fields: [applicationId], references: [id])
-  candidate        Candidate       @relation(fields: [candidateId], references: [id])
-  company          Company         @relation(fields: [companyId], references: [id])
-  job              Job             @relation(fields: [jobId], references: [id])
-  recruiter        User?           @relation(fields: [recruiterId], references: [id])
+  application Application @relation(fields: [applicationId], references: [id])
+  candidate   Candidate   @relation(fields: [candidateId], references: [id])
+  company     Company     @relation(fields: [companyId], references: [id])
+  job         Job         @relation(fields: [jobId], references: [id])
+  recruiter   User?       @relation(fields: [recruiterId], references: [id])
 
-  offeredCTC       Float
-  placementValue   Float
+  offeredCTC                    Float
+  placementValue                Float
   recruiterCommissionPercentage Float
-  recruiterShare   Float
-  talentonusShare  Float
+  recruiterShare                Float
+  talentonusShare               Float
 
-  joiningDate      DateTime?
-  expectedJoiningDate DateTime?
-  invoiceNumber    String?
-  invoiceDate      DateTime?
-  invoiceAmount    Float?
-  paymentReceivedDate DateTime?
-  recruiterPaidDate DateTime?
-  recruiterPaymentStatus String @default("PENDING")
-  remarks          String?
+  joiningDate            DateTime?
+  expectedJoiningDate    DateTime?
+  invoiceNumber          String?
+  invoiceDate            DateTime?
+  invoiceAmount          Float?
+  paymentReceivedDate    DateTime?
+  recruiterPaidDate      DateTime?
+  recruiterPaymentStatus String    @default("PENDING")
+  remarks                String?
 
-  status           PlacementStatus @default(SELECTED)
+  status PlacementStatus @default(SELECTED)
 
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 
 enum PasswordResetStatus {
   PENDING
@@ -270,13 +276,73 @@ enum PasswordResetStatus {
 }
 
 model PasswordResetRequest {
-  id          String        @id @default(cuid())
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], name: "UserResetRequests")
+
+  status    PasswordResetStatus @default(PENDING)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+}
+
+enum NotificationType {
+  NEUTRAL
+  SUCCESS
+  ERROR
+}
+
+model Notification {
+  id          String           @id @default(cuid())
   userId      String
-  user        User          @relation(fields: [userId], references: [id], name: "UserResetRequests")
+  message     String
+  type        NotificationType @default(NEUTRAL)
+  isDismissed Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
-  status      PasswordResetStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  user User @relation(fields: [userId], references: [id])
+}
 
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
 
+enum InterviewRound {
+  L1
+  L2
+  FINAL_ROUND
+}
+
+enum InterviewMode {
+  ONLINE
+  OFFLINE
+}
+
+model Interview {
+  id            String          @id @default(cuid())
+
+  applicationId String
+  candidateId   String
+  jobId         String
+  recruiterId   String?
+
+  application   Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidate     Candidate       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job           Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  recruiter     User?           @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
+
+  round         InterviewRound
+  mode          InterviewMode
+  interviewDate DateTime
+  meetingLink   String?
+  status        InterviewStatus @default(SCHEDULED)
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([applicationId])
+  @@index([recruiterId])
 }

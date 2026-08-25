@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation"
 const PIPELINE_STATUSES = [
   "SUBMITTED",
   "SCREENING",
-  "INTERVIEW_SCHEDULED",
+  "L1_SCHEDULED",
   "L1_CLEARED",
+  "L2_SCHEDULED",
   "L2_CLEARED",
+  "FINAL_ROUND_SCHEDULED",
   "SELECTED",
   "REJECTED",
   "JOINED",
@@ -27,6 +29,13 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
   const [selectedModalState, setSelectedModalState] = useState<{ appId: string, show: boolean }>({ appId: '', show: false })
   const [modalForm, setModalForm] = useState({ offeredCTC: '', expectedJoiningDate: '' })
+
+  const [reasonModalState, setReasonModalState] = useState<{ appId: string, show: boolean, status: 'REJECTED' | 'BACKED_OUT', candidateName: string }>({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+  const [reasonForm, setReasonForm] = useState({ reason: '' })
+
+  const [interviewModalState, setInterviewModalState] = useState<{ appId: string, show: boolean, status: string, candidateName: string }>({ appId: '', show: false, status: '', candidateName: '' })
+  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', mode: 'ONLINE', round: 'L1', meetingLink: '' })
+
   const router = useRouter()
 
   const showToast = (text: string, type: 'success' | 'error') => {
@@ -35,16 +44,37 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   }
 
   const handleStatusChange = async (appId: string, newStatus: string) => {
+    const app = applications.find(a => a.id === appId);
+    if (!app) return;
+
     if (newStatus === 'SELECTED') {
       setSelectedModalState({ appId, show: true })
       setModalForm({ offeredCTC: '', expectedJoiningDate: '' })
       return
     }
 
+    if (newStatus === 'REJECTED' || newStatus === 'BACKED_OUT') {
+      setReasonModalState({ appId, show: true, status: newStatus as 'REJECTED' | 'BACKED_OUT', candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim() })
+      setReasonForm({ reason: '' })
+      return
+    }
+
+    if (['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(newStatus)) {
+      setInterviewForm({
+        date: '',
+        time: '',
+        mode: 'ONLINE',
+        round: newStatus === 'L1_SCHEDULED' ? 'L1' : newStatus === 'L2_SCHEDULED' ? 'L2' : 'FINAL_ROUND',
+        meetingLink: ''
+      })
+      setInterviewModalState({ appId, show: true, status: newStatus, candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim() })
+      return
+    }
+
     await performStatusUpdate(appId, newStatus)
   }
 
-  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string }) => {
+  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string, statusChangeReason?: string, interviewData?: any }) => {
     // Save previous state for rollback
     const previousApplications = [...applications]
 
@@ -94,6 +124,54 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
 
   const handleModalCancel = () => {
     setSelectedModalState({ appId: '', show: false })
+    setApplications([...applications])
+  }
+
+  const handleReasonModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const reason = reasonForm.reason.trim();
+    if (!reason) {
+      alert("A reason is required.");
+      return;
+    }
+
+    const { appId, status } = reasonModalState
+    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+
+    await performStatusUpdate(appId, status, { statusChangeReason: reason })
+  }
+
+  const handleReasonModalCancel = () => {
+    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+    setApplications([...applications])
+  }
+
+  const handleInterviewModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!interviewForm.date || !interviewForm.time || !interviewForm.mode || !interviewForm.round) {
+      alert("Please fill out all required fields.")
+      return
+    }
+
+    const { appId, status } = interviewModalState
+    setInterviewModalState({ appId: '', show: false, status: '', candidateName: '' })
+
+    const combinedDate = new Date(`${interviewForm.date}T${interviewForm.time}`)
+
+    await performStatusUpdate(appId, status, {
+      interviewData: {
+        interviewDate: combinedDate.toISOString(),
+        mode: interviewForm.mode,
+        round: interviewForm.round,
+        meetingLink: interviewForm.meetingLink
+      }
+    })
+  }
+
+  const handleInterviewModalCancel = () => {
+    setInterviewModalState({ appId: '', show: false, status: '', candidateName: '' })
     setApplications([...applications])
   }
 
@@ -162,9 +240,144 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
           </div>
         )}
 
+        {interviewModalState.show && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 p-4 bg-black/50" style={{ backdropFilter: 'blur(4px)' }}>
+            <div className="bg-primary border border-border rounded-xl shadow-2xl w-full max-w-lg flex flex-col max-h-[calc(100vh-96px)]">
+              <div className="p-6 border-b border-border shrink-0">
+                <h3 className="text-xl font-bold text-light">Schedule Interview</h3>
+                <p className="text-sm text-accent font-medium mt-2">{interviewModalState.candidateName}</p>
+                <p className="text-sm text-muted mt-1">Please provide the interview details to proceed to {interviewModalState.status.replace(/_/g, ' ')}.</p>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <form id="interview-form" onSubmit={handleInterviewModalSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-light mb-1">Interview Date <span className="text-red-500">*</span></label>
+                      <input
+                        type="date"
+                        required
+                        value={interviewForm.date}
+                        onChange={(e) => setInterviewForm(prev => ({ ...prev, date: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-light mb-1">Interview Time <span className="text-red-500">*</span></label>
+                      <input
+                        type="time"
+                        required
+                        value={interviewForm.time}
+                        onChange={(e) => setInterviewForm(prev => ({ ...prev, time: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-light mb-1">Interview Mode <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={interviewForm.mode}
+                        onChange={(e) => setInterviewForm(prev => ({ ...prev, mode: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="ONLINE">Online</option>
+                        <option value="OFFLINE">Offline</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-light mb-1">Interview Round <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={interviewForm.round}
+                        onChange={(e) => setInterviewForm(prev => ({ ...prev, round: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent bg-gray-800"
+                        disabled
+                      >
+                        <option value="L1">L1</option>
+                        <option value="L2">L2</option>
+                        <option value="FINAL_ROUND">Final Round</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-light mb-1">Meeting Link (Optional)</label>
+                    <input
+                      type="url"
+                      value={interviewForm.meetingLink}
+                      onChange={(e) => setInterviewForm(prev => ({ ...prev, meetingLink: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      placeholder="https://meet.google.com/..."
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button
+                  type="button"
+                  onClick={handleInterviewModalCancel}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="interview-form"
+                  className="px-4 py-2 bg-accent text-primary rounded-md text-sm font-bold hover:bg-accent-hover transition-colors"
+                >
+                  Schedule Interview
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {reasonModalState.show && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 p-4 bg-black/50" style={{ backdropFilter: 'blur(4px)' }}>
+            <div className="bg-primary border border-border rounded-xl shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100vh-96px)]">
+              <div className="p-6 border-b border-border shrink-0">
+                <h3 className="text-xl font-bold text-light">{reasonModalState.status === 'REJECTED' ? 'Reject Candidate' : 'Back Out Candidate'}</h3>
+                <p className="text-sm text-accent font-medium mt-2">{reasonModalState.candidateName}</p>
+                <p className="text-sm text-muted mt-1">Please provide a reason for {reasonModalState.status === 'REJECTED' ? 'rejecting' : 'backing out'} this candidate.</p>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <form id="reason-form" onSubmit={handleReasonModalSubmit} className="space-y-4">
+                  <div>
+                    <textarea
+                      required
+                      value={reasonForm.reason}
+                      onChange={(e) => setReasonForm({ reason: e.target.value })}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 min-h-[100px] resize-y custom-scrollbar"
+                      placeholder={`Enter ${reasonModalState.status === 'REJECTED' ? 'rejection' : 'back out'} reason...`}
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button
+                  type="button"
+                  onClick={handleReasonModalCancel}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="reason-form"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-bold hover:bg-red-700 transition-colors"
+                >
+                  {reasonModalState.status === 'REJECTED' ? 'Reject Candidate' : 'Back Out Candidate'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {PIPELINE_STATUSES.map(status => (
           <div key={status} className="flex w-80 flex-shrink-0 flex-col rounded-2xl bg-primary-lighter border border-border p-4 shadow-sm">
-            <h3 className="mb-4 text-xs font-bold text-muted uppercase tracking-wider border-b border-border pb-2">{status.replace(/_/g, ' ')}</h3>
+            <h3 className="mb-4 text-xs font-bold text-muted uppercase tracking-wider border-b border-border pb-2">{status === "L1_SCHEDULED" ? "L1 Schedule" : status === "L2_SCHEDULED" ? "L2 Schedule" : status === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : status.replace(/_/g, ' ')}</h3>
             <div className="flex flex-1 flex-col gap-3 overflow-y-auto custom-scrollbar pr-1">
               {applications.filter(app => app.status === status).map(app => (
                 <div key={app.id} className="rounded-xl bg-primary border border-border hover:border-accent/50 transition-colors p-4 shadow-sm text-light">

@@ -49,7 +49,7 @@ export default async function DashboardPage() {
     prisma.user.findMany({
       where: { role: "RECRUITER", candidates: { some: { createdAt: { gte: thirtyDaysAgo } } } }
     }),
-    prisma.application.count({ where: { status: "INTERVIEW_SCHEDULED", candidate: { status: "ACTIVE" } } }),
+    prisma.application.count({ where: { status: { in: ["L1_SCHEDULED", "L2_SCHEDULED", "FINAL_ROUND_SCHEDULED"] }, candidate: { status: "ACTIVE" } } }),
     prisma.company.count(),
     prisma.company.count({ where: { status: "ACTIVE" } }),
     prisma.application.findMany({ where: { candidate: { status: "ACTIVE" } }, select: { status: true } }),
@@ -111,7 +111,9 @@ export default async function DashboardPage() {
   const pipeline = {
     SUBMITTED: allApplications.filter(a => a.status === 'SUBMITTED').length,
     SCREENING: allApplications.filter(a => a.status === 'SCREENING').length,
-    INTERVIEW_SCHEDULED: allApplications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length,
+    L1_SCHEDULED: allApplications.filter(a => a.status === 'L1_SCHEDULED').length,
+    L2_SCHEDULED: allApplications.filter(a => a.status === 'L2_SCHEDULED').length,
+    FINAL_ROUND_SCHEDULED: allApplications.filter(a => a.status === 'FINAL_ROUND_SCHEDULED').length,
     L1_CLEARED: allApplications.filter(a => a.status === 'L1_CLEARED').length,
     L2_CLEARED: allApplications.filter(a => a.status === 'L2_CLEARED').length,
     SELECTED: allApplications.filter(a => a.status === 'SELECTED').length,
@@ -123,7 +125,9 @@ export default async function DashboardPage() {
   const funnelStages = [
     { label: "Submitted", count: pipeline.SUBMITTED },
     { label: "Screening", count: pipeline.SCREENING },
-    { label: "Interview Scheduled", count: pipeline.INTERVIEW_SCHEDULED },
+    { label: "L1 Schedule", count: pipeline.L1_SCHEDULED },
+    { label: "L2 Schedule", count: pipeline.L2_SCHEDULED },
+    { label: "Final Round Schedule", count: pipeline.FINAL_ROUND_SCHEDULED },
     { label: "L1 Cleared", count: pipeline.L1_CLEARED },
     { label: "L2 Cleared", count: pipeline.L2_CLEARED },
     { label: "Selected", count: pipeline.SELECTED },
@@ -170,7 +174,7 @@ export default async function DashboardPage() {
 
       {/* 1. TOP STATISTICS ROW - COMPACT LAYOUT */}
       <div className="space-y-3">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {row1Stats.map((stat) => (
             <div
               key={stat.name}
@@ -189,7 +193,7 @@ export default async function DashboardPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {row2Stats.map((stat) => (
             <div
               key={stat.name}
@@ -211,12 +215,12 @@ export default async function DashboardPage() {
 
       {/* FULL WIDTH RECRUITMENT FUNNEL */}
       <section>
-        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-sm overflow-x-auto custom-scrollbar">
-          <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-border/50 pb-3 min-w-[800px]">
+        <div className="bg-primary-lighter rounded-xl border border-border p-6 shadow-sm ">
+          <h2 className="text-sm font-bold text-light uppercase tracking-wider mb-6 flex items-center gap-2 border-b border-border/50 pb-3">
             <TrendingUp className="w-4 h-4 text-accent" />
             Recruitment Funnel
           </h2>
-          <div className="grid grid-cols-9 gap-3 min-w-[800px]">
+          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-11 gap-3">
             {funnelStages.map((stage) => (
               <div key={stage.label} className="flex flex-col items-center">
                 <div className="bg-primary border border-border/50 rounded-xl w-full h-24 flex flex-col items-center justify-center shadow-sm hover:border-accent/30 hover:bg-primary-lighter transition-all group">
@@ -241,7 +245,7 @@ export default async function DashboardPage() {
               Recruiter Performance
             </h2>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-border/50">
+              <table className="w-full min-w-[500px] divide-y divide-border/50">
                 <thead>
                   <tr>
                     <th className="pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Rank</th>
@@ -335,7 +339,7 @@ export default async function DashboardPage() {
             <Link href="/candidates" className="text-xs text-accent hover:underline">View Directory</Link>
           </h2>
           <div className="overflow-x-auto">
-             <table className="min-w-full divide-y divide-border/50 table-fixed">
+             <table className="w-full min-w-[800px] divide-y divide-border/50 table-fixed">
                 <thead>
                   <tr>
                     <th className="w-1/6 pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Candidate Name</th>

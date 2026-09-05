@@ -23,7 +23,8 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
           applications: true
         }
       },
-      placements: true
+      placements: true,
+      bankDetails: true
     }
   })
 
@@ -131,6 +132,46 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
                 <span className="text-light font-medium">{recruiter.agreementExpiryDate ? new Date(recruiter.agreementExpiryDate).toLocaleDateString() : 'Not Set'}</span>
               </div>
             </div>
+          </div>
+
+          {/* Bank Details */}
+          <div className="bg-primary-lighter rounded-2xl shadow-lg border border-border p-6">
+            <h2 className="text-lg font-semibold text-light mb-4 border-b border-border pb-2 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-accent" /> Bank Details
+            </h2>
+            {recruiter.bankDetails ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div>
+                    <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Account Holder Name</span>
+                    <span className="text-light font-medium">{recruiter.bankDetails.accountName}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Bank Name</span>
+                    <span className="text-light font-medium">{recruiter.bankDetails.bankName}</span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Account Number</span>
+                    <span className="text-light font-medium font-mono">
+                      {'•••• •••• ' + recruiter.bankDetails.accountNumber.slice(-4)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">IFSC Code</span>
+                    <span className="text-light font-medium">{recruiter.bankDetails.ifscCode}</span>
+                  </div>
+                </div>
+                {recruiter.bankDetails.cancelledChequeUrl && (
+                  <div className="mt-4 pt-4 border-t border-border/50">
+                    <a href={recruiter.bankDetails.cancelledChequeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs font-bold text-accent hover:text-accent-hover transition-colors">
+                      <FileText className="w-4 h-4" /> View Cancelled Cheque / Document
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-sm text-muted">No bank details added by the recruiter.</div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

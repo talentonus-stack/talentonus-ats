@@ -19,8 +19,16 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
     resumeVaultUrl: recruiter.resumeVaultUrl || "",
     panCardUrl: recruiter.panCardUrl || "",
     aadhaarUrl: recruiter.aadhaarUrl || "",
-    bankDetailsUrl: recruiter.bankDetailsUrl || "",
   })
+
+  const [bankData, setBankData] = useState({
+    accountName: recruiter.bankDetails?.accountName || "",
+    accountNumber: recruiter.bankDetails?.accountNumber || "",
+    bankName: recruiter.bankDetails?.bankName || "",
+    ifscCode: recruiter.bankDetails?.ifscCode || "",
+    cancelledChequeUrl: recruiter.bankDetails?.cancelledChequeUrl || "",
+  })
+  const [showAccountNumber, setShowAccountNumber] = useState(false)
 
   const [isSaving, setIsSaving] = useState(false)
 
@@ -40,19 +48,37 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
+  const handleBankInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBankData({ ...bankData, [e.target.name]: e.target.value })
+  }
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
     setSaveMessage("")
 
     try {
-      const res = await fetch("/api/recruiter/profile", {
+      // Save primary profile
+      const resProfile = await fetch("/api/recruiter/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, ...docs })
       })
 
-      if (!res.ok) throw new Error("Failed to save profile")
+      if (!resProfile.ok) throw new Error("Failed to save profile")
+
+      // Save bank details if they have been filled
+      if (bankData.accountName || bankData.accountNumber || bankData.bankName || bankData.ifscCode) {
+         if (!bankData.accountName || !bankData.accountNumber || !bankData.bankName || !bankData.ifscCode) {
+            throw new Error("Please fill in all required bank details")
+         }
+         const resBank = await fetch("/api/recruiter/bank-details", {
+           method: "PUT",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify(bankData)
+         })
+         if (!resBank.ok) throw new Error("Failed to save bank details")
+      }
 
       setSaveMessage("Profile saved successfully!")
       setTimeout(() => {
@@ -83,7 +109,7 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
   }
 
   // Actual File Upload using /api/upload
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string, isBankDoc: boolean = false) => {
     const file = e.target.files?.[0]
     if (file) {
       setIsSaving(true)
@@ -106,7 +132,11 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
         }
 
         const data = await uploadRes.json()
-        setDocs({ ...docs, [fieldName]: data.filePath })
+        if (isBankDoc) {
+          setBankData({ ...bankData, [fieldName]: data.filePath })
+        } else {
+          setDocs({ ...docs, [fieldName]: data.filePath })
+        }
         setSaveMessage(`Uploaded successfully!`)
       } catch (err) {
         console.error(err)
@@ -377,18 +407,56 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                  </div>
                )}
 
-               {docs.bankDetailsUrl ? (
-                 <a href={docs.bankDetailsUrl} target="_blank" rel="noopener noreferrer" className="bg-primary/50 border border-border/50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 hover:border-accent/30 transition-colors cursor-pointer group">
-                   <Download className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
-                   <span className="text-xs font-medium text-light text-center">Bank Details</span>
-                 </a>
-               ) : (
-                 <div className="bg-primary/20 border border-border/30 rounded-xl p-3 flex flex-col items-center justify-center gap-2 opacity-50">
-                   <FileText className="w-5 h-5 text-muted" />
-                   <span className="text-xs font-medium text-muted text-center">No Bank Details</span>
-                 </div>
-               )}
              </div>
+          </div>
+
+          {/* Bank Details */}
+          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+             <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
+               <DollarSign className="w-4 h-4 text-accent" /> Bank Details
+             </h3>
+             {recruiter.bankDetails ? (
+               <div className="space-y-4">
+                 <div className="grid grid-cols-2 gap-4">
+                   <div>
+                     <span className="block text-xs font-medium text-muted mb-1">Account Holder Name</span>
+                     <span className="text-sm text-light font-semibold">{recruiter.bankDetails.accountName}</span>
+                   </div>
+                   <div>
+                     <span className="block text-xs font-medium text-muted mb-1">Bank Name</span>
+                     <span className="text-sm text-light font-semibold">{recruiter.bankDetails.bankName}</span>
+                   </div>
+                   <div>
+                     <span className="block text-xs font-medium text-muted mb-1">Account Number</span>
+                     <div className="flex items-center gap-2">
+                       <span className="text-sm text-light font-semibold tracking-wider font-mono">
+                         {showAccountNumber ? recruiter.bankDetails.accountNumber : '•••• •••• ' + recruiter.bankDetails.accountNumber.slice(-4)}
+                       </span>
+                       <button onClick={() => setShowAccountNumber(!showAccountNumber)} className="text-xs text-accent hover:underline">
+                         {showAccountNumber ? "Hide" : "Reveal"}
+                       </button>
+                     </div>
+                   </div>
+                   <div>
+                     <span className="block text-xs font-medium text-muted mb-1">IFSC Code</span>
+                     <span className="text-sm text-light font-semibold">{recruiter.bankDetails.ifscCode}</span>
+                   </div>
+                 </div>
+                 {recruiter.bankDetails.cancelledChequeUrl && (
+                   <div className="mt-4 pt-4 border-t border-border/50">
+                     <a href={recruiter.bankDetails.cancelledChequeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-xs font-bold text-accent hover:text-accent-hover transition-colors">
+                       <FileText className="w-4 h-4" /> View Cancelled Cheque / Document
+                     </a>
+                   </div>
+                 )}
+               </div>
+             ) : (
+               <div className="text-center py-6">
+                 <ShieldAlert className="w-8 h-8 text-muted mx-auto mb-2 opacity-50" />
+                 <p className="text-sm font-medium text-muted">No bank details added yet.</p>
+                 <button onClick={() => setIsEditModalOpen(true)} className="text-xs text-accent hover:underline mt-2 inline-block">Add Bank Details</button>
+               </div>
+             )}
           </div>
 
         </div>
@@ -616,18 +684,52 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                     </div>
                   </div>
 
-                  {/* Bank Details Upload */}
-                  <div className="bg-primary/50 border border-border rounded-xl p-4">
-                    <label className="block text-xs font-bold text-light mb-2">Bank Details / Cancelled Cheque</label>
-                    <div className="flex items-center gap-3">
-                      <label className="cursor-pointer bg-primary-lighter border border-border hover:border-accent text-xs text-light px-3 py-2 rounded-lg flex items-center gap-2 transition-colors">
-                        <UploadCloud className="w-4 h-4" /> Upload File
-                        <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'bankDetailsUrl')} accept=".pdf,.png,.jpg,.jpeg" />
-                      </label>
-                      {docs.bankDetailsUrl && <span className="text-xs text-accent truncate"><File className="w-3 h-3 inline mr-1" /> Attached</span>}
-                    </div>
-                  </div>
+                </div>
+              </div>
 
+              {/* Bank Details Entry */}
+              <div>
+                <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2">Bank Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-xs font-medium text-muted mb-1">Account Holder Name</label>
+                    <input
+                      type="text" name="accountName" value={bankData.accountName} onChange={handleBankInputChange}
+                      className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted mb-1">Bank Name</label>
+                    <input
+                      type="text" name="bankName" value={bankData.bankName} onChange={handleBankInputChange}
+                      className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted mb-1">Account Number</label>
+                    <input
+                      type="text" name="accountNumber" value={bankData.accountNumber} onChange={handleBankInputChange}
+                      className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted mb-1">IFSC Code</label>
+                    <input
+                      type="text" name="ifscCode" value={bankData.ifscCode} onChange={handleBankInputChange}
+                      className="w-full bg-primary border border-border rounded-lg p-2.5 text-sm text-light focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-primary/50 border border-border rounded-xl p-4">
+                  <label className="block text-xs font-bold text-light mb-2">Cancelled Cheque / Bank Document (Optional)</label>
+                  <div className="flex items-center gap-3">
+                    <label className="cursor-pointer bg-primary-lighter border border-border hover:border-accent text-xs text-light px-3 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                      <UploadCloud className="w-4 h-4" /> Upload File
+                      <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'cancelledChequeUrl', true)} accept=".pdf,.png,.jpg,.jpeg" />
+                    </label>
+                    {bankData.cancelledChequeUrl && <span className="text-xs text-accent truncate"><File className="w-3 h-3 inline mr-1" /> Attached</span>}
+                  </div>
                 </div>
               </div>
 

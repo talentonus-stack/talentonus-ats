@@ -25,7 +25,6 @@ export async function PUT(req: Request) {
     if (body.resumeVaultUrl !== undefined) updateData.resumeVaultUrl = body.resumeVaultUrl
     if (body.panCardUrl !== undefined) updateData.panCardUrl = body.panCardUrl
     if (body.aadhaarUrl !== undefined) updateData.aadhaarUrl = body.aadhaarUrl
-    if (body.bankDetailsUrl !== undefined) updateData.bankDetailsUrl = body.bankDetailsUrl
     if (body.notes !== undefined) updateData.notes = body.notes
 
     const updatedUser = await prisma.user.update({

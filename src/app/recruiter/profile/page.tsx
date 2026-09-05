@@ -23,7 +23,8 @@ export default async function RecruiterProfilePage() {
           job: true,
           application: true
         }
-      }
+      },
+      bankDetails: true
     }
   })
 

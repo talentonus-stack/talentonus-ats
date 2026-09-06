@@ -55,6 +55,22 @@ model User {
   agreementSigned         Boolean   @default(false)
   agreementDate           DateTime?
   agreementExpiryDate     DateTime?
+
+  bankDetails BankDetails?
+}
+
+model BankDetails {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountName        String
+  accountNumber      String
+  bankName           String
+  ifscCode           String
+  cancelledChequeUrl String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 enum JobTiming {

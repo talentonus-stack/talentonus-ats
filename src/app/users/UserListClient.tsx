@@ -68,7 +68,22 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
                </div>
                <div>
                   <span className="block text-[10px] uppercase font-bold text-muted tracking-wider mb-1">Last Login</span>
-                  <span className="text-light text-xs truncate block" title={formatLastLogin(user.lastLogin)}>{formatLastLogin(user.lastLogin)}</span>
+                  {(() => {
+                    const formatted = formatLastLogin(user.lastLogin)
+                    if (formatted === "Never") {
+                      return <span className="text-light text-xs block">Never</span>
+                    }
+                    const parts = formatted.split(", ")
+                    if (parts.length >= 2) {
+                      return (
+                        <>
+                          <div className="text-light text-xs">{parts[0]}</div>
+                          <div className="text-muted text-[10px] mt-0.5">{parts.slice(1).join(", ")}</div>
+                        </>
+                      )
+                    }
+                    return <span className="text-light text-xs block" title={formatted}>{formatted}</span>
+                  })()}
                </div>
                <div>
                   <span className="block text-[10px] uppercase font-bold text-muted tracking-wider mb-1">Created</span>
@@ -101,12 +116,12 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
           <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="w-[25%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
-                <th className="w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
-                <th className="w-[10%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                <th className="w-[35%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
+                <th className="w-[12%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
+                <th className="w-[12%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
                 <th className="hidden lg:table-cell w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Last Login</th>
-                <th className="hidden lg:table-cell w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
-                <th className="w-[25%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="hidden lg:table-cell w-[13%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
+                <th className="w-[13%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -126,8 +141,23 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
                       {user.status}
                     </span>
                   </td>
-                  <td className="hidden lg:table-cell px-4 py-4 text-sm text-light truncate">
-                    {formatLastLogin(user.lastLogin)}
+                  <td className="hidden lg:table-cell px-4 py-4">
+                    {(() => {
+                      const formatted = formatLastLogin(user.lastLogin)
+                      if (formatted === "Never") {
+                        return <span className="text-sm text-light">Never</span>
+                      }
+                      const parts = formatted.split(", ")
+                      if (parts.length >= 2) {
+                        return (
+                          <>
+                            <div className="text-sm text-light">{parts[0]}</div>
+                            <div className="text-xs text-muted mt-1">{parts.slice(1).join(", ")}</div>
+                          </>
+                        )
+                      }
+                      return <span className="text-sm text-light">{formatted}</span>
+                    })()}
                   </td>
                   <td className="hidden lg:table-cell px-4 py-4 text-sm text-light truncate">
                     {formatCreatedDate(user.createdAt)}

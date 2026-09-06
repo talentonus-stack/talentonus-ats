@@ -153,7 +153,7 @@ export default async function RecruiterDetailsPage({ params }: { params: Promise
                   <div>
                     <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Account Number</span>
                     <span className="text-light font-medium font-mono">
-                      {'•••• •••• ' + recruiter.bankDetails.accountNumber.slice(-4)}
+                      {recruiter.bankDetails.accountNumber}
                     </span>
                   </div>
                   <div>

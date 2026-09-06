@@ -410,36 +410,41 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
              </div>
           </div>
 
+        </div>
+
+        {/* Right Column */}
+        <div className="lg:col-span-2 space-y-6">
+
           {/* Bank Details */}
-          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
+          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
              <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-5 flex items-center gap-2 border-b border-border pb-3">
                <DollarSign className="w-4 h-4 text-accent" /> Bank Details
              </h3>
              {recruiter.bankDetails ? (
                <div className="space-y-4">
-                 <div className="grid grid-cols-2 gap-4">
+                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                    <div>
-                     <span className="block text-xs font-medium text-muted mb-1">Account Holder Name</span>
-                     <span className="text-sm text-light font-semibold">{recruiter.bankDetails.accountName}</span>
+                     <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Account Holder Name</span>
+                     <span className="text-light font-medium">{recruiter.bankDetails.accountName}</span>
                    </div>
                    <div>
-                     <span className="block text-xs font-medium text-muted mb-1">Bank Name</span>
-                     <span className="text-sm text-light font-semibold">{recruiter.bankDetails.bankName}</span>
+                     <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Bank Name</span>
+                     <span className="text-light font-medium">{recruiter.bankDetails.bankName}</span>
                    </div>
                    <div>
-                     <span className="block text-xs font-medium text-muted mb-1">Account Number</span>
+                     <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Account Number</span>
                      <div className="flex items-center gap-2">
-                       <span className="text-sm text-light font-semibold tracking-wider font-mono">
+                       <span className="text-light font-medium font-mono">
                          {showAccountNumber ? recruiter.bankDetails.accountNumber : '•••• •••• ' + recruiter.bankDetails.accountNumber.slice(-4)}
                        </span>
-                       <button onClick={() => setShowAccountNumber(!showAccountNumber)} className="text-xs text-accent hover:underline">
+                       <button onClick={() => setShowAccountNumber(!showAccountNumber)} className="text-xs font-bold text-accent hover:text-accent-hover transition-colors focus:outline-none">
                          {showAccountNumber ? "Hide" : "Reveal"}
                        </button>
                      </div>
                    </div>
                    <div>
-                     <span className="block text-xs font-medium text-muted mb-1">IFSC Code</span>
-                     <span className="text-sm text-light font-semibold">{recruiter.bankDetails.ifscCode}</span>
+                     <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">IFSC Code</span>
+                     <span className="text-light font-medium">{recruiter.bankDetails.ifscCode}</span>
                    </div>
                  </div>
                  {recruiter.bankDetails.cancelledChequeUrl && (
@@ -451,18 +456,15 @@ export default function ProfileClientView({ recruiter, stats }: { recruiter: any
                  )}
                </div>
              ) : (
-               <div className="text-center py-6">
-                 <ShieldAlert className="w-8 h-8 text-muted mx-auto mb-2 opacity-50" />
-                 <p className="text-sm font-medium text-muted">No bank details added yet.</p>
-                 <button onClick={() => setIsEditModalOpen(true)} className="text-xs text-accent hover:underline mt-2 inline-block">Add Bank Details</button>
+               <div className="flex flex-col items-center justify-center py-4 bg-primary/20 rounded-xl border border-border/30">
+                 <ShieldAlert className="w-8 h-8 text-muted mb-3 opacity-60" />
+                 <p className="text-sm font-medium text-muted mb-2">No bank details have been added yet.</p>
+                 <button type="button" onClick={() => setIsEditModalOpen(true)} className="text-xs font-bold text-accent hover:text-accent-hover transition-colors inline-flex items-center gap-1">
+                   <Edit3 className="w-3 h-3" /> Add Bank Details
+                 </button>
                </div>
              )}
           </div>
-
-        </div>
-
-        {/* Right Column */}
-        <div className="lg:col-span-2 space-y-6">
 
           {/* Account Settings */}
           <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">

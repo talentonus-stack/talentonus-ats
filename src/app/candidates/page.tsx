@@ -1,3 +1,4 @@
+import React from "react"
 import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
@@ -5,7 +6,11 @@ import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import CandidateActions from "./CandidateActions"
 
-export default async function CandidatesPage() {
+export default async function CandidatesPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   const formatSalary = (salary: string | null) => {
     if (!salary) return "N/A"
     if (salary.includes("₹")) return salary
@@ -24,22 +29,75 @@ export default async function CandidatesPage() {
     redirect("/recruiter")
   }
 
+  const resolvedSearchParams = await searchParams;
+  let pageParam = resolvedSearchParams?.page;
+  let requestedPage = 1;
+
+  if (typeof pageParam === 'string') {
+    const parsed = parseInt(pageParam, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      requestedPage = parsed;
+    }
+  }
+
   let candidates: any[] = []
+  let totalCount = 0;
+  let totalPages = 1;
+  let currentPage = requestedPage;
+  const take = 25;
+
   try {
-    candidates = await prisma.candidate.findMany({
-      where: { status: "ACTIVE" },
-      include: {
-        recruiter: true,
-        applications: {
-          include: { job: true },
-          orderBy: { createdAt: "desc" },
-          take: 1
-        }
-      },
-      orderBy: { createdAt: "desc" }
-    })
+    // Attempt concurrent fetch for requested page
+    const skipAttempt = (requestedPage - 1) * take;
+
+    let [fetchedCount, fetchedCandidates] = await Promise.all([
+      prisma.candidate.count({ where: { status: "ACTIVE" } }),
+      prisma.candidate.findMany({
+        where: { status: "ACTIVE" },
+        take,
+        skip: skipAttempt,
+        include: {
+          recruiter: true,
+          applications: {
+            include: { job: true },
+            orderBy: { createdAt: "desc" },
+            take: 1
+          }
+        },
+        orderBy: { createdAt: "desc" }
+      })
+    ]);
+
+    totalCount = fetchedCount;
+
+    if (totalCount > 0) {
+      totalPages = Math.ceil(totalCount / take);
+
+      if (requestedPage > totalPages) {
+        // Out of bounds, fetch the actual last page
+        currentPage = totalPages;
+        const actualSkip = (currentPage - 1) * take;
+        candidates = await prisma.candidate.findMany({
+          where: { status: "ACTIVE" },
+          take,
+          skip: actualSkip,
+          include: {
+            recruiter: true,
+            applications: {
+              include: { job: true },
+              orderBy: { createdAt: "desc" },
+              take: 1
+            }
+          },
+          orderBy: { createdAt: "desc" }
+        });
+      } else {
+        currentPage = requestedPage;
+        candidates = fetchedCandidates;
+      }
+    }
   } catch (e) {
-    console.error("Failed to load candidates", e)
+    console.error("Failed to load candidates", e);
   }
 
   return (
@@ -127,6 +185,105 @@ export default async function CandidatesPage() {
           </table>
         </div>
       </div>
+
+      {totalCount > 25 && (
+        <div className="flex items-center justify-between border-t border-border bg-primary-lighter px-4 py-3 sm:px-6">
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-muted">
+                Showing <span className="font-medium text-light">{(currentPage - 1) * take + 1}</span> to <span className="font-medium text-light">{Math.min(currentPage * take, totalCount)}</span> of <span className="font-medium text-light">{totalCount}</span> candidates
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <Link
+                  href={currentPage > 1 ? `/candidates?page=${currentPage - 1}` : '#'}
+                  className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-sm font-semibold ring-1 ring-inset ring-border focus:z-20 focus:outline-offset-0 ${
+                    currentPage <= 1
+                      ? 'text-gray-500 cursor-not-allowed bg-primary-lighter/50'
+                      : 'text-muted hover:bg-primary/50'
+                  }`}
+                  aria-disabled={currentPage <= 1}
+                  {...(currentPage <= 1 ? { tabIndex: -1 } : {})}
+                >
+                  <span className="sr-only">Previous</span>
+                  Previous
+                </Link>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                  .map((p, i, arr) => {
+                    const isCurrent = p === currentPage;
+                    const showEllipsisBefore = i > 0 && arr[i - 1] !== p - 1;
+
+                    return (
+                      <React.Fragment key={p}>
+                        {showEllipsisBefore && (
+                          <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-muted ring-1 ring-inset ring-border">
+                            ...
+                          </span>
+                        )}
+                        <Link
+                          href={`/candidates?page=${p}`}
+                          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${
+                            isCurrent
+                              ? 'z-10 bg-accent text-primary ring-1 ring-inset ring-accent'
+                              : 'text-muted ring-1 ring-inset ring-border hover:bg-primary/50'
+                          }`}
+                        >
+                          {p}
+                        </Link>
+                      </React.Fragment>
+                    );
+                  })}
+
+                <Link
+                  href={currentPage < totalPages ? `/candidates?page=${currentPage + 1}` : '#'}
+                  className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-sm font-semibold ring-1 ring-inset ring-border focus:z-20 focus:outline-offset-0 ${
+                    currentPage >= totalPages
+                      ? 'text-gray-500 cursor-not-allowed bg-primary-lighter/50'
+                      : 'text-muted hover:bg-primary/50'
+                  }`}
+                  aria-disabled={currentPage >= totalPages}
+                  {...(currentPage >= totalPages ? { tabIndex: -1 } : {})}
+                >
+                  <span className="sr-only">Next</span>
+                  Next
+                </Link>
+              </nav>
+            </div>
+          </div>
+
+          {/* Mobile pagination */}
+          <div className="flex flex-1 justify-between sm:hidden">
+            <Link
+              href={currentPage > 1 ? `/candidates?page=${currentPage - 1}` : '#'}
+              className={`relative inline-flex items-center rounded-md border border-border bg-primary-lighter px-4 py-2 text-sm font-medium ${
+                currentPage <= 1
+                  ? 'text-gray-500 cursor-not-allowed'
+                  : 'text-light hover:bg-primary/50'
+              }`}
+              {...(currentPage <= 1 ? { tabIndex: -1 } : {})}
+            >
+              Previous
+            </Link>
+            <div className="flex items-center text-sm text-muted">
+              Page {currentPage} of {totalPages}
+            </div>
+            <Link
+              href={currentPage < totalPages ? `/candidates?page=${currentPage + 1}` : '#'}
+              className={`relative inline-flex items-center rounded-md border border-border bg-primary-lighter px-4 py-2 text-sm font-medium ${
+                currentPage >= totalPages
+                  ? 'text-gray-500 cursor-not-allowed'
+                  : 'text-light hover:bg-primary/50'
+              }`}
+              {...(currentPage >= totalPages ? { tabIndex: -1 } : {})}
+            >
+              Next
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

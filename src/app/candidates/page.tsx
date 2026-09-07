@@ -187,26 +187,25 @@ export default async function CandidatesPage({
       </div>
 
       {totalCount > 25 && (
-        <div className="flex items-center justify-between border-t border-border bg-primary-lighter px-4 py-3 sm:px-6">
+        <div className="flex items-center justify-between border-t border-border bg-primary-lighter px-4 py-2.5">
           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-muted">
-                Showing <span className="font-medium text-light">{(currentPage - 1) * take + 1}</span> to <span className="font-medium text-light">{Math.min(currentPage * take, totalCount)}</span> of <span className="font-medium text-light">{totalCount}</span> candidates
+              <p className="text-xs text-muted">
+                Showing <span className="font-medium text-light">{(currentPage - 1) * take + 1}</span>&ndash;<span className="font-medium text-light">{Math.min(currentPage * take, totalCount)}</span> of <span className="font-medium text-light">{totalCount}</span> candidates
               </p>
             </div>
             <div>
-              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <nav className="flex items-center gap-1.5" aria-label="Pagination">
                 <Link
                   href={currentPage > 1 ? `/candidates?page=${currentPage - 1}` : '#'}
-                  className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-sm font-semibold ring-1 ring-inset ring-border focus:z-20 focus:outline-offset-0 ${
+                  className={`inline-flex items-center justify-center h-8 px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
                     currentPage <= 1
-                      ? 'text-gray-500 cursor-not-allowed bg-primary-lighter/50'
-                      : 'text-muted hover:bg-primary/50'
+                      ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
+                      : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
                   }`}
                   aria-disabled={currentPage <= 1}
                   {...(currentPage <= 1 ? { tabIndex: -1 } : {})}
                 >
-                  <span className="sr-only">Previous</span>
                   Previous
                 </Link>
 
@@ -219,17 +218,18 @@ export default async function CandidatesPage({
                     return (
                       <React.Fragment key={p}>
                         {showEllipsisBefore && (
-                          <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-muted ring-1 ring-inset ring-border">
+                          <span className="inline-flex items-center justify-center h-8 px-2 text-xs font-medium text-muted">
                             ...
                           </span>
                         )}
                         <Link
                           href={`/candidates?page=${p}`}
-                          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold focus:z-20 focus:outline-offset-0 ${
+                          className={`inline-flex items-center justify-center h-8 min-w-[32px] px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
                             isCurrent
-                              ? 'z-10 bg-accent text-primary ring-1 ring-inset ring-accent'
-                              : 'text-muted ring-1 ring-inset ring-border hover:bg-primary/50'
+                              ? 'border-accent/30 bg-accent/10 text-accent z-10'
+                              : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
                           }`}
+                          aria-current={isCurrent ? 'page' : undefined}
                         >
                           {p}
                         </Link>
@@ -239,15 +239,14 @@ export default async function CandidatesPage({
 
                 <Link
                   href={currentPage < totalPages ? `/candidates?page=${currentPage + 1}` : '#'}
-                  className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-sm font-semibold ring-1 ring-inset ring-border focus:z-20 focus:outline-offset-0 ${
+                  className={`inline-flex items-center justify-center h-8 px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
                     currentPage >= totalPages
-                      ? 'text-gray-500 cursor-not-allowed bg-primary-lighter/50'
-                      : 'text-muted hover:bg-primary/50'
+                      ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
+                      : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
                   }`}
                   aria-disabled={currentPage >= totalPages}
                   {...(currentPage >= totalPages ? { tabIndex: -1 } : {})}
                 >
-                  <span className="sr-only">Next</span>
                   Next
                 </Link>
               </nav>
@@ -255,28 +254,30 @@ export default async function CandidatesPage({
           </div>
 
           {/* Mobile pagination */}
-          <div className="flex flex-1 justify-between sm:hidden">
+          <div className="flex flex-1 justify-between sm:hidden items-center gap-2">
             <Link
               href={currentPage > 1 ? `/candidates?page=${currentPage - 1}` : '#'}
-              className={`relative inline-flex items-center rounded-md border border-border bg-primary-lighter px-4 py-2 text-sm font-medium ${
+              className={`inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border transition-colors ${
                 currentPage <= 1
-                  ? 'text-gray-500 cursor-not-allowed'
-                  : 'text-light hover:bg-primary/50'
+                  ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
+                  : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
               }`}
+              aria-disabled={currentPage <= 1}
               {...(currentPage <= 1 ? { tabIndex: -1 } : {})}
             >
               Previous
             </Link>
-            <div className="flex items-center text-sm text-muted">
-              Page {currentPage} of {totalPages}
+            <div className="flex items-center text-xs text-muted">
+              Page <span className="font-medium text-light mx-1">{currentPage}</span> of <span className="font-medium text-light mx-1">{totalPages}</span>
             </div>
             <Link
               href={currentPage < totalPages ? `/candidates?page=${currentPage + 1}` : '#'}
-              className={`relative inline-flex items-center rounded-md border border-border bg-primary-lighter px-4 py-2 text-sm font-medium ${
+              className={`inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border transition-colors ${
                 currentPage >= totalPages
-                  ? 'text-gray-500 cursor-not-allowed'
-                  : 'text-light hover:bg-primary/50'
+                  ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
+                  : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
               }`}
+              aria-disabled={currentPage >= totalPages}
               {...(currentPage >= totalPages ? { tabIndex: -1 } : {})}
             >
               Next

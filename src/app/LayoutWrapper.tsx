@@ -34,7 +34,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
       {/* Support Widget Injection */}
       {role === "RECRUITER" && showSupport && (
-        <SupportWidget onClose={() => setShowSupport(false)} />
+        <SupportWidget onClose={() => setShowSupport(false)} recruiterName={session?.user?.name} />
       )}
     </>
   )

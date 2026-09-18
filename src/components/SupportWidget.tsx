@@ -44,20 +44,56 @@ const FAQS = [
   },
   {
     category: "Payment / Commission",
+    question: "When is my commission finalized?",
+    answer: "A placement record (with your calculated commission) is generated when your candidate reaches the 'SELECTED' stage and their offered CTC is confirmed by the admin."
+  },
+  {
+    category: "Payment / Commission",
     question: "When do I get paid?",
-    answer: "A placement record is generated when your candidate reaches the 'SELECTED' stage and an offered CTC is confirmed. However, recruiter payouts are only processed after the candidate has successfully 'JOINED'."
+    answer: "Recruiter payouts can only be processed and marked as 'PAID' after the candidate has successfully 'JOINED'. You will not be paid if the candidate is only 'SELECTED'."
   },
   {
     category: "Bank Details",
     question: "How do I update my bank details?",
     answer: "Navigate to 'My Profile' and click the 'Edit Profile' button. In the modal, you will find a dedicated section to securely update your Bank Account Name, Number, Bank Name, IFSC code, and cancelled cheque."
+  },
+  {
+    category: "Interview Related",
+    question: "How do I know if an interview is scheduled?",
+    answer: "You will receive an in-app notification when an interview is scheduled. You can also view the active interview details under the 'Interviews' tab or on the specific candidate's application details page."
+  },
+  {
+    category: "Interview Related",
+    question: "What happens if an interview is cancelled?",
+    answer: "If a candidate is moved backward in the pipeline or rejected, their active scheduled interview is automatically marked as cancelled. We maintain this history permanently for your records."
+  },
+  {
+    category: "Candidate Status",
+    question: "What happens if a selected candidate backs out?",
+    answer: "If a candidate backs out after being selected, their application status changes to 'BACKED_OUT' and the associated placement/commission record is automatically deleted."
+  },
+  {
+    category: "Candidate Status",
+    question: "What happens if a candidate is rejected?",
+    answer: "If a candidate is rejected during the interview process, any active scheduled interview is cancelled, and if they were previously selected, their placement record is removed."
+  },
+  {
+    category: "Account / Profile",
+    question: "Can I view other recruiters' candidates?",
+    answer: "No. Our ATS uses Role-Based Access Control. Recruiters can only access and edit candidates they have explicitly submitted themselves."
+  },
+  {
+    category: "Job Related",
+    question: "How do I find out more about a job's requirements?",
+    answer: "Go to 'Job Openings' and click the 'View' (eye) icon on any job. This will open the detailed job description, including required skills, education, and specific working hours and days."
   }
 ]
 
-export default function SupportWidget({ onClose }: { onClose: () => void }) {
+export default function SupportWidget({ onClose, recruiterName }: { onClose: () => void, recruiterName?: string | null }) {
   const [view, setView] = useState<"faq" | "ticket">("faq")
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(null)
+  const [showAllFaqs, setShowAllFaqs] = useState(false)
 
   const [category, setCategory] = useState<SupportCategory>("Candidate Submission")
   const [description, setDescription] = useState("")
@@ -135,7 +171,7 @@ export default function SupportWidget({ onClose }: { onClose: () => void }) {
       <div className="flex-1 overflow-y-auto custom-scrollbar relative">
         {view === "faq" && (
           <div className="p-5 flex flex-col h-full">
-            <h4 className="text-xl font-bold text-light mb-4">Hi there 👋<br/>How can we help?</h4>
+            <h4 className="text-xl font-bold text-light mb-4">Hi {recruiterName ? recruiterName.split(' ')[0] : 'there'} 👋<br/>How can we help?</h4>
 
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
@@ -154,29 +190,40 @@ export default function SupportWidget({ onClose }: { onClose: () => void }) {
               {filteredFaqs.length === 0 ? (
                 <p className="text-sm text-muted">No matching articles found.</p>
               ) : (
-                <div className="space-y-2">
-                  {filteredFaqs.map((faq, index) => (
-                    <div key={index} className="border border-border rounded-xl overflow-hidden bg-primary/30">
-                      <button
-                        onClick={() => setExpandedFaqIndex(expandedFaqIndex === index ? null : index)}
-                        className="w-full text-left p-4 flex items-start justify-between hover:bg-primary/50 transition-colors"
-                      >
-                        <span className="text-sm font-medium text-light pr-4">{faq.question}</span>
-                        {expandedFaqIndex === index ? (
-                          <ChevronDown className="w-4 h-4 text-muted shrink-0 mt-0.5" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-muted shrink-0 mt-0.5" />
-                        )}
-                      </button>
+                <>
+                  <div className="space-y-2">
+                    {(searchQuery ? filteredFaqs : (showAllFaqs ? filteredFaqs : filteredFaqs.slice(0, 5))).map((faq, index) => (
+                      <div key={index} className="border border-border rounded-xl overflow-hidden bg-primary/30">
+                        <button
+                          onClick={() => setExpandedFaqIndex(expandedFaqIndex === index ? null : index)}
+                          className="w-full text-left p-4 flex items-start justify-between hover:bg-primary/50 transition-colors"
+                        >
+                          <span className="text-sm font-medium text-light pr-4">{faq.question}</span>
+                          {expandedFaqIndex === index ? (
+                            <ChevronDown className="w-4 h-4 text-muted shrink-0 mt-0.5" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4 text-muted shrink-0 mt-0.5" />
+                          )}
+                        </button>
 
-                      {expandedFaqIndex === index && (
-                        <div className="p-4 pt-0 text-sm text-muted border-t border-border/50 leading-relaxed bg-primary/20">
-                          {faq.answer}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                        {expandedFaqIndex === index && (
+                          <div className="p-4 pt-0 text-sm text-muted border-t border-border/50 leading-relaxed bg-primary/20">
+                            {faq.answer}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {!searchQuery && !showAllFaqs && filteredFaqs.length > 5 && (
+                    <button
+                      onClick={() => setShowAllFaqs(true)}
+                      className="mt-3 text-sm text-accent hover:text-accent/80 font-medium flex items-center gap-1 transition-colors"
+                    >
+                      More questions <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </>
               )}
             </div>
 

@@ -94,8 +94,8 @@ export default function Sidebar({ onSupportClick }: { onSupportClick?: () => voi
                 Support
               </button>
 
-              {/* Dropdown - absolute positioned to right of sidebar */}
-              <div className="absolute left-full top-0 ml-2 w-48 rounded-xl bg-primary-lighter border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+              {/* Dropdown - absolute positioned above the button (compact popover) */}
+              <div className="absolute bottom-full left-0 mb-2 w-full rounded-xl bg-primary-lighter border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
                 <a
                   href={WHATSAPP_SUPPORT_URL}
                   target="_blank"

@@ -30,7 +30,7 @@ export default async function CandidatesPage({
   }
 
   const resolvedSearchParams = await searchParams;
-  let pageParam = resolvedSearchParams?.page;
+  const pageParam = resolvedSearchParams?.page;
   let requestedPage = 1;
 
   if (typeof pageParam === 'string') {
@@ -50,7 +50,7 @@ export default async function CandidatesPage({
     // Attempt concurrent fetch for requested page
     const skipAttempt = (requestedPage - 1) * take;
 
-    let [fetchedCount, fetchedCandidates] = await Promise.all([
+    const [fetchedCount, fetchedCandidates] = await Promise.all([
       prisma.candidate.count({ where: { status: "ACTIVE" } }),
       prisma.candidate.findMany({
         where: { status: "ACTIVE" },

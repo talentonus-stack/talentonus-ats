@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import Link from "next/link"
 import { Eye, Edit2, Trash2 } from "lucide-react"
 import { deleteJob } from "./actions"
@@ -11,7 +11,33 @@ export default function JobListingClient({ initialJobs }: { initialJobs: any[] }
   const [deleteModal, setDeleteModal] = useState<any | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
+  const [expandedJobId, setExpandedJobId] = useState<string | null>(null)
   const router = useRouter()
+
+  const toggleExpand = (jobId: string) => {
+    setExpandedJobId(prev => prev === jobId ? null : jobId)
+  }
+
+  const getJobStats = (applications: any[]) => {
+    let submitted = 0, screening = 0, interviews = 0, selected = 0, rejected = 0, joined = 0;
+    if (!applications) return { submitted, screening, interviews, selected, rejected, joined };
+    applications.forEach(app => {
+      if (app.status === 'SUBMITTED') submitted++;
+      else if (app.status === 'SCREENING') screening++;
+      else if (['L1_SCHEDULED', 'L1_CLEARED', 'L2_SCHEDULED', 'L2_CLEARED', 'FINAL_ROUND_SCHEDULED'].includes(app.status)) interviews++;
+      else if (app.status === 'SELECTED') selected++;
+      else if (app.status === 'REJECTED') rejected++;
+      else if (app.status === 'JOINED') joined++;
+    });
+    return { submitted, screening, interviews, selected, rejected, joined };
+  }
+
+  const renderIndicator = (jobId: string) => {
+    const isExpanded = expandedJobId === jobId;
+    return (
+      <div className={`absolute bottom-0 left-0 w-full h-[3px] transition-all duration-300 ${isExpanded ? 'bg-accent shadow-[0_-1px_10px_rgba(170,255,0,0.3)]' : 'bg-accent/20 group-hover:bg-accent/70 group-hover:shadow-[0_-1px_8px_rgba(170,255,0,0.2)]'}`} />
+    )
+  }
 
   const showToast = (text: string, type: 'success' | 'error') => {
     setToastMessage({ text, type })
@@ -70,40 +96,96 @@ export default function JobListingClient({ initialJobs }: { initialJobs: any[] }
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-primary-lighter">
-              {jobs.map((job) => (
-                <tr key={job.id} className="hover:bg-primary/50 transition-colors group">
-                  <td className="whitespace-nowrap px-6 py-4">
-                    <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
-                    <div className="text-xs text-muted mt-1">{job.company?.name || 'No Company'}</div>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.experience || 'N/A'}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{job.location}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : job.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
-                      {job.priority}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
-                      {job.status}
-                    </span>
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-muted">{new Date(job.postedDate).toLocaleDateString()}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-3">
-                      <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors" title="View Job">
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                      <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors" title="Edit Job">
-                        <Edit2 className="w-4 h-4" />
-                      </Link>
-                      <button onClick={() => setDeleteModal(job)} className="text-muted hover:text-red-400 transition-colors focus:outline-none" title="Delete Job">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {jobs.map((job) => {
+                const isExpanded = expandedJobId === job.id;
+                const stats = getJobStats(job.applications);
+
+                return (
+                  <React.Fragment key={job.id}>
+                    <tr
+                      onClick={() => toggleExpand(job.id)}
+                      className={`hover:bg-primary/50 transition-colors group cursor-pointer ${isExpanded ? 'bg-primary/30' : ''}`}
+                    >
+                      <td className="relative whitespace-nowrap px-6 py-4">
+                        <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
+                        <div className="text-xs text-muted mt-1">{job.company?.name || 'No Company'}</div>
+                        {renderIndicator(job.id)}
+                      </td>
+                      <td className="relative whitespace-nowrap px-6 py-4 text-sm text-muted">
+                        {job.experience || 'N/A'}
+                        {renderIndicator(job.id)}
+                      </td>
+                      <td className="relative whitespace-nowrap px-6 py-4 text-sm text-muted">
+                        {job.location}
+                        {renderIndicator(job.id)}
+                      </td>
+                      <td className="relative whitespace-nowrap px-6 py-4 text-sm">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : job.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
+                          {job.priority}
+                        </span>
+                        {renderIndicator(job.id)}
+                      </td>
+                      <td className="relative whitespace-nowrap px-6 py-4 text-sm">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
+                          {job.status}
+                        </span>
+                        {renderIndicator(job.id)}
+                      </td>
+                      <td className="relative whitespace-nowrap px-6 py-4 text-sm text-muted">
+                        {new Date(job.postedDate).toLocaleDateString()}
+                        {renderIndicator(job.id)}
+                      </td>
+                      <td className="relative whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-3" onClick={(e) => e.stopPropagation()}>
+                          <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors" title="View Job">
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                          <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors" title="Edit Job">
+                            <Edit2 className="w-4 h-4" />
+                          </Link>
+                          <button onClick={() => setDeleteModal(job)} className="text-muted hover:text-red-400 transition-colors focus:outline-none" title="Delete Job">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        {renderIndicator(job.id)}
+                      </td>
+                    </tr>
+
+                    {isExpanded && (
+                      <tr className="bg-primary-lighter/30">
+                        <td colSpan={7} className="px-0 py-0 border-b border-border">
+                          <div className="animate-fade-in px-6 py-4 grid grid-cols-3 md:grid-cols-6 divide-x divide-border">
+                            <div className="flex flex-col items-center justify-center py-2">
+                              <span className="text-xl font-bold text-light">{stats.submitted}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Submitted</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center py-2">
+                              <span className="text-xl font-bold text-light">{stats.screening}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Screening</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center py-2">
+                              <span className="text-xl font-bold text-light">{stats.interviews}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Interviews</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center py-2 border-t md:border-t-0 border-border md:border-l">
+                              <span className="text-xl font-bold text-light">{stats.selected}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Selected</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center py-2 border-t md:border-t-0 border-border md:border-l">
+                              <span className="text-xl font-bold text-light">{stats.rejected}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Rejected</span>
+                            </div>
+                            <div className="flex flex-col items-center justify-center py-2 border-t md:border-t-0 border-border md:border-l">
+                              <span className="text-xl font-bold text-light">{stats.joined}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Joined</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )
+              })}
               {jobs.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">No jobs found matching your criteria.</td>

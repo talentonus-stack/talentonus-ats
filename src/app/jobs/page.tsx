@@ -42,7 +42,12 @@ export default async function JobsPage({
     jobs = await prisma.job.findMany({
       where: whereClause,
       include: {
-        company: true
+        company: true,
+        applications: {
+          select: {
+            status: true
+          }
+        }
       },
       orderBy: { postedDate: "desc" }
     })

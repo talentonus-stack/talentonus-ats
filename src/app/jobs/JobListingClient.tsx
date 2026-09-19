@@ -153,31 +153,31 @@ export default function JobListingClient({ initialJobs }: { initialJobs: any[] }
 
                     {isExpanded && (
                       <tr className="bg-primary-lighter/30">
-                        <td colSpan={7} className="px-6 py-6 border-b border-border">
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-primary border border-border shadow-sm">
-                              <span className="text-2xl font-bold text-light">{stats.submitted}</span>
-                              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider mt-1">Submitted</span>
+                        <td colSpan={7} className="px-0 py-0 border-b border-border">
+                          <div className="animate-fade-in px-6 py-4 grid grid-cols-3 md:grid-cols-6 divide-x divide-border">
+                            <div className="flex flex-col items-center justify-center py-2">
+                              <span className="text-xl font-bold text-light">{stats.submitted}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Submitted</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-primary border border-border shadow-sm">
-                              <span className="text-2xl font-bold text-light">{stats.screening}</span>
-                              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider mt-1">Screening</span>
+                            <div className="flex flex-col items-center justify-center py-2">
+                              <span className="text-xl font-bold text-light">{stats.screening}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Screening</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-primary border border-border shadow-sm">
-                              <span className="text-2xl font-bold text-light">{stats.interviews}</span>
-                              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider mt-1">Interviews</span>
+                            <div className="flex flex-col items-center justify-center py-2">
+                              <span className="text-xl font-bold text-light">{stats.interviews}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Interviews</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-primary border border-border shadow-sm">
-                              <span className="text-2xl font-bold text-light">{stats.selected}</span>
-                              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider mt-1">Selected</span>
+                            <div className="flex flex-col items-center justify-center py-2 border-t md:border-t-0 border-border md:border-l">
+                              <span className="text-xl font-bold text-light">{stats.selected}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Selected</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-primary border border-border shadow-sm">
-                              <span className="text-2xl font-bold text-light">{stats.rejected}</span>
-                              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider mt-1">Rejected</span>
+                            <div className="flex flex-col items-center justify-center py-2 border-t md:border-t-0 border-border md:border-l">
+                              <span className="text-xl font-bold text-light">{stats.rejected}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Rejected</span>
                             </div>
-                            <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-primary border border-border shadow-sm">
-                              <span className="text-2xl font-bold text-light">{stats.joined}</span>
-                              <span className="text-[10px] font-semibold text-muted uppercase tracking-wider mt-1">Joined</span>
+                            <div className="flex flex-col items-center justify-center py-2 border-t md:border-t-0 border-border md:border-l">
+                              <span className="text-xl font-bold text-light">{stats.joined}</span>
+                              <span className="text-[10px] font-medium text-muted uppercase tracking-[0.05em] mt-0.5">Joined</span>
                             </div>
                           </div>
                         </td>

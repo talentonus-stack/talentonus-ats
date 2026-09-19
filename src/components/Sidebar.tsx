@@ -29,7 +29,10 @@ const recruiterNavigation = [
   { name: "My Profile", href: "/recruiter/profile", icon: UserCheck },
 ]
 
-export default function Sidebar() {
+import { Headset, MessageCircle, Ticket } from "lucide-react"
+const WHATSAPP_SUPPORT_URL = "https://wa.me/918238042567"
+
+export default function Sidebar({ onSupportClick }: { onSupportClick?: () => void }) {
   const pathname = usePathname()
   const { data: session } = useSession()
   const role = (session?.user as any)?.role
@@ -57,7 +60,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto relative z-10 custom-scrollbar">
+      <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto relative z-10 custom-scrollbar pb-24">
         {navigation.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && item.href !== "/recruiter" && pathname?.startsWith(item.href))
           return (
@@ -80,9 +83,42 @@ export default function Sidebar() {
             </Link>
           )
         })}
+
+        {role === "RECRUITER" && (
+          <div className="pt-2">
+            <div className="group relative">
+              <button
+                className="w-full flex items-center rounded-xl px-3 py-3 text-sm font-medium text-muted hover:bg-primary-lighter hover:text-light transition-all duration-200"
+              >
+                <Headset className="mr-3 h-5 w-5 flex-shrink-0 text-muted group-hover:text-light transition-colors" />
+                Support
+              </button>
+
+              {/* Dropdown - absolute positioned above the button (compact popover) */}
+              <div className="absolute bottom-full left-0 mb-2 w-full rounded-xl bg-primary-lighter border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+                <a
+                  href={WHATSAPP_SUPPORT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted hover:bg-primary hover:text-light transition-colors border-b border-border"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Chat on WhatsApp
+                </a>
+                <button
+                  onClick={onSupportClick}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-muted hover:bg-primary hover:text-light transition-colors text-left"
+                >
+                  <Ticket className="h-4 w-4" />
+                  Raise a Ticket
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
-      <div className="border-t border-border p-4 relative z-10">
+      <div className="border-t border-border p-4 relative z-10 bg-primary">
         <button
           onClick={() => signOut({ callbackUrl: role === 'RECRUITER' ? '/recruiter-login' : '/login' })}
           className="group flex w-full items-center rounded-xl px-3 py-3 text-sm font-medium text-muted hover:bg-primary-lighter hover:text-light transition-all duration-200"

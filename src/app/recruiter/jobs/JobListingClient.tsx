@@ -112,7 +112,7 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
             </div>
 
             <div className="mt-6 border-t border-border/50 pt-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div>
                   <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Experience</span>
                   <p className="text-sm text-light font-medium truncate" title={job.experience || "Not specified"}>{job.experience || "Not specified"}</p>
@@ -122,12 +122,22 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
                   <p className="text-sm text-light font-medium truncate" title={job.location}>{job.location}</p>
                 </div>
                 <div>
-                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Salary Range</span>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Salary</span>
                   <p className="text-sm text-light font-medium truncate" title={job.salaryRange ? formatSalary(job.salaryRange) : "Not disclosed"}>{job.salaryRange ? formatSalary(job.salaryRange) : "Not disclosed"}</p>
                 </div>
                 <div>
-                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Required Skills</span>
-                  <p className="text-sm text-light font-medium truncate" title={job.skills || "Not specified"}>{job.skills || "Not specified"}</p>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Working Hours</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.workingHours || "Not specified"}>{job.workingHours || "Not specified"}</p>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Working Days</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.workingDays || "Not specified"}>{job.workingDays || "Not specified"}</p>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Gender</span>
+                  <p className="text-sm text-light font-medium truncate" title={job.gender === "BOTH" ? "Any" : (job.gender ? job.gender.charAt(0).toUpperCase() + job.gender.slice(1).toLowerCase() : "Not specified")}>
+                    {job.gender === "BOTH" ? "Any" : (job.gender ? job.gender.charAt(0).toUpperCase() + job.gender.slice(1).toLowerCase() : "Not specified")}
+                  </p>
                 </div>
               </div>
             </div>

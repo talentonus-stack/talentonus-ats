@@ -21,6 +21,9 @@ export default async function NewRecruiterPage() {
       const plainPassword = formData.get("password") as string
       const hashedPassword = await bcrypt.hash(plainPassword, 10)
 
+      const recruiterType = formData.get("recruiterType") as string || null
+      const mappedRole = recruiterType === "Associate Partner" ? "ASSOCIATE_PARTNER" : "RECRUITER"
+
       await prisma.user.create({
         data: {
           name: formData.get("name") as string,
@@ -32,11 +35,11 @@ export default async function NewRecruiterPage() {
           commissionPercentage: formData.get("commissionPercentage") ? parseFloat(formData.get("commissionPercentage") as string) : 0,
           paymentTermsDays: formData.get("paymentTermsDays") ? parseInt(formData.get("paymentTermsDays") as string) : null,
           paymentReleaseCondition: formData.get("paymentReleaseCondition") as string || null,
-          recruiterType: formData.get("recruiterType") as string || null,
+          recruiterType: recruiterType,
           agreementSigned: formData.get("agreementSigned") === "true",
           agreementDate: formData.get("agreementDate") ? new Date(formData.get("agreementDate") as string) : null,
           agreementExpiryDate: formData.get("agreementExpiryDate") ? new Date(formData.get("agreementExpiryDate") as string) : null,
-          role: "RECRUITER",
+          role: mappedRole,
         }
       })
     } catch(e) {
@@ -133,6 +136,7 @@ export default async function NewRecruiterPage() {
                 <option value="Internal Recruiter">Internal Recruiter</option>
                 <option value="Freelance Recruiter">Freelance Recruiter</option>
                 <option value="Partner Agency">Partner Agency</option>
+                <option value="Associate Partner">Associate Partner</option>
               </select>
             </div>
           </div>

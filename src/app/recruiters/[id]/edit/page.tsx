@@ -148,6 +148,7 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
                 <option value="Internal Recruiter">Internal Recruiter</option>
                 <option value="Freelance Recruiter">Freelance Recruiter</option>
                 <option value="Partner Agency">Partner Agency</option>
+                <option value="Associate Partner">Associate Partner</option>
               </select>
             </div>
           </div>

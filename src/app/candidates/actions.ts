@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache"
 
 export async function deleteCandidate(id: string) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     throw new Error("Unauthorized")
   }
 

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 
 export default async function RecruiterPaymentsPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 
@@ -26,19 +26,33 @@ export default async function RecruiterPaymentsPage() {
     orderBy: { createdAt: "desc" }
   })
 
+  const operationsPayouts = await prisma.operationsPayout.findMany({
+    include: {
+      associatePartner: true,
+      placement: {
+        include: {
+          application: true
+        }
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  })
+
+  const isAdmin = (session.user as any).role === "ADMIN";
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
       <div className="sm:flex sm:items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-light flex items-center gap-3">
             <Wallet className="w-8 h-8 text-accent" />
-            Recruiter Payments
+            Payout Management
           </h1>
-          <p className="mt-2 text-sm text-muted">Manage commission payouts to external and internal recruiters.</p>
+          <p className="mt-2 text-sm text-muted">Manage commission payouts to recruiters and operations partners.</p>
         </div>
       </div>
 
-      <RecruiterPaymentsClient placements={placements} />
+      <RecruiterPaymentsClient placements={placements} operationsPayouts={operationsPayouts} isAdmin={isAdmin} />
     </div>
   )
 }

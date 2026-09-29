@@ -24,7 +24,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <Sidebar onSupportClick={() => setShowSupport(true)} />
       <main className="flex-1 overflow-y-auto p-8 relative">
         {/* Recruiter Notifications Injection */}
-        {role === "RECRUITER" && (
+        {["RECRUITER", "ASSOCIATE_PARTNER"].includes(role) && (
           <div className="absolute top-8 right-8 z-50">
             <RecruiterNotifications />
           </div>
@@ -33,7 +33,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       </main>
 
       {/* Support Widget Injection */}
-      {role === "RECRUITER" && showSupport && (
+      {["RECRUITER", "ASSOCIATE_PARTNER"].includes(role) && showSupport && (
         <SupportWidget onClose={() => setShowSupport(false)} recruiterName={session?.user?.name} />
       )}
     </>

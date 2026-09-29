@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
 
 export default async function ViewJobPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 

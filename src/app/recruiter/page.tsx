@@ -7,7 +7,7 @@ import { timeAgo } from "@/lib/dateUtils"
 
 export default async function RecruiterDashboardPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "RECRUITER") {
+  if (!session || !["RECRUITER", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter-login")
   }
 

@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { markRecruiterPaid } from "./actions"
+import { markRecruiterPaid, markOperationsSharePaid } from "./actions"
 
-export default function RecruiterPaymentsClient({ placements }: { placements: any[] }) {
+export default function RecruiterPaymentsClient({ placements, operationsPayouts, isAdmin }: { placements: any[], operationsPayouts: any[], isAdmin: boolean }) {
   const [isProcessing, setIsProcessing] = useState<string | null>(null)
   const [validationModal, setValidationModal] = useState<any | null>(null)
+  const [activeTab, setActiveTab] = useState<'recruiter' | 'operations'>('recruiter')
   const router = useRouter()
 
   const handleMarkPaidClick = (p: any) => {
@@ -30,10 +31,48 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
     }
   }
 
+  const handleOperationsMarkPaidClick = (op: any) => {
+    if (op.placement?.application?.status === 'SELECTED') {
+      setValidationModal({
+        candidate: { firstName: op.candidateName, lastName: '' },
+        company: { name: op.companyName }
+      })
+      return
+    }
+    processOperationsPayment(op.id)
+  }
+
+  const processOperationsPayment = async (id: string) => {
+    setIsProcessing(id)
+    try {
+      await markOperationsSharePaid(id)
+    } catch (e: any) {
+      alert("Failed to mark as paid: " + e.message)
+    } finally {
+      setIsProcessing(null)
+    }
+  }
+
   return (
     <>
+    <div className="flex gap-4 mb-4">
+      <button
+        onClick={() => setActiveTab('recruiter')}
+        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'recruiter' ? 'bg-accent text-primary' : 'bg-primary border border-border text-light hover:border-accent hover:text-accent'}`}
+      >
+        Recruiter Payouts
+      </button>
+      <button
+        onClick={() => setActiveTab('operations')}
+        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeTab === 'operations' ? 'bg-accent text-primary' : 'bg-primary border border-border text-light hover:border-accent hover:text-accent'}`}
+      >
+        Operations Share Payouts
+      </button>
+    </div>
+
     <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
       <div className="overflow-x-auto">
+        {activeTab === 'recruiter' && (
         <table className="min-w-full divide-y divide-border">
           <thead className="bg-primary-lighter/50">
             <tr>
@@ -88,6 +127,64 @@ export default function RecruiterPaymentsClient({ placements }: { placements: an
             )}
           </tbody>
         </table>
+        )}
+
+        {activeTab === 'operations' && (
+        <table className="min-w-full divide-y divide-border">
+          <thead className="bg-primary-lighter/50">
+            <tr>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Partner Name</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate & Company</th>
+              <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Operations Share</th>
+              <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Payment Status</th>
+              <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Payment Date</th>
+              <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/50">
+            {operationsPayouts.map((op) => (
+              <tr key={op.id} className="hover:bg-primary/50 transition-colors">
+                <td className="whitespace-nowrap px-6 py-4 text-sm font-bold text-light">
+                  {op.associatePartner?.name || op.associatePartner?.email || 'N/A'}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4">
+                  <div className="text-sm font-bold text-light">{op.candidateName}</div>
+                  <div className="text-xs text-muted mt-1">{op.companyName}</div>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-yellow-400 font-bold">₹{op.amount.toLocaleString('en-IN')}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-center">
+                  <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border ${op.status === 'PAID' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
+                    {op.status}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-center text-sm text-light">
+                  {op.paidDate ? new Date(op.paidDate).toLocaleDateString() : '-'}
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-right">
+                  {isAdmin && op.status === 'PENDING' ? (
+                    <button
+                      onClick={() => handleOperationsMarkPaidClick(op)}
+                      disabled={isProcessing === op.id}
+                      className="px-3 py-1.5 bg-accent/10 border border-accent/20 text-accent text-xs font-bold rounded-lg hover:bg-accent hover:text-primary transition-colors disabled:opacity-50"
+                    >
+                      {isProcessing === op.id ? 'Processing...' : 'Mark as Paid'}
+                    </button>
+                  ) : op.status === 'PENDING' ? (
+                    <span className="text-xs text-muted">Admin Only</span>
+                  ) : (
+                    <span className="text-xs text-muted">Paid</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {operationsPayouts.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-6 py-12 text-sm text-muted text-center">No operations payouts found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        )}
       </div>
     </div>
 

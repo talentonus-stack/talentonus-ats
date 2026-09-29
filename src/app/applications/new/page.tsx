@@ -8,7 +8,7 @@ export default async function NewApplicationPage() {
   if (!session) {
     redirect("/login")
   }
-  if ((session.user as any).role !== "ADMIN") {
+  if (!["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter")
   }
 
@@ -24,7 +24,7 @@ export default async function NewApplicationPage() {
   async function createApplication(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession) throw new Error("Unauthorized")
+    if (!authSession || !["ADMIN", "ASSOCIATE_PARTNER"].includes((authSession.user as any).role)) throw new Error("Unauthorized")
     try {
       await prisma.application.create({
         data: {

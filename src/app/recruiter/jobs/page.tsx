@@ -7,7 +7,7 @@ import JobListingClient from "./JobListingClient"
 
 export default async function RecruiterJobsPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "RECRUITER") {
+  if (!session || !["RECRUITER", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter-login")
   }
 

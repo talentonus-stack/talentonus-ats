@@ -63,3 +63,53 @@ export async function markRecruiterPaid(placementId: string) {
 
   return { success: true }
 }
+
+export async function markOperationsSharePaid(operationsPayoutId: string) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user as any).role !== "ADMIN") {
+    throw new Error("Unauthorized")
+  }
+
+  const op = await prisma.operationsPayout.findUnique({
+    where: { id: operationsPayoutId },
+    include: { placement: { include: { application: true } } }
+  })
+
+  if (!op) {
+    throw new Error("Operations Payout not found")
+  }
+
+  if (op.placement && op.placement.application?.status === 'SELECTED') {
+    throw new Error("Cannot pay operations share while application is still in SELECTED status.")
+  }
+
+  await prisma.operationsPayout.update({
+    where: { id: operationsPayoutId },
+    data: {
+      status: "PAID",
+      paidDate: new Date()
+    }
+  })
+
+  // --- NOTIFICATION CREATION ---
+  if (op.status !== "PAID") {
+    const message = `Operations Share payout for ${op.candidateName} has been updated to Paid.`
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: op.associatePartnerId,
+          message,
+          type: "SUCCESS",
+        }
+      })
+    } catch (notifError) {
+      console.error("Failed to create notification:", notifError)
+    }
+  }
+  // -----------------------------
+
+  revalidatePath("/recruiter-payments")
+  revalidatePath("/recruiter")
+
+  return { success: true }
+}

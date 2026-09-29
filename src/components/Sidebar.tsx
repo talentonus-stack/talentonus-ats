@@ -29,6 +29,19 @@ const recruiterNavigation = [
   { name: "My Profile", href: "/recruiter/profile", icon: UserCheck },
 ]
 
+const associatePartnerNavigation = [
+  { name: "Dashboard", href: "/recruiter", icon: LayoutDashboard },
+  { name: "Companies", href: "/companies", icon: Building2 },
+  { name: "Placements", href: "/placements", icon: IndianRupee },
+  { name: "Recruiter Payouts", href: "/recruiter-payments", icon: Wallet },
+  { name: "Jobs", href: "/jobs", icon: Briefcase },
+  { name: "Candidates", href: "/candidates", icon: Users },
+  { name: "Applications", href: "/applications", icon: FileText },
+  { name: "Interviews", href: "/interviews", icon: CalendarDays },
+  { name: "Recruiters", href: "/recruiters", icon: UserPlus },
+  { name: "My Earnings", href: "/recruiter/earnings", icon: IndianRupee },
+]
+
 import { Headset, MessageCircle, Ticket } from "lucide-react"
 const WHATSAPP_SUPPORT_URL = "https://wa.me/918238042567"
 
@@ -37,7 +50,7 @@ export default function Sidebar({ onSupportClick }: { onSupportClick?: () => voi
   const { data: session } = useSession()
   const role = (session?.user as any)?.role
 
-  const navigation = role === "RECRUITER" ? recruiterNavigation : adminNavigation
+  const navigation = role === "RECRUITER" ? recruiterNavigation : (role === "ASSOCIATE_PARTNER" ? associatePartnerNavigation : adminNavigation)
 
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-primary text-light relative overflow-hidden">
@@ -55,7 +68,7 @@ export default function Sidebar({ onSupportClick }: { onSupportClick?: () => voi
             priority
           />
           <span className="text-[10px] font-medium text-accent -mt-5 uppercase tracking-[0.2em] shadow-accent">
-            {role === "RECRUITER" ? "Recruiter Portal" : "ATS Admin"}
+            {role === "RECRUITER" ? "Recruiter Portal" : (role === "ASSOCIATE_PARTNER" ? "Associate Partner" : "ATS Admin")}
           </span>
         </div>
       </div>
@@ -84,7 +97,7 @@ export default function Sidebar({ onSupportClick }: { onSupportClick?: () => voi
           )
         })}
 
-        {role === "RECRUITER" && (
+        {["RECRUITER", "ASSOCIATE_PARTNER"].includes(role) && (
           <div className="pt-2">
             <div className="group relative">
               <button
@@ -120,7 +133,7 @@ export default function Sidebar({ onSupportClick }: { onSupportClick?: () => voi
 
       <div className="border-t border-border p-4 relative z-10 bg-primary">
         <button
-          onClick={() => signOut({ callbackUrl: role === 'RECRUITER' ? '/recruiter-login' : '/login' })}
+          onClick={() => signOut({ callbackUrl: ["RECRUITER", "ASSOCIATE_PARTNER"].includes(role) ? '/recruiter-login' : '/login' })}
           className="group flex w-full items-center rounded-xl px-3 py-3 text-sm font-medium text-muted hover:bg-primary-lighter hover:text-light transition-all duration-200"
         >
           <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-muted group-hover:text-light transition-colors" />

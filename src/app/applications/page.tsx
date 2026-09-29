@@ -12,7 +12,7 @@ export default async function ApplicationsPage() {
   if (!session) {
     redirect("/login")
   }
-  if ((session.user as any).role !== "ADMIN") {
+  if (!["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter")
   }
 

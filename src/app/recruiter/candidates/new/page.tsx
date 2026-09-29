@@ -6,7 +6,7 @@ import NewCandidateClientForm from "./NewCandidateClientForm"
 
 export default async function NewCandidatePage({ searchParams }: { searchParams: Promise<{ jobId?: string }> }) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "RECRUITER") {
+  if (!session || !["RECRUITER", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter-login")
   }
   const { jobId } = await searchParams;

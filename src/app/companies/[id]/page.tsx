@@ -11,6 +11,11 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
 
   const user = session.user as any
   const isAdmin = user.role === "ADMIN"
+  const isAssociatePartner = user.role === "ASSOCIATE_PARTNER"
+
+  if (!isAdmin && !isAssociatePartner) {
+    redirect("/login")
+  }
 
   const { id } = await params
 
@@ -95,7 +100,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-light">{company.name}</h1>
-            {isAdmin && company.isConfidential && (
+        {(isAdmin || isAssociatePartner) && company.isConfidential && (
               <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20 gap-1">
                 <ShieldCheck className="w-3 h-3" /> Confidential
               </span>
@@ -245,11 +250,11 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
         <div className="lg:col-span-3 space-y-6">
 
 
-          {isAdmin && (
+          {(isAdmin || isAssociatePartner) && (
             <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
               <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-accent" />
-                Commercial Terms (Admin Only)
+                Commercial Terms (Internal)
               </h3>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache"
 
 export async function deleteJob(id: string) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     return { success: false, error: "Unauthorized" }
   }
 

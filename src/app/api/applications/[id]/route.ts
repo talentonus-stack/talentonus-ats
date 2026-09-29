@@ -13,7 +13,7 @@ export async function PATCH(
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
-  if ((session.user as any).role !== "ADMIN") {
+  if (!["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
@@ -52,6 +52,24 @@ export async function PATCH(
     let isShareAmountChanged = false;
     let newShareAmount: number | null = null;
     // ------------------------------
+
+    // Financial Lock validation
+    if (previousApplication.placement) {
+      if (previousApplication.placement.recruiterPaymentStatus === 'PAID') {
+        if (offeredCTC && offeredCTC !== previousApplication.offeredCTC) {
+          return NextResponse.json({ error: "Financial values are locked because payouts have already been processed." }, { status: 400 })
+        }
+      }
+
+      const existingOpsPayout = await prisma.operationsPayout.findUnique({
+        where: { placementId: previousApplication.placement.id }
+      })
+      if (existingOpsPayout && existingOpsPayout.status === 'PAID') {
+        if (offeredCTC && offeredCTC !== previousApplication.offeredCTC) {
+          return NextResponse.json({ error: "Financial values are locked because payouts have already been processed." }, { status: 400 })
+        }
+      }
+    }
 
     // If changing to SELECTED, handle Placement creation logic
     if (status === 'SELECTED') {
@@ -111,7 +129,7 @@ export async function PATCH(
           },
         })
 
-        await tx.placement.upsert({
+        const placement = await tx.placement.upsert({
           where: { applicationId: id },
           update: {
             offeredCTC: finalCTC,
@@ -137,6 +155,40 @@ export async function PATCH(
             expectedJoiningDate: new Date(expectedJoiningDate)
           }
         })
+
+        // Operations Payout Logic
+        const partnerEmail = process.env.OPERATIONS_PARTNER_EMAIL;
+        if (partnerEmail) {
+          const opsPartner = await tx.user.findUnique({ where: { email: partnerEmail } });
+          if (opsPartner && opsPartner.role === 'ASSOCIATE_PARTNER') {
+            const isSelfSourced = application.candidate.recruiterId === opsPartner.id;
+            const operationsShareAmount = isSelfSourced ? 0 : talentonusShare * 0.25;
+
+            const existingOpsPayout = await tx.operationsPayout.findUnique({
+              where: { placementId: placement.id }
+            });
+
+            // Do not update amount if it's already PAID
+            if (!existingOpsPayout || existingOpsPayout.status !== 'PAID') {
+              const candidateName = `${application.candidate.firstName} ${application.candidate.lastName || ''}`.trim()
+              const companyName = application.job.company?.name || 'Unknown Company'
+
+              await tx.operationsPayout.upsert({
+                where: { placementId: placement.id },
+                update: {
+                  amount: operationsShareAmount
+                },
+                create: {
+                  placementId: placement.id,
+                  associatePartnerId: opsPartner.id,
+                  amount: operationsShareAmount,
+                  candidateName: candidateName,
+                  companyName: companyName
+                }
+              })
+            }
+          }
+        }
 
         return updated
       })
@@ -189,6 +241,13 @@ export async function PATCH(
         });
 
         // Remove placement if moving backwards
+        const placement = await tx.placement.findUnique({ where: { applicationId: id } });
+        if (placement) {
+          // Explicitly delete PENDING Operations Payouts
+          await tx.operationsPayout.deleteMany({
+            where: { placementId: placement.id, status: 'PENDING' }
+          });
+        }
         await tx.placement.deleteMany({
           where: { applicationId: id }
         });
@@ -247,6 +306,12 @@ export async function PATCH(
         }
 
         // If moving FROM Selected TO any other status (e.g., BACKED_OUT, REJECTED), remove placement
+        const placement = await tx.placement.findUnique({ where: { applicationId: id } });
+        if (placement) {
+          await tx.operationsPayout.deleteMany({
+            where: { placementId: placement.id, status: 'PENDING' }
+          });
+        }
         await tx.placement.deleteMany({
           where: { applicationId: id }
         })

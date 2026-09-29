@@ -15,7 +15,7 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
     return `₹${cleaned}`
   }
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 

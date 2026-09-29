@@ -9,14 +9,14 @@ export const dynamic = "force-dynamic"
 
 export default async function NewRecruiterPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 
   async function createRecruiter(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
+    if (!authSession || !["ADMIN", "ASSOCIATE_PARTNER"].includes((authSession.user as any).role)) throw new Error("Unauthorized")
     try {
       const plainPassword = formData.get("password") as string
       const hashedPassword = await bcrypt.hash(plainPassword, 10)

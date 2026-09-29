@@ -6,7 +6,7 @@ import RecruiterInterviewsClient from "./RecruiterInterviewsClient"
 
 export default async function RecruiterInterviewsPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "RECRUITER") {
+  if (!session || !["RECRUITER", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter-login")
   }
 

@@ -162,30 +162,34 @@ export async function PATCH(
           const opsPartner = await tx.user.findUnique({ where: { email: partnerEmail } });
           if (opsPartner && opsPartner.role === 'ASSOCIATE_PARTNER') {
             const isSelfSourced = application.candidate.recruiterId === opsPartner.id;
-            const operationsShareAmount = isSelfSourced ? 0 : talentonusShare * 0.25;
 
-            const existingOpsPayout = await tx.operationsPayout.findUnique({
-              where: { placementId: placement.id }
-            });
+            // Explicit requirement: if Roshni is the recruiter, operationsPayout is NOT created.
+            if (!isSelfSourced) {
+              const operationsShareAmount = talentonusShare * 0.25;
 
-            // Do not update amount if it's already PAID
-            if (!existingOpsPayout || existingOpsPayout.status !== 'PAID') {
-              const candidateName = `${application.candidate.firstName} ${application.candidate.lastName || ''}`.trim()
-              const companyName = application.job.company?.name || 'Unknown Company'
+              const existingOpsPayout = await tx.operationsPayout.findUnique({
+                where: { placementId: placement.id }
+              });
 
-              await tx.operationsPayout.upsert({
-                where: { placementId: placement.id },
-                update: {
-                  amount: operationsShareAmount
-                },
-                create: {
-                  placementId: placement.id,
-                  associatePartnerId: opsPartner.id,
-                  amount: operationsShareAmount,
-                  candidateName: candidateName,
-                  companyName: companyName
-                }
-              })
+              // Do not update amount if it's already PAID
+              if (!existingOpsPayout || existingOpsPayout.status !== 'PAID') {
+                const candidateName = `${application.candidate.firstName} ${application.candidate.lastName || ''}`.trim()
+                const companyName = application.job.company?.name || 'Unknown Company'
+
+                await tx.operationsPayout.upsert({
+                  where: { placementId: placement.id },
+                  update: {
+                    amount: operationsShareAmount
+                  },
+                  create: {
+                    placementId: placement.id,
+                    associatePartnerId: opsPartner.id,
+                    amount: operationsShareAmount,
+                    candidateName: candidateName,
+                    companyName: companyName
+                  }
+                })
+              }
             }
           }
         }

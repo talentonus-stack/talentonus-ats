@@ -18,7 +18,9 @@ export default async function RecruitersPage() {
   let recruiters: any[] = []
   try {
     recruiters = await prisma.user.findMany({
-      where: { role: "RECRUITER" },
+      where: {
+        role: { in: ["RECRUITER", "ASSOCIATE_PARTNER"] }
+      },
       orderBy: { createdAt: "desc" }
     })
   } catch (e) {

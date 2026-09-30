@@ -24,6 +24,36 @@ export default async function NewRecruiterPage() {
       const recruiterType = formData.get("recruiterType") as string || null
       const mappedRole = recruiterType === "Associate Partner" ? "ASSOCIATE_PARTNER" : "RECRUITER"
 
+      // --- TEMPORARY DIAGNOSTIC LOGGING ---
+      if (mappedRole === "ASSOCIATE_PARTNER") {
+        console.log("=== VERCEL PREVIEW DIAGNOSTIC START ===");
+        try {
+          const dbUrl = process.env.DATABASE_URL || '';
+          const match = dbUrl.match(/@([^:/]+)/);
+          const sanitizedHost = match ? match[1] : 'Unknown';
+          console.log("Database Host:", sanitizedHost);
+
+          const dbNameResult: any = await prisma.$queryRaw`SELECT current_database() as db`;
+          console.log("Current Database:", dbNameResult[0]?.db);
+
+          const schemaResult: any = await prisma.$queryRaw`SELECT current_schema() as schema`;
+          console.log("Current Schema:", schemaResult[0]?.schema);
+
+          const roleEnums: any = await prisma.$queryRaw`
+            SELECT e.enumlabel
+            FROM pg_enum e
+            JOIN pg_type t ON t.oid = e.enumtypid
+            WHERE t.typname = 'Role'
+            ORDER BY e.enumsortorder;
+          `;
+          console.log("Existing Role Enums:", roleEnums.map((r: any) => r.enumlabel).join(', '));
+        } catch (diagErr: any) {
+          console.error("Diagnostic Fetch Failed:", diagErr.message);
+        }
+        console.log("=== VERCEL PREVIEW DIAGNOSTIC END ===");
+      }
+      // -------------------------------------
+
       await prisma.user.create({
         data: {
           name: formData.get("name") as string,
@@ -44,6 +74,7 @@ export default async function NewRecruiterPage() {
       })
     } catch(e) {
       console.error(e)
+      throw new Error("Failed to create recruiter")
     }
     redirect("/recruiters")
   }

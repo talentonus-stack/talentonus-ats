@@ -100,6 +100,8 @@ export default async function CandidatesPage({
     console.error("Failed to load candidates", e);
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
       <div className="sm:flex sm:items-center justify-between mb-8">
@@ -171,7 +173,7 @@ export default async function CandidatesPage({
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
                     <td className="px-4 py-4 text-right text-sm font-medium">
-                      <CandidateActions candidate={candidate} />
+                      <CandidateActions candidate={candidate} isAdmin={isAdmin} />
                     </td>
                   </tr>
                 )

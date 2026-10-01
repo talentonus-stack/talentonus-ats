@@ -55,6 +55,8 @@ export default async function JobsPage({
     console.error("Failed to load jobs", e)
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
       <div className="sm:flex sm:items-center justify-between mb-8">
@@ -62,14 +64,16 @@ export default async function JobsPage({
           <h1 className="text-3xl font-bold tracking-tight text-light">Job Listings</h1>
           <p className="mt-2 text-sm text-muted">Manage all recruitment positions and their statuses.</p>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <Link
-            href="/jobs/new"
-            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
-          >
-            Create New Job
-          </Link>
-        </div>
+        {isAdmin && (
+          <div className="mt-4 sm:mt-0">
+            <Link
+              href="/jobs/new"
+              className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
+            >
+              Create New Job
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="mb-8 rounded-2xl bg-primary-lighter border border-border p-5">
@@ -108,7 +112,7 @@ export default async function JobsPage({
         </form>
       </div>
 
-      <JobListingClient initialJobs={jobs} />
+      <JobListingClient initialJobs={jobs} isAdmin={isAdmin} />
     </div>
   )
 }

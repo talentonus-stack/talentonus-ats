@@ -16,7 +16,7 @@ type CompanyStat = {
   hiredCandidates: number
 }
 
-export default function CompanyListClient({ companies }: { companies: CompanyStat[] }) {
+export default function CompanyListClient({ companies, isAdmin }: { companies: CompanyStat[], isAdmin: boolean }) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [companyToDelete, setCompanyToDelete] = useState<CompanyStat | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -81,16 +81,20 @@ export default function CompanyListClient({ companies }: { companies: CompanySta
                       <Link href={`/companies/${company.id}`} className="text-muted hover:text-accent transition-colors p-1" title="View Dashboard">
                         <Eye className="w-4 h-4" />
                       </Link>
-                      <Link href={`/companies/${company.id}/edit`} className="text-muted hover:text-light transition-colors p-1" title="Edit Company">
-                        <Edit2 className="w-4 h-4" />
-                      </Link>
-                      <button
-                        onClick={() => confirmDelete(company)}
-                        className="text-muted hover:text-red-500 transition-colors p-1"
-                        title="Delete Company"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <Link href={`/companies/${company.id}/edit`} className="text-muted hover:text-light transition-colors p-1" title="Edit Company">
+                            <Edit2 className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => confirmDelete(company)}
+                            className="text-muted hover:text-red-500 transition-colors p-1"
+                            title="Delete Company"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -30,7 +30,7 @@ const recruiterNavigation = [
 ]
 
 const associatePartnerNavigation = [
-  { name: "Dashboard", href: "/recruiter", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Companies", href: "/companies", icon: Building2 },
   { name: "Placements", href: "/placements", icon: IndianRupee },
   { name: "Recruiter Payouts", href: "/recruiter-payments", icon: Wallet },

@@ -11,8 +11,12 @@ export default async function RecruiterDashboardPage() {
     redirect("/recruiter-login")
   }
 
+  const role = (session.user as any).role
+  if (role === "ASSOCIATE_PARTNER") {
+    redirect("/")
+  }
+
   const recruiterId = (session.user as any).id
-  const isAssociatePartner = (session.user as any).role === "ASSOCIATE_PARTNER"
 
 
   const recruiter = await prisma.user.findUnique({
@@ -20,10 +24,8 @@ export default async function RecruiterDashboardPage() {
   });
 
   // 1. Fetch raw data to calculate everything efficiently
-  // Associate Partner sees ALL applications for dashboard operations tracking,
-  // Normal recruiters see only their own.
   const applications = await prisma.application.findMany({
-    where: isAssociatePartner ? {} : { candidate: { recruiterId } },
+    where: { candidate: { recruiterId } },
     include: {
       candidate: true,
       job: {

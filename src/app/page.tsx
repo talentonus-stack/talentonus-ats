@@ -14,7 +14,7 @@ export default async function DashboardPage() {
     redirect("/login")
   }
   const role = (session.user as any).role;
-  if (role === "RECRUITER" || role === "ASSOCIATE_PARTNER") {
+  if (role === "RECRUITER") {
     redirect("/recruiter")
   }
 

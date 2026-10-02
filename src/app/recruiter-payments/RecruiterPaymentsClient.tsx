@@ -78,7 +78,9 @@ export default function RecruiterPaymentsClient({ placements, operationsPayouts,
             <tr>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Recruiter Name</th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Candidate & Company</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Placement Value</th>
+              {isAdmin && (
+                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Placement Value</th>
+              )}
               <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Recruiter Share</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Payment Status</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Payment Date</th>
@@ -95,7 +97,9 @@ export default function RecruiterPaymentsClient({ placements, operationsPayouts,
                   <div className="text-sm font-bold text-light">{p.candidate.firstName} {p.candidate.lastName}</div>
                   <div className="text-xs text-muted mt-1">{p.company.name}</div>
                 </td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{p.placementValue.toLocaleString('en-IN')}</td>
+                {isAdmin && (
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{p.placementValue.toLocaleString('en-IN')}</td>
+                )}
                 <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-yellow-400 font-bold">₹{p.recruiterShare.toLocaleString('en-IN')}</td>
                 <td className="whitespace-nowrap px-6 py-4 text-center">
                   <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border ${p.recruiterPaymentStatus === 'PAID' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-orange-900/20 text-orange-400 border-orange-800/30'}`}>
@@ -124,7 +128,7 @@ export default function RecruiterPaymentsClient({ placements, operationsPayouts,
             ))}
             {placements.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">No recruiter placements found.</td>
+                <td colSpan={isAdmin ? 7 : 6} className="px-6 py-12 text-sm text-muted text-center">No recruiter placements found.</td>
               </tr>
             )}
           </tbody>

@@ -13,8 +13,10 @@ export default async function RecruiterPaymentsPage() {
     redirect("/login")
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN";
+
   // Fetch only placements that have a recruiter attached
-  const placements = await prisma.placement.findMany({
+  let placements = await prisma.placement.findMany({
     where: { recruiterId: { not: null } },
     include: {
       candidate: true,
@@ -25,6 +27,15 @@ export default async function RecruiterPaymentsPage() {
     },
     orderBy: { createdAt: "desc" }
   })
+
+  // Security: Strip internal Talentonus margins if the user is an Associate Partner
+  if (!isAdmin) {
+    placements = placements.map(p => ({
+      ...p,
+      talentonusShare: 0,
+      placementValue: 0 // Optional: User requested "Remove the Placement Value column from the Associate Partner view". We will 0 it out for security.
+    }))
+  }
 
   const operationsPayouts = await prisma.operationsPayout.findMany({
     include: {
@@ -37,8 +48,6 @@ export default async function RecruiterPaymentsPage() {
     },
     orderBy: { createdAt: "desc" }
   })
-
-  const isAdmin = (session.user as any).role === "ADMIN";
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">

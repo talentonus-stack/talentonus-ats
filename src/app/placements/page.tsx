@@ -14,7 +14,7 @@ export default async function PlacementsPage() {
 
   const isAdmin = (session.user as any).role === "ADMIN"
 
-  const placements = await prisma.placement.findMany({
+  let placements = await prisma.placement.findMany({
     include: {
       candidate: true,
       company: true,
@@ -23,6 +23,14 @@ export default async function PlacementsPage() {
     },
     orderBy: { createdAt: "desc" }
   })
+
+  // Security: Strip internal Talentonus margins if the user is an Associate Partner
+  if (!isAdmin) {
+    placements = placements.map(p => ({
+      ...p,
+      talentonusShare: 0
+    }))
+  }
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">

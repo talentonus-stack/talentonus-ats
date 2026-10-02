@@ -12,6 +12,8 @@ export default async function PlacementsPage() {
     redirect("/login")
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   const placements = await prisma.placement.findMany({
     include: {
       candidate: true,
@@ -45,7 +47,9 @@ export default async function PlacementsPage() {
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Offered CTC</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Total Value</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Our Share</th>
+                {isAdmin && (
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Our Share</th>
+                )}
                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
               </tr>
             </thead>
@@ -65,7 +69,9 @@ export default async function PlacementsPage() {
                     {p.expectedJoiningDate ? new Date(p.expectedJoiningDate).toLocaleDateString() : '—'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{(p.placementValue).toLocaleString('en-IN')}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
+                  {isAdmin && (
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
+                  )}
                   <td className="whitespace-nowrap px-6 py-4 text-center">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border
                       ${p.status === 'SELECTED' ? 'bg-blue-900/20 text-blue-400 border-blue-800/30' : ''}
@@ -81,7 +87,7 @@ export default async function PlacementsPage() {
               ))}
               {placements.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">
+                  <td colSpan={isAdmin ? 8 : 7} className="px-6 py-12 text-sm text-muted text-center">
                     No placements recorded yet. Move a candidate to "SELECTED" status to create a placement.
                   </td>
                 </tr>

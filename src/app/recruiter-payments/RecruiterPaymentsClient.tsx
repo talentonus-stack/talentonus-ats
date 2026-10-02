@@ -106,7 +106,7 @@ export default function RecruiterPaymentsClient({ placements, operationsPayouts,
                   {p.recruiterPaidDate ? new Date(p.recruiterPaidDate).toLocaleDateString() : '-'}
                 </td>
                 <td className="whitespace-nowrap px-6 py-4 text-right">
-                  {p.recruiterPaymentStatus === 'PENDING' ? (
+                  {isAdmin && p.recruiterPaymentStatus === 'PENDING' ? (
                     <button
                       onClick={() => handleMarkPaidClick(p)}
                       disabled={isProcessing === p.id}
@@ -114,6 +114,8 @@ export default function RecruiterPaymentsClient({ placements, operationsPayouts,
                     >
                       {isProcessing === p.id ? 'Processing...' : 'Mark as Paid'}
                     </button>
+                  ) : p.recruiterPaymentStatus === 'PENDING' ? (
+                    <span className="text-xs text-muted">Admin Only</span>
                   ) : (
                     <span className="text-xs text-muted">Paid</span>
                   )}

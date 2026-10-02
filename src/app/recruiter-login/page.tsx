@@ -1,6 +1,6 @@
 "use client"
 
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -47,7 +47,13 @@ export default function RecruiterLoginPage() {
     if (result?.error) {
       setError("Invalid email or password")
     } else {
-      router.push("/recruiter")
+      const session = await getSession();
+      const role = (session?.user as any)?.role;
+      if (role === 'ASSOCIATE_PARTNER') {
+        router.push("/")
+      } else {
+        router.push("/recruiter")
+      }
       router.refresh()
     }
   }

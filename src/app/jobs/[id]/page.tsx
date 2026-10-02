@@ -14,6 +14,8 @@ export default async function ViewJobPage({ params }: { params: { id: string } }
     redirect("/login")
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   const { id } = await params
 
   const job = await prisma.job.findUnique({
@@ -68,14 +70,16 @@ export default async function ViewJobPage({ params }: { params: { id: string } }
             </span>
           </div>
         </div>
-        <div className="flex shrink-0">
-          <Link
-            href={`/jobs/${job.id}/edit`}
-            className="inline-flex items-center rounded-lg border border-border bg-primary-lighter px-4 py-2.5 text-sm font-semibold text-light hover:border-accent hover:text-accent transition-all duration-200"
-          >
-            Edit Job
-          </Link>
-        </div>
+        {isAdmin && (
+          <div className="flex shrink-0">
+            <Link
+              href={`/jobs/${job.id}/edit`}
+              className="inline-flex items-center rounded-lg border border-border bg-primary-lighter px-4 py-2.5 text-sm font-semibold text-light hover:border-accent hover:text-accent transition-all duration-200"
+            >
+              Edit Job
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

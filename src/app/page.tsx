@@ -170,7 +170,7 @@ export default async function DashboardPage() {
     <div className="animate-fade-in max-w-7xl mx-auto space-y-8 pb-10">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-light">Welcome back, Admin</h1>
-        <p className="mt-2 text-muted">Here's a complete overview of the recruitment pipeline and team performance.</p>
+        <p className="mt-2 text-muted">Complete overview of the recruitment pipeline and team performance.</p>
       </div>
 
       {/* 1. TOP STATISTICS ROW - COMPACT LAYOUT */}

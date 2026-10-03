@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { IndianRupee } from "lucide-react"
+import PageHeader from "@/components/PageHeader"
 
 export const dynamic = "force-dynamic"
 
@@ -60,13 +61,11 @@ export default async function RecruiterEarningsPage() {
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-8 pb-10">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-light flex items-center gap-3">
-          <IndianRupee className="w-8 h-8 text-accent" />
-          My Earnings
-        </h1>
-        <p className="mt-2 text-sm text-muted">Track your generated shares and payment statuses.</p>
-      </div>
+      <PageHeader
+        title="My Earnings"
+        description="Track your generated shares and payment statuses."
+        icon={IndianRupee}
+      />
 
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">

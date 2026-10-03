@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import CandidateListingClient from "./CandidateListingClient"
+import PageHeader from "@/components/PageHeader"
+import { Users } from "lucide-react"
 
 export default async function RecruiterCandidatesPage() {
   const session = await getServerSession(authOptions)

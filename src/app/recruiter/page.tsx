@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { Users, Calendar, CheckCircle, XCircle, Percent, AlertCircle, Briefcase, MessagesSquare, FileText, Zap } from "lucide-react"
 import { timeAgo } from "@/lib/dateUtils"
+import PageHeader from "@/components/PageHeader"
+import { LayoutDashboard } from "lucide-react"
 
 export default async function RecruiterDashboardPage() {
   const session = await getServerSession(authOptions)

@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { Wallet } from "lucide-react"
 import RecruiterPaymentsClient from "./RecruiterPaymentsClient"
+import PageHeader from "@/components/PageHeader"
 
 export const dynamic = "force-dynamic"
 
@@ -51,15 +52,11 @@ export default async function RecruiterPaymentsPage() {
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
-      <div className="sm:flex sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-light flex items-center gap-3">
-            <Wallet className="w-8 h-8 text-accent" />
-            Payout Management
-          </h1>
-          <p className="mt-2 text-sm text-muted">Manage commission payouts to recruiters and operations partners.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Payout Management"
+        description="Manage commission payouts to recruiters and operations partners."
+        icon={Wallet}
+      />
 
       <RecruiterPaymentsClient placements={placements} operationsPayouts={operationsPayouts} isAdmin={isAdmin} />
     </div>

@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import ArchivedCandidatesClient from "./ArchivedCandidatesClient"
+import PageHeader from "@/components/PageHeader"
+import { Users } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 

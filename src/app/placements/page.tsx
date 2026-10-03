@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { IndianRupee, FileText } from "lucide-react"
+import PageHeader from "@/components/PageHeader"
 
 export const dynamic = "force-dynamic"
 
@@ -34,15 +35,11 @@ export default async function PlacementsPage() {
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
-      <div className="sm:flex sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-light flex items-center gap-3">
-            <IndianRupee className="w-8 h-8 text-accent" />
-            Placements & Revenue
-          </h1>
-          <p className="mt-2 text-sm text-muted">Track candidate placements, revenue shares, and invoice statuses.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Placements & Revenue"
+        description="Track candidate placements, revenue shares, and invoice statuses."
+        icon={IndianRupee}
+      />
 
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">

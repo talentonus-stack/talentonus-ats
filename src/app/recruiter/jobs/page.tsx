@@ -4,6 +4,8 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import JobListingClient from "./JobListingClient"
+import PageHeader from "@/components/PageHeader"
+import { Briefcase } from "lucide-react"
 
 export default async function RecruiterJobsPage() {
   const session = await getServerSession(authOptions)
@@ -26,11 +28,12 @@ export default async function RecruiterJobsPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-8 border-b pb-4">
-        <h1 className="text-2xl font-bold text-light">Active Job Openings</h1>
-        <p className="text-sm text-muted mt-1">Browse current open positions to submit candidates.</p>
-      </div>
+    <div className="animate-fade-in max-w-7xl mx-auto">
+      <PageHeader
+        title="Active Job Openings"
+        description="Browse current open positions to submit candidates."
+        icon={Briefcase}
+      />
 
       <JobListingClient jobs={jobs} />
     </div>

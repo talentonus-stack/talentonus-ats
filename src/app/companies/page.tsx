@@ -5,6 +5,7 @@ import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import { Building2 } from "lucide-react"
 import CompanyListClient from "./CompanyListClient"
+import PageHeader from "@/components/PageHeader"
 
 export const dynamic = "force-dynamic"
 

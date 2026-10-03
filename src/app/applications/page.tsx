@@ -6,6 +6,8 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import KanbanBoard from "@/components/KanbanBoard"
 import Link from "next/link"
+import PageHeader from "@/components/PageHeader"
+import { FileText } from "lucide-react"
 
 export default async function ApplicationsPage() {
   const session = await getServerSession(authOptions)

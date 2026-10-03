@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Users, CheckCircle, UserPlus, Mail, Phone, MapPin, Calendar, ShieldCheck, TrendingUp, DollarSign, FileText, Link as LinkIcon, Settings, Lock, Edit3, X, UploadCloud, File, Download , ShieldAlert } from "lucide-react"
+import { Users, CheckCircle, UserPlus, Mail, Phone, MapPin, Calendar, ShieldCheck, TrendingUp, DollarSign, FileText, Link as LinkIcon, Settings, Lock, Edit3, X, UploadCloud, File, Download , ShieldAlert, UserCheck } from "lucide-react"
+import PageHeader from "@/components/PageHeader"
 
 export default function ProfileClientView({ recruiter, stats }: { recruiter: any, stats: any }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)

@@ -116,11 +116,12 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
           <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="w-[35%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
-                <th className="w-[24%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role & Status</th>
+                <th className="w-[28%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
+                <th className="w-[16%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
+                <th className="w-[14%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
                 <th className="hidden lg:table-cell w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Last Login</th>
                 <th className="hidden lg:table-cell w-[13%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
-                <th className="w-[13%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="w-[14%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -131,14 +132,14 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
                     <div className="text-xs text-muted mt-1 truncate" title={user.email}>{user.email}</div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${user.role === 'ADMIN' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-blue-900/20 text-blue-400 border-blue-800/30'}`}>
-                        {user.role}
-                      </span>
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${user.status === 'ACTIVE' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
-                        {user.status}
-                      </span>
-                    </div>
+                    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${user.role === 'ADMIN' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-blue-900/20 text-blue-400 border-blue-800/30'}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${user.status === 'ACTIVE' ? 'bg-green-900/20 text-green-400 border-green-800/30' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                      {user.status}
+                    </span>
                   </td>
                   <td className="hidden lg:table-cell px-4 py-4">
                     {(() => {

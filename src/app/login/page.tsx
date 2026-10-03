@@ -11,9 +11,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setIsLoading(true)
+
     const result = await signIn("credentials", {
       email,
       password,
@@ -22,15 +26,14 @@ export default function LoginPage() {
 
     if (result?.error) {
       setError("Invalid credentials")
+      setIsLoading(false)
     } else {
-      const session = await getSession();
-      const role = (session?.user as any)?.role;
-      if (role === 'RECRUITER') {
-        router.push("/recruiter")
-      } else {
-        router.push("/")
-      }
-      router.refresh()
+      // Instead of waiting for a duplicate client-side network request to /api/auth/session,
+      // which causes an 8-10 second bottleneck on serverless cold starts,
+      // we can securely rely on the server to resolve the redirect natively on the next load.
+      // Or simply do a hard window.location to force the server SSR to evaluate the token.
+      window.location.href = "/";
+      // Do NOT set isLoading(false) here, so the loader remains spinning until the browser navigates away.
     }
   }
 
@@ -80,9 +83,14 @@ export default function LoginPage() {
             </div>
             <button
               type="submit"
-              className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200"
+              disabled={isLoading}
+              className="mt-6 w-full flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200 disabled:opacity-70 disabled:hover:scale-100 disabled:hover:shadow-none"
             >
-              Sign In to Workspace
+              {isLoading ? (
+                <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                "Sign In to Workspace"
+              )}
             </button>
           </form>
 

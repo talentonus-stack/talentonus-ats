@@ -116,12 +116,12 @@ export default function UserListClient({ initialUsers, currentUserId }: { initia
           <table className="w-full table-fixed divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="w-[35%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
+                <th className="w-[25%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">User Details</th>
                 <th className="w-[12%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
                 <th className="w-[12%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                <th className="hidden lg:table-cell w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Last Login</th>
-                <th className="hidden lg:table-cell w-[13%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
-                <th className="w-[13%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="hidden lg:table-cell w-[20%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Last Login</th>
+                <th className="hidden lg:table-cell w-[15%] px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
+                <th className="w-[16%] px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">

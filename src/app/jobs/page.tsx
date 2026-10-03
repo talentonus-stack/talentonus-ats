@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import JobListingClient from "./JobListingClient"
+import PageHeader from "@/components/PageHeader"
+import { Briefcase } from "lucide-react"
 
 export default async function JobsPage({
   searchParams,
@@ -15,7 +17,7 @@ export default async function JobsPage({
   if (!session) {
     redirect("/login")
   }
-  if ((session.user as any).role !== "ADMIN") {
+  if (!["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter")
   }
 
@@ -55,22 +57,23 @@ export default async function JobsPage({
     console.error("Failed to load jobs", e)
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
-      <div className="sm:flex sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-light">Job Listings</h1>
-          <p className="mt-2 text-sm text-muted">Manage all recruitment positions and their statuses.</p>
-        </div>
-        <div className="mt-4 sm:mt-0">
+      <PageHeader
+        title="Job Listings"
+        description="Manage all recruitment positions and their statuses."
+        icon={Briefcase}
+        action={isAdmin ? (
           <Link
             href="/jobs/new"
             className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
           >
             Create New Job
           </Link>
-        </div>
-      </div>
+        ) : undefined}
+      />
 
       <div className="mb-8 rounded-2xl bg-primary-lighter border border-border p-5">
         <form className="grid grid-cols-1 gap-4 sm:grid-cols-4" method="GET" action="/jobs">
@@ -108,7 +111,7 @@ export default async function JobsPage({
         </form>
       </div>
 
-      <JobListingClient initialJobs={jobs} />
+      <JobListingClient initialJobs={jobs} isAdmin={isAdmin} />
     </div>
   )
 }

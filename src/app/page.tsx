@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth"
 import { Users, Briefcase, FileText, CheckCircle, Target, Calendar, UserCheck, UserPlus, TrendingUp, Clock, Activity, Building2 } from "lucide-react"
 import { timeAgo } from "@/lib/dateUtils"
 import Link from "next/link"
+import PageHeader from "@/components/PageHeader"
+import { LayoutDashboard } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -13,7 +15,8 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/login")
   }
-  if ((session.user as any).role === "RECRUITER") {
+  const role = (session.user as any).role;
+  if (role === "RECRUITER") {
     redirect("/recruiter")
   }
 
@@ -107,6 +110,8 @@ export default async function DashboardPage() {
     { name: "Hired Candidates", value: hiredApplications, icon: CheckCircle },
   ]
 
+  const firstName = session.user?.name?.split(' ')[0] || 'User'
+
   // Funnel Data Calculations
   const pipeline = {
     SUBMITTED: allApplications.filter(a => a.status === 'SUBMITTED').length,
@@ -167,10 +172,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-8 pb-10">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-light">Welcome back, Admin</h1>
-        <p className="mt-2 text-muted">Here's a complete overview of the recruitment pipeline and team performance.</p>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${firstName}`}
+        description="Complete overview of the recruitment pipeline and team performance."
+        icon={LayoutDashboard}
+      />
 
       {/* 1. TOP STATISTICS ROW - COMPACT LAYOUT */}
       <div className="space-y-3">

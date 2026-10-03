@@ -15,9 +15,11 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
     return `₹${cleaned}`
   }
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
+
+  const isAdmin = (session.user as any).role === "ADMIN"
 
   const { id } = await params;
 
@@ -45,10 +47,12 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
           <h1 className="text-2xl font-bold text-light">{candidate.firstName} {candidate.lastName || ''}</h1>
           <p className="text-sm text-muted mt-1">Candidate Profile Details</p>
         </div>
-        <div className="flex space-x-3">
-          <a href={`/candidates/${id}/edit`} className="bg-primary-lighter border border-border text-light px-4 py-2 rounded-md hover:bg-primary font-medium text-sm">
-            Edit
-          </a>
+        <div className="flex space-x-3 items-center">
+          {isAdmin && (
+            <a href={`/candidates/${id}/edit`} className="bg-primary-lighter border border-border text-light px-4 py-2 rounded-md hover:bg-primary font-medium text-sm">
+              Edit
+            </a>
+          )}
           <a href="/candidates" className="text-sm font-medium text-accent hover:text-accent-hover py-2">
             &larr; Back
           </a>

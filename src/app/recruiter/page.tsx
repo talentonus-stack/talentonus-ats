@@ -4,11 +4,18 @@ import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { Users, Calendar, CheckCircle, XCircle, Percent, AlertCircle, Briefcase, MessagesSquare, FileText, Zap } from "lucide-react"
 import { timeAgo } from "@/lib/dateUtils"
+import PageHeader from "@/components/PageHeader"
+import { LayoutDashboard } from "lucide-react"
 
 export default async function RecruiterDashboardPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "RECRUITER") {
+  if (!session || !["RECRUITER", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter-login")
+  }
+
+  const role = (session.user as any).role
+  if (role === "ASSOCIATE_PARTNER") {
+    redirect("/")
   }
 
   const recruiterId = (session.user as any).id
@@ -19,7 +26,6 @@ export default async function RecruiterDashboardPage() {
   });
 
   // 1. Fetch raw data to calculate everything efficiently
-
   const applications = await prisma.application.findMany({
     where: { candidate: { recruiterId } },
     include: {
@@ -120,14 +126,17 @@ export default async function RecruiterDashboardPage() {
   })
   const assignedJobs = Array.from(jobMap.values())
 
+  const firstName = session.user?.name?.split(' ')[0] || 'User'
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-10 pb-12">
 
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-light">Dashboard</h1>
-        <p className="mt-2 text-muted">Overview of your recruitment performance and pipeline.</p>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${firstName}`}
+        description="Overview of your recruitment performance and pipeline."
+        icon={LayoutDashboard}
+      />
 
       {/* 1. My Performance (Top Row) */}
       <section>

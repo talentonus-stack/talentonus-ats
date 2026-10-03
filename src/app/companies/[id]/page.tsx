@@ -11,6 +11,11 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
 
   const user = session.user as any
   const isAdmin = user.role === "ADMIN"
+  const isAssociatePartner = user.role === "ASSOCIATE_PARTNER"
+
+  if (!isAdmin && !isAssociatePartner) {
+    redirect("/login")
+  }
 
   const { id } = await params
 
@@ -95,7 +100,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-light">{company.name}</h1>
-            {isAdmin && company.isConfidential && (
+        {(isAdmin || isAssociatePartner) && company.isConfidential && (
               <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20 gap-1">
                 <ShieldCheck className="w-3 h-3" /> Confidential
               </span>
@@ -150,46 +155,49 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Information Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Col: Company Information */}
+        <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg h-full">
+           <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+             <Building className="w-4 h-4 text-accent" />
+             Company Information
+           </h3>
 
-        {/* Left Col: Contact Info & Details */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-primary-lighter rounded-2xl border border-border p-6 shadow-lg">
-             <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2">Company Information</h3>
-
-             <div className="space-y-4">
-               {isAdmin && (
-                 <>
-                   <div className="flex items-start gap-3">
-                     <User className="w-4 h-4 text-muted mt-0.5" />
-                     <div>
-                       <p className="text-xs text-muted font-semibold uppercase">Contact Person</p>
-                       <p className="text-sm text-light font-medium">{company.contactPerson || "N/A"}</p>
-                     </div>
+           <div className="space-y-4">
+             {isAdmin && (
+               <>
+                 <div className="flex items-start gap-3">
+                   <User className="w-4 h-4 text-muted mt-0.5" />
+                   <div>
+                     <p className="text-xs text-muted font-semibold uppercase">Contact Person</p>
+                     <p className="text-sm text-light font-medium">{company.contactPerson || "N/A"}</p>
                    </div>
+                 </div>
 
-                   <div className="flex items-start gap-3">
-                     <Mail className="w-4 h-4 text-muted mt-0.5" />
-                     <div>
-                       <p className="text-xs text-muted font-semibold uppercase">Email</p>
-                       {company.email ? (
-                          <a href={`mailto:${company.email}`} className="text-sm text-accent hover:underline font-medium">{company.email}</a>
-                       ) : (
-                          <p className="text-sm text-light font-medium">N/A</p>
-                       )}
-                     </div>
+                 <div className="flex items-start gap-3">
+                   <Mail className="w-4 h-4 text-muted mt-0.5" />
+                   <div>
+                     <p className="text-xs text-muted font-semibold uppercase">Email</p>
+                     {company.email ? (
+                        <a href={`mailto:${company.email}`} className="text-sm text-accent hover:underline font-medium">{company.email}</a>
+                     ) : (
+                        <p className="text-sm text-light font-medium">N/A</p>
+                     )}
                    </div>
+                 </div>
 
-                   <div className="flex items-start gap-3">
-                     <Phone className="w-4 h-4 text-muted mt-0.5" />
-                     <div>
-                       <p className="text-xs text-muted font-semibold uppercase">Phone</p>
-                       <p className="text-sm text-light font-medium">{company.phone || "N/A"}</p>
-                     </div>
+                 <div className="flex items-start gap-3">
+                   <Phone className="w-4 h-4 text-muted mt-0.5" />
+                   <div>
+                     <p className="text-xs text-muted font-semibold uppercase">Phone</p>
+                     <p className="text-sm text-light font-medium">{company.phone || "N/A"}</p>
                    </div>
-                 </>
-               )}
+                 </div>
+               </>
+             )}
 
+             <div className="grid grid-cols-2 gap-4">
                <div className="flex items-start gap-3">
                  <MapPin className="w-4 h-4 text-muted mt-0.5" />
                  <div>
@@ -224,234 +232,233 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                  </div>
                )}
              </div>
+           </div>
 
-             {isAdmin && company.notes && (
-                <div className="mt-6 pt-6 border-t border-border/50">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <ShieldAlert className="w-4 h-4 text-orange-400" />
-                      <p className="text-xs font-bold text-orange-400 uppercase tracking-wider">Internal Client Notes</p>
-                    </div>
-                  </div>
-                  <div className="bg-orange-900/10 p-4 rounded-xl border border-orange-500/20 shadow-inner">
-                    <p className="text-sm text-orange-200/90 whitespace-pre-wrap leading-relaxed italic">{company.notes}</p>
+           {isAdmin && company.notes && (
+              <div className="mt-6 pt-6 border-t border-border/50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 text-orange-400" />
+                    <p className="text-xs font-bold text-orange-400 uppercase tracking-wider">Internal Client Notes</p>
                   </div>
                 </div>
-             )}
-          </div>
-        </div>
-
-        {/* Right Col: Dashboard Sections */}
-        <div className="lg:col-span-3 space-y-6">
-
-
-          {isAdmin && (
-            <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
-              <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-accent" />
-                Commercial Terms (Admin Only)
-              </h3>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div>
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Recruitment Fee</span>
-                  <span className="text-light font-medium">{company.recruitmentFeePercentage ? `${company.recruitmentFeePercentage}%` : 'Not Set'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Payment Terms</span>
-                  <span className="text-light font-medium">{company.paymentTermsDays ? `${company.paymentTermsDays} Days` : 'Not Set'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Replacement Period</span>
-                  <span className="text-light font-medium">{company.replacementPeriodDays ? `${company.replacementPeriodDays} Days` : 'Not Set'}</span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">GST Applicable</span>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.gstApplicable ? 'bg-accent/10 text-accent border-accent/20' : 'bg-primary border-border text-muted'}`}>
-                    {company.gstApplicable ? 'Yes' : 'No'}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Signed</span>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.clientAgreementSigned ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
-                    {company.clientAgreementSigned ? 'Yes' : 'No'}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Expiry</span>
-                  <span className="text-light font-medium">{company.agreementExpiryDate ? new Date(company.agreementExpiryDate).toLocaleDateString() : 'Not Set'}</span>
-                </div>
-                <div className="col-span-2">
-                  <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Remarks</span>
-                  <span className="text-light text-sm">{company.commercialRemarks || 'None'}</span>
+                <div className="bg-orange-900/10 p-4 rounded-xl border border-orange-500/20 shadow-inner">
+                  <p className="text-sm text-orange-200/90 whitespace-pre-wrap leading-relaxed italic">{company.notes}</p>
                 </div>
               </div>
+           )}
+        </div>
+
+        {/* Right Col: Commercial Terms */}
+        <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6 h-full">
+          <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-accent" />
+            Commercial Terms (Internal)
+          </h3>
+
+          {(isAdmin || isAssociatePartner) ? (
+            <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+              <div>
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Recruitment Fee</span>
+                <span className="text-light font-medium text-lg">{company.recruitmentFeePercentage ? `${company.recruitmentFeePercentage}%` : 'Not Set'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Payment Terms</span>
+                <span className="text-light font-medium text-lg">{company.paymentTermsDays ? `${company.paymentTermsDays} Days` : 'Not Set'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Replacement Period</span>
+                <span className="text-light font-medium text-lg">{company.replacementPeriodDays ? `${company.replacementPeriodDays} Days` : 'Not Set'}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">GST Applicable</span>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.gstApplicable ? 'bg-accent/10 text-accent border-accent/20' : 'bg-primary border-border text-muted'}`}>
+                  {company.gstApplicable ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Signed</span>
+                <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${company.clientAgreementSigned ? 'bg-accent/10 text-accent border-accent/20' : 'bg-red-900/20 text-red-400 border-red-800/30'}`}>
+                  {company.clientAgreementSigned ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Agreement Expiry</span>
+                <span className="text-light font-medium text-lg">{company.agreementExpiryDate ? new Date(company.agreementExpiryDate).toLocaleDateString() : 'Not Set'}</span>
+              </div>
+              <div className="col-span-2 pt-2 border-t border-border/50">
+                <span className="block text-xs font-medium text-muted uppercase tracking-wider mb-1">Remarks</span>
+                <span className="text-light text-sm">{company.commercialRemarks || 'None'}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-40 border border-dashed border-border rounded-lg bg-primary/20 text-muted text-sm">
+              Commercial terms are restricted.
             </div>
           )}
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Interview Process Overview */}
-            <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
-              <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-accent" /> Interview Process
-              </h3>
-              <div className="space-y-4">
-                {[
-                  { name: company.round1Name, desc: company.round1Desc },
-                  { name: company.round2Name, desc: company.round2Desc },
-                  { name: company.round3Name, desc: company.round3Desc },
-                  { name: company.finalRoundName, desc: company.finalRoundDesc }
-                ].filter(r => r.name || r.desc).map((round, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-primary border border-border flex items-center justify-center text-xs font-bold text-accent shrink-0 mt-0.5">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-light">{round.name || `Round ${i + 1}`}</p>
-                      {round.desc && <p className="text-xs text-muted mt-1 whitespace-pre-wrap">{round.desc}</p>}
-                    </div>
-                  </div>
-                ))}
-                {(!company.round1Name && !company.round2Name && !company.round3Name && !company.finalRoundName) && (
-                   <p className="text-sm text-muted italic">Interview process not defined yet.</p>
-                )}
+      {/* Secondary Information Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Interview Process Overview */}
+        <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6 h-full">
+          <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-accent" /> Interview Process
+          </h3>
+          <div className="space-y-4">
+            {[
+              { name: company.round1Name, desc: company.round1Desc },
+              { name: company.round2Name, desc: company.round2Desc },
+              { name: company.round3Name, desc: company.round3Desc },
+              { name: company.finalRoundName, desc: company.finalRoundDesc }
+            ].filter(r => r.name || r.desc).map((round, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-primary border border-border flex items-center justify-center text-xs font-bold text-accent shrink-0 mt-0.5">
+                  {i + 1}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-light">{round.name || `Round ${i + 1}`}</p>
+                  {round.desc && <p className="text-xs text-muted mt-1 whitespace-pre-wrap">{round.desc}</p>}
+                </div>
               </div>
-            </div>
-
-
-          {/* Recent Candidate Activity */}
-          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6 mt-6">
-            <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
-              <Users className="w-4 h-4 text-accent" /> Recent Candidate Activity
-            </h3>
-            <div className="space-y-3">
-              {recentActivity.map((app: any, idx: number) => {
-                let displayStatus = app.status.replace(/_/g, ' ')
-                if (app.status === 'NEW' || app.status === 'SCREENING') displayStatus = 'SUBMITTED'
-                else if (app.status === 'L1_CLEARED' || app.status === 'L2_CLEARED') displayStatus = 'SHORTLISTED'
-
-                return (
-                  <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-primary/20 hover:border-accent/30 transition-colors">
-                    <div>
-                      <p className="text-sm font-semibold text-light">{app.candidate?.firstName} {app.candidate?.lastName}</p>
-                      <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
-                        {displayStatus}
-                      </span>
-                      <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                )
-              })}
-              {recentActivity.length === 0 && (
-                <p className="text-sm text-muted text-center py-4">No recent activity.</p>
-              )}
-            </div>
+            ))}
+            {(!company.round1Name && !company.round2Name && !company.round3Name && !company.finalRoundName) && (
+               <p className="text-sm text-muted italic">Interview process not defined yet.</p>
+            )}
           </div>
-
-            {/* Recruiter Leaderboard */}
-            <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
-              <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
-                <Users className="w-4 h-4 text-accent" /> Recruiter Leaderboard
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-border/50">
-                  <thead>
-                    <tr>
-                      <th className="pb-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Recruiter</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Submitted</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Shortlisted</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Interviews</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Selected</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Joined</th>
-                      <th className="pb-2 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Conversion</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/30">
-                    {leaderboard.map((recruiter, idx) => (
-                      <tr key={idx} className="group hover:bg-primary/20 transition-colors">
-                        <td className="py-2 whitespace-nowrap">
-                          <div className="text-sm font-semibold text-light group-hover:text-white transition-colors">{recruiter.name}</div>
-                        </td>
-                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.submitted}</td>
-                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.shortlisted}</td>
-                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.interviews}</td>
-                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-accent font-bold">{recruiter.selected}</td>
-                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.joined}</td>
-                        <td className="px-2 py-2 text-center whitespace-nowrap text-sm text-light">{recruiter.conversion}%</td>
-                      </tr>
-                    ))}
-                    {leaderboard.length === 0 && (
-                      <tr>
-                        <td colSpan={7} className="py-6 text-center text-sm text-muted">No candidate activity yet.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden">
-             <div className="p-6 border-b border-border flex justify-between items-center bg-primary/30">
-               <h3 className="text-lg font-bold text-light flex items-center gap-2">
-                 <Briefcase className="w-5 h-5 text-accent" />
-                 Open Positions
-               </h3>
-             </div>
-             <div className="overflow-x-auto">
-               <table className="min-w-full divide-y divide-border">
-                 <thead className="bg-primary-lighter">
-                   <tr>
-                     <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Title</th>
-                     <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Applications</th>
-                     <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Interviews</th>
-                     <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Selected</th>
-                     <th className="px-6 py-3 text-center text-xs font-semibold text-muted uppercase tracking-wider">Joined</th>
-                     <th className="px-6 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y divide-border/50 bg-primary/20">
-                   {company.jobs.map((job) => {
-                     const totalCands = job.applications.length
-                     const ints = job.applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
-                     const sel = job.applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
-                     const joined = job.applications.filter(a => a.status === 'JOINED').length
-
-                     return (
-                       <tr key={job.id} className="hover:bg-primary/50 transition-colors">
-                         <td className="whitespace-nowrap px-6 py-4">
-                           <Link href={isAdmin ? `/jobs/${job.id}/edit` : `/recruiter/jobs`} className="text-sm font-bold text-light hover:text-accent transition-colors">
-                             {job.title}
-                           </Link>
-                           <div className="text-xs text-muted mt-0.5">{job.location}</div>
-                         </td>
-                         <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{totalCands}</td>
-                         <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{ints}</td>
-                         <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">{sel}</td>
-                         <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{joined}</td>
-                         <td className="whitespace-nowrap px-6 py-4 text-right">
-                           <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
-                             {job.status}
-                           </span>
-                         </td>
-                       </tr>
-                     )
-                   })}
-                   {company.jobs.length === 0 && (
-                     <tr>
-                       <td colSpan={6} className="px-6 py-8 text-center text-sm text-muted">No jobs posted for this company yet.</td>
-                     </tr>
-                   )}
-                 </tbody>
-               </table>
-             </div>
-          </div>
-
         </div>
 
+        {/* Recent Candidate Activity */}
+        <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6 h-full">
+          <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+            <Users className="w-4 h-4 text-accent" /> Recent Candidate Activity
+          </h3>
+          <div className="space-y-3">
+            {recentActivity.map((app: any, idx: number) => {
+              let displayStatus = app.status.replace(/_/g, ' ')
+              if (app.status === 'NEW' || app.status === 'SCREENING') displayStatus = 'SUBMITTED'
+              else if (app.status === 'L1_CLEARED' || app.status === 'L2_CLEARED') displayStatus = 'SHORTLISTED'
+
+              return (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-primary/20 hover:border-accent/30 transition-colors">
+                  <div>
+                    <p className="text-sm font-semibold text-light">{app.candidate?.firstName} {app.candidate?.lastName}</p>
+                    <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
+                      {displayStatus}
+                    </span>
+                    <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              )
+            })}
+            {recentActivity.length === 0 && (
+              <p className="text-sm text-muted text-center py-4">No recent activity.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Recruiter Leaderboard (Full Width) */}
+      <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg p-6">
+        <h3 className="text-sm font-bold text-light uppercase tracking-wider mb-4 border-b border-border pb-2 flex items-center gap-2">
+          <Users className="w-4 h-4 text-accent" /> Recruiter Leaderboard
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-border/50">
+            <thead>
+              <tr>
+                <th className="pb-2 text-left text-xs font-bold text-muted uppercase tracking-wider">Recruiter</th>
+                <th className="pb-2 px-2 text-center text-xs font-bold text-muted uppercase tracking-wider">Submitted</th>
+                <th className="pb-2 px-2 text-center text-xs font-bold text-muted uppercase tracking-wider">Shortlisted</th>
+                <th className="pb-2 px-2 text-center text-xs font-bold text-muted uppercase tracking-wider">Interviews</th>
+                <th className="pb-2 px-2 text-center text-xs font-bold text-muted uppercase tracking-wider">Selected</th>
+                <th className="pb-2 px-2 text-center text-xs font-bold text-muted uppercase tracking-wider">Joined</th>
+                <th className="pb-2 px-2 text-center text-xs font-bold text-muted uppercase tracking-wider">Conversion</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {leaderboard.map((recruiter, idx) => (
+                <tr key={idx} className="group hover:bg-primary/20 transition-colors">
+                  <td className="py-3 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-light group-hover:text-white transition-colors">{recruiter.name}</div>
+                  </td>
+                  <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-light">{recruiter.submitted}</td>
+                  <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-light">{recruiter.shortlisted}</td>
+                  <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-light">{recruiter.interviews}</td>
+                  <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-accent font-bold">{recruiter.selected}</td>
+                  <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-light">{recruiter.joined}</td>
+                  <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-light">{recruiter.conversion}%</td>
+                </tr>
+              ))}
+              {leaderboard.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-sm text-muted">No candidate activity yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Open Positions (Full Width) */}
+      <div className="bg-primary-lighter rounded-2xl border border-border shadow-lg overflow-hidden">
+         <div className="p-6 border-b border-border flex justify-between items-center bg-primary/30">
+           <h3 className="text-lg font-bold text-light flex items-center gap-2">
+             <Briefcase className="w-5 h-5 text-accent" />
+             Open Positions
+           </h3>
+         </div>
+         <div className="overflow-x-auto">
+           <table className="min-w-full divide-y divide-border">
+             <thead className="bg-primary-lighter">
+               <tr>
+                 <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Job Title</th>
+                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Applications</th>
+                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Interviews</th>
+                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Selected</th>
+                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Joined</th>
+                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+               </tr>
+             </thead>
+             <tbody className="divide-y divide-border/50 bg-primary/20">
+               {company.jobs.map((job) => {
+                 const totalCands = job.applications.length
+                 const ints = job.applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length
+                 const sel = job.applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
+                 const joined = job.applications.filter(a => a.status === 'JOINED').length
+
+                 return (
+                   <tr key={job.id} className="hover:bg-primary/50 transition-colors group">
+                     <td className="whitespace-nowrap px-6 py-4">
+                       <Link href={isAdmin ? `/jobs/${job.id}/edit` : `/recruiter/jobs`} className="text-sm font-bold text-light group-hover:text-accent transition-colors block">
+                         {job.title}
+                       </Link>
+                       <div className="text-xs text-muted mt-1">{job.location}</div>
+                     </td>
+                     <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{totalCands}</td>
+                     <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{ints}</td>
+                     <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-bold text-accent">{sel}</td>
+                     <td className="whitespace-nowrap px-6 py-4 text-center text-sm font-medium text-light">{joined}</td>
+                     <td className="whitespace-nowrap px-6 py-4 text-right">
+                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
+                         {job.status}
+                       </span>
+                     </td>
+                   </tr>
+                 )
+               })}
+               {company.jobs.length === 0 && (
+                 <tr>
+                   <td colSpan={6} className="px-6 py-12 text-center text-sm text-muted">No jobs posted for this company yet.</td>
+                 </tr>
+               )}
+             </tbody>
+           </table>
+         </div>
       </div>
     </div>
   )

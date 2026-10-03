@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import SettingsClient from "./SettingsClient"
+import PageHeader from "@/components/PageHeader"
+import { Settings } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -33,9 +35,12 @@ export default async function SettingsPage() {
 
   return (
     <div className="animate-fade-in max-w-4xl mx-auto">
-      <div className="mb-8 border-b border-border pb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-light">Account Settings</h1>
-        <p className="mt-2 text-sm text-muted">Manage your personal information and security preferences.</p>
+      <div className="mb-8 border-b border-border pb-2">
+        <PageHeader
+          title="Account Settings"
+          description="Manage your personal information and security preferences."
+          icon={Settings}
+        />
       </div>
 
       <SettingsClient user={user} />

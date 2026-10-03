@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import CandidateActions from "./CandidateActions"
+import PageHeader from "@/components/PageHeader"
+import { Users } from "lucide-react"
 
 export default async function CandidatesPage({
   searchParams,
@@ -25,7 +27,7 @@ export default async function CandidatesPage({
   if (!session) {
     redirect("/login")
   }
-  if ((session.user as any).role !== "ADMIN") {
+  if (!["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/recruiter")
   }
 
@@ -100,22 +102,23 @@ export default async function CandidatesPage({
     console.error("Failed to load candidates", e);
   }
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
-      <div className="sm:flex sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-light">Candidates</h1>
-          <p className="mt-2 text-sm text-muted">A comprehensive list of all candidates across the system.</p>
-        </div>
-        <div className="mt-4 sm:mt-0">
+      <PageHeader
+        title="Candidates"
+        description="A comprehensive list of all candidates across the system."
+        icon={Users}
+        action={
           <Link
             href="/candidates/new"
             className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
           >
             Add candidate
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
@@ -171,7 +174,7 @@ export default async function CandidatesPage({
                       {candidate.recruiter ? candidate.recruiter.name : 'System/Admin'}
                     </td>
                     <td className="px-4 py-4 text-right text-sm font-medium">
-                      <CandidateActions candidate={candidate} />
+                      <CandidateActions candidate={candidate} isAdmin={isAdmin} />
                     </td>
                   </tr>
                 )

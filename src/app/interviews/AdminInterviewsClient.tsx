@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, Calendar } from "lucide-react"
+import PageHeader from "@/components/PageHeader"
 
 export default function AdminInterviewsClient({ initialInterviews }: { initialInterviews: any[] }) {
   const [interviews, setInterviews] = useState(initialInterviews)
@@ -130,10 +131,11 @@ export default function AdminInterviewsClient({ initialInterviews }: { initialIn
         </div>
       )}
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-light">Interviews</h1>
-        <p className="mt-2 text-sm text-muted">Manage all candidate interviews and schedules.</p>
-      </div>
+      <PageHeader
+        title="Interviews"
+        description="Manage all candidate interviews and schedules."
+        icon={Calendar}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-primary border border-border p-4 rounded-xl">

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 
 export default async function EditRecruiterPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 
@@ -26,7 +26,7 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
   async function updateRecruiter(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
+    if (!authSession || !["ADMIN", "ASSOCIATE_PARTNER"].includes((authSession.user as any).role)) throw new Error("Unauthorized")
     try {
       const data: any = {
         name: formData.get("name") as string,
@@ -148,6 +148,7 @@ export default async function EditRecruiterPage({ params }: { params: Promise<{ 
                 <option value="Internal Recruiter">Internal Recruiter</option>
                 <option value="Freelance Recruiter">Freelance Recruiter</option>
                 <option value="Partner Agency">Partner Agency</option>
+                <option value="Associate Partner">Associate Partner</option>
               </select>
             </div>
           </div>

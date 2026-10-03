@@ -9,17 +9,20 @@ export const dynamic = "force-dynamic"
 
 export default async function NewRecruiterPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 
   async function createRecruiter(formData: FormData) {
     "use server"
     const authSession = await getServerSession(authOptions)
-    if (!authSession || (authSession.user as any).role !== "ADMIN") throw new Error("Unauthorized")
+    if (!authSession || !["ADMIN", "ASSOCIATE_PARTNER"].includes((authSession.user as any).role)) throw new Error("Unauthorized")
     try {
       const plainPassword = formData.get("password") as string
       const hashedPassword = await bcrypt.hash(plainPassword, 10)
+
+      const recruiterType = formData.get("recruiterType") as string || null
+      const mappedRole = recruiterType === "Associate Partner" ? "ASSOCIATE_PARTNER" : "RECRUITER"
 
       await prisma.user.create({
         data: {
@@ -32,15 +35,16 @@ export default async function NewRecruiterPage() {
           commissionPercentage: formData.get("commissionPercentage") ? parseFloat(formData.get("commissionPercentage") as string) : 0,
           paymentTermsDays: formData.get("paymentTermsDays") ? parseInt(formData.get("paymentTermsDays") as string) : null,
           paymentReleaseCondition: formData.get("paymentReleaseCondition") as string || null,
-          recruiterType: formData.get("recruiterType") as string || null,
+          recruiterType: recruiterType,
           agreementSigned: formData.get("agreementSigned") === "true",
           agreementDate: formData.get("agreementDate") ? new Date(formData.get("agreementDate") as string) : null,
           agreementExpiryDate: formData.get("agreementExpiryDate") ? new Date(formData.get("agreementExpiryDate") as string) : null,
-          role: "RECRUITER",
+          role: mappedRole,
         }
       })
     } catch(e) {
       console.error(e)
+      throw new Error("Failed to create recruiter")
     }
     redirect("/recruiters")
   }
@@ -133,6 +137,7 @@ export default async function NewRecruiterPage() {
                 <option value="Internal Recruiter">Internal Recruiter</option>
                 <option value="Freelance Recruiter">Freelance Recruiter</option>
                 <option value="Partner Agency">Partner Agency</option>
+                <option value="Associate Partner">Associate Partner</option>
               </select>
             </div>
           </div>

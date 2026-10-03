@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth"
 
 export default async function EditCandidatePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 

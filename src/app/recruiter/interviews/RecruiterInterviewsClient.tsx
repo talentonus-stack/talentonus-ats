@@ -1,5 +1,8 @@
 "use client"
 
+import PageHeader from "@/components/PageHeader"
+import { Calendar } from "lucide-react"
+
 export default function RecruiterInterviewsClient({ initialInterviews }: { initialInterviews: any[] }) {
   // Metrics
   const todayStart = new Date()
@@ -18,10 +21,11 @@ export default function RecruiterInterviewsClient({ initialInterviews }: { initi
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto text-light">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-light">Interviews</h1>
-        <p className="mt-2 text-sm text-muted">Track interviews for your submitted candidates.</p>
-      </div>
+      <PageHeader
+        title="Interviews"
+        description="Track interviews for your submitted candidates."
+        icon={Calendar}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-primary border border-border p-4 rounded-xl">

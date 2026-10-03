@@ -6,7 +6,7 @@ import { Eye, Edit2, Trash2 } from "lucide-react"
 import { deleteJob } from "./actions"
 import { useRouter } from "next/navigation"
 
-export default function JobListingClient({ initialJobs }: { initialJobs: any[] }) {
+export default function JobListingClient({ initialJobs, isAdmin }: { initialJobs: any[], isAdmin: boolean }) {
   const [jobs, setJobs] = useState(initialJobs)
   const [deleteModal, setDeleteModal] = useState<any | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -140,12 +140,16 @@ export default function JobListingClient({ initialJobs }: { initialJobs: any[] }
                           <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors" title="View Job">
                             <Eye className="w-4 h-4" />
                           </Link>
-                          <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors" title="Edit Job">
-                            <Edit2 className="w-4 h-4" />
-                          </Link>
-                          <button onClick={() => setDeleteModal(job)} className="text-muted hover:text-red-400 transition-colors focus:outline-none" title="Delete Job">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {isAdmin && (
+                            <>
+                              <Link href={`/jobs/${job.id}/edit`} className="text-muted hover:text-accent transition-colors" title="Edit Job">
+                                <Edit2 className="w-4 h-4" />
+                              </Link>
+                              <button onClick={() => setDeleteModal(job)} className="text-muted hover:text-red-400 transition-colors focus:outline-none" title="Delete Job">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
                         </div>
                         {renderIndicator(job.id)}
                       </td>

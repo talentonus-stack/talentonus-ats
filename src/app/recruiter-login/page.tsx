@@ -1,6 +1,6 @@
 "use client"
 
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -16,6 +16,7 @@ export default function RecruiterLoginPage() {
   const [resetMode, setResetMode] = useState(false)
   const [resetSuccess, setResetSuccess] = useState(false)
   const [isResetting, setIsResetting] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleResetRequest = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,6 +38,7 @@ export default function RecruiterLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setIsLoading(true)
 
     const result = await signIn("credentials", {
       email,
@@ -46,9 +48,13 @@ export default function RecruiterLoginPage() {
 
     if (result?.error) {
       setError("Invalid email or password")
+      setIsLoading(false)
     } else {
-      router.push("/recruiter")
-      router.refresh()
+      // Eliminate the massive 8-10s `getSession()` network request block.
+      // Force a hard navigation so the Next.js server resolves the SSR routing
+      // instantly via the JWT token cookie rather than waiting for a client-side API response.
+      window.location.href = "/recruiter";
+      // Do NOT set isLoading(false) so the spinner stays active until the page unloads.
     }
   }
 
@@ -160,9 +166,14 @@ export default function RecruiterLoginPage() {
 
               <button
                 type="submit"
-                className="mt-6 w-full rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200"
+                disabled={isLoading}
+                className="mt-6 w-full flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-primary font-bold hover:bg-accent-hover hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)] transition-all duration-200 disabled:opacity-70 disabled:hover:scale-100 disabled:hover:shadow-none"
               >
-                Sign In to Portal
+                {isLoading ? (
+                  <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  "Sign In to Portal"
+                )}
               </button>
             </form>
           )}

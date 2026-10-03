@@ -15,7 +15,7 @@ export async function PATCH(
   }
 
   const user = session.user as any;
-  if (user.role !== "ADMIN") {
+  if (!["ADMIN", "ASSOCIATE_PARTNER"].includes(user.role)) {
     return NextResponse.json({ error: "Forbidden: Only admins can update interviews" }, { status: 403 });
   }
 

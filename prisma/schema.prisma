@@ -10,6 +10,7 @@ datasource db {
 enum Role {
   ADMIN
   RECRUITER
+  ASSOCIATE_PARTNER
 }
 
 enum CandidateStatus {
@@ -57,6 +58,8 @@ model User {
   agreementExpiryDate     DateTime?
 
   bankDetails BankDetails?
+
+  operationsPayouts OperationsPayout[]
 }
 
 model BankDetails {
@@ -281,6 +284,32 @@ model Placement {
   remarks                String?
 
   status PlacementStatus @default(SELECTED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  operationsPayout OperationsPayout?
+}
+
+enum PayoutStatus {
+  PENDING
+  PAID
+}
+
+model OperationsPayout {
+  id                  String       @id @default(cuid())
+  placementId         String?      @unique
+  associatePartnerId  String
+  amount              Float
+  status              PayoutStatus @default(PENDING)
+  paidDate            DateTime?
+
+  // Historical Snapshot Fields
+  candidateName       String
+  companyName         String
+
+  placement        Placement? @relation(fields: [placementId], references: [id], onDelete: SetNull)
+  associatePartner User       @relation(fields: [associatePartnerId], references: [id], onDelete: Restrict)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -5,12 +5,13 @@ import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import { Building2 } from "lucide-react"
 import CompanyListClient from "./CompanyListClient"
+import PageHeader from "@/components/PageHeader"
 
 export const dynamic = "force-dynamic"
 
 export default async function CompaniesPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 
@@ -55,6 +56,8 @@ export default async function CompaniesPage() {
     }
   })
 
+  const isAdmin = (session.user as any).role === "ADMIN"
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
       <div className="sm:flex sm:items-center justify-between mb-8">
@@ -65,17 +68,19 @@ export default async function CompaniesPage() {
           </h1>
           <p className="mt-2 text-sm text-muted">Manage client companies, view their jobs, and track hiring performance.</p>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <Link
-            href="/companies/new"
-            className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
-          >
-            Add Company
-          </Link>
-        </div>
+        {isAdmin && (
+          <div className="mt-4 sm:mt-0">
+            <Link
+              href="/companies/new"
+              className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
+            >
+              Add Company
+            </Link>
+          </div>
+        )}
       </div>
 
-      <CompanyListClient companies={companyStats} />
+      <CompanyListClient companies={companyStats} isAdmin={isAdmin} />
     </div>
   )
 }

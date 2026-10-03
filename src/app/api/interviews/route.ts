@@ -13,11 +13,12 @@ export async function GET(request: Request) {
 
   const user = session.user as any;
   const isAdmin = user.role === "ADMIN";
+  const isAssociatePartner = user.role === "ASSOCIATE_PARTNER";
   const recruiterId = user.id;
 
   try {
     const interviews = await prisma.interview.findMany({
-      where: isAdmin ? {} : { recruiterId },
+      where: (isAdmin || isAssociatePartner) ? {} : { recruiterId },
       include: {
         application: true,
         candidate: true,

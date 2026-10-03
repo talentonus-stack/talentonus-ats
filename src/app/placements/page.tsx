@@ -3,16 +3,19 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { IndianRupee, FileText } from "lucide-react"
+import PageHeader from "@/components/PageHeader"
 
 export const dynamic = "force-dynamic"
 
 export default async function PlacementsPage() {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user as any).role !== "ADMIN") {
+  if (!session || !["ADMIN", "ASSOCIATE_PARTNER"].includes((session.user as any).role)) {
     redirect("/login")
   }
 
-  const placements = await prisma.placement.findMany({
+  const isAdmin = (session.user as any).role === "ADMIN"
+
+  let placements = await prisma.placement.findMany({
     include: {
       candidate: true,
       company: true,
@@ -22,17 +25,21 @@ export default async function PlacementsPage() {
     orderBy: { createdAt: "desc" }
   })
 
+  // Security: Strip internal Talentonus margins if the user is an Associate Partner
+  if (!isAdmin) {
+    placements = placements.map(p => ({
+      ...p,
+      talentonusShare: 0
+    }))
+  }
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
-      <div className="sm:flex sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-light flex items-center gap-3">
-            <IndianRupee className="w-8 h-8 text-accent" />
-            Placements & Revenue
-          </h1>
-          <p className="mt-2 text-sm text-muted">Track candidate placements, revenue shares, and invoice statuses.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Placements & Revenue"
+        description="Track candidate placements, revenue shares, and invoice statuses."
+        icon={IndianRupee}
+      />
 
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
@@ -45,7 +52,9 @@ export default async function PlacementsPage() {
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Offered CTC</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Expected DOJ</th>
                 <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Total Value</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Our Share</th>
+                {isAdmin && (
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Our Share</th>
+                )}
                 <th className="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
               </tr>
             </thead>
@@ -65,7 +74,9 @@ export default async function PlacementsPage() {
                     {p.expectedJoiningDate ? new Date(p.expectedJoiningDate).toLocaleDateString() : '—'}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-accent font-bold">₹{(p.placementValue).toLocaleString('en-IN')}</td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
+                  {isAdmin && (
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-light font-bold">₹{(p.talentonusShare).toLocaleString('en-IN')}</td>
+                  )}
                   <td className="whitespace-nowrap px-6 py-4 text-center">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase border
                       ${p.status === 'SELECTED' ? 'bg-blue-900/20 text-blue-400 border-blue-800/30' : ''}
@@ -81,7 +92,7 @@ export default async function PlacementsPage() {
               ))}
               {placements.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-sm text-muted text-center">
+                  <td colSpan={isAdmin ? 8 : 7} className="px-6 py-12 text-sm text-muted text-center">
                     No placements recorded yet. Move a candidate to "SELECTED" status to create a placement.
                   </td>
                 </tr>

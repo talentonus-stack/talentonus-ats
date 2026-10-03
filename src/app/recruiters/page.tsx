@@ -30,20 +30,19 @@ export default async function RecruitersPage() {
 
   return (
     <div className="animate-fade-in max-w-7xl mx-auto">
-      <div className="sm:flex sm:items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-light">Recruiters</h1>
-          <p className="mt-2 text-sm text-muted">Manage recruiter accounts.</p>
-        </div>
-        <div className="mt-4 sm:mt-0">
+      <PageHeader
+        title="Recruiters"
+        description="Manage recruiter accounts."
+        icon={UserPlus}
+        action={
           <Link
             href="/recruiters/new"
             className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
           >
             Add Recruiter
           </Link>
-        </div>
-      </div>
+        }
+      />
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <table className="min-w-full divide-y divide-border">
           <thead className="bg-primary-lighter/50">

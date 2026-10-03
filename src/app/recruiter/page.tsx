@@ -126,14 +126,17 @@ export default async function RecruiterDashboardPage() {
   })
   const assignedJobs = Array.from(jobMap.values())
 
+  const firstName = session.user?.name?.split(' ')[0] || 'User'
+
   return (
     <div className="animate-fade-in max-w-7xl mx-auto space-y-10 pb-12">
 
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-light">Dashboard</h1>
-        <p className="mt-2 text-muted">Overview of your recruitment performance and pipeline.</p>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${firstName}`}
+        description="Overview of your recruitment performance and pipeline."
+        icon={LayoutDashboard}
+      />
 
       {/* 1. My Performance (Top Row) */}
       <section>

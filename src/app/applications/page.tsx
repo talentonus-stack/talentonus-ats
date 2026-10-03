@@ -32,20 +32,20 @@ export default async function ApplicationsPage() {
   }
 
   return (
-    <div>
-      <div className="sm:flex sm:items-center mb-6">
-        <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-light">Applications Pipeline</h1>
-        </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+    <div className="animate-fade-in max-w-full mx-auto">
+      <PageHeader
+        title="Applications Pipeline"
+        description="Drag and drop candidates across stages to manage the recruitment workflow."
+        icon={FileText}
+        action={
           <Link
             href="/applications/new"
             className="inline-flex items-center rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-hover transition-colors shadow-[0_0_15px_rgba(170,255,0,0.2)] hover:shadow-[0_0_20px_rgba(170,255,0,0.4)]"
           >
             Add application
           </Link>
-        </div>
-      </div>
+        }
+      />
 
       <KanbanBoard initialApplications={applications} />
     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2 } from "lucide-react"
+import { getStatusColorClass, formatStatusText } from "@/lib/statusColors"
 
 type Application = {
   id: string
@@ -117,8 +118,8 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                     </td>
                     <td className="px-4 xl:px-6 py-4 overflow-hidden">
                       {latestApp ? (
-                        <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase leading-tight text-accent border border-accent/20 truncate">
-                          {latestApp.status === "L1_SCHEDULED" ? "L1 Schedule" : latestApp.status === "L2_SCHEDULED" ? "L2 Schedule" : latestApp.status === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : latestApp.status.replace(/_/g, ' ')}
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase leading-tight border truncate ${getStatusColorClass(latestApp.status)}`}>
+                          {formatStatusText(latestApp.status)}
                         </span>
                       ) : <span className="text-sm text-muted">N/A</span>}
                     </td>

@@ -51,7 +51,7 @@ export default function CandidateFilterClient({
   }, [searchTerm, pathname, router, searchParams])
 
   return (
-    <div className="mb-6 bg-primary-lighter border border-border/60 rounded-xl shadow-sm overflow-hidden">
+    <div className="mb-6 relative bg-primary-lighter border border-border/60 rounded-xl shadow-sm overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent/20 via-accent to-accent/20 opacity-20"></div>
       <form className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-border/60" method="GET" action="/candidates">
 

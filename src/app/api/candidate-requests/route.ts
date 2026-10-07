@@ -65,6 +65,7 @@ export async function POST(req: Request) {
           message: `Update requested for ${candidateName}: ${requestText.trim()}`,
           type: "NEUTRAL",
           isDismissed: false,
+          actionUrl: `/recruiter/candidates?candidateId=${candidate.id}`,
         },
       });
 

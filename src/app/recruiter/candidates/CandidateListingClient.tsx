@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2 } from "lucide-react"
+import { useState, useEffect, Suspense } from "react"
+import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2, AlertCircle } from "lucide-react"
+import { useSearchParams, useRouter } from "next/navigation"
 
 type Application = {
   id: string
@@ -33,6 +34,7 @@ type Candidate = {
   resumeFileName: string | null
   portfolioUrl: string | null
   applications: Application[]
+  updateRequests?: any[]
 }
 
 const STAGES = [
@@ -47,8 +49,26 @@ const STAGES = [
   "JOINED"
 ]
 
-export default function CandidateListingClient({ candidates }: { candidates: Candidate[] }) {
+function CandidateListingInner({ candidates }: { candidates: Candidate[] }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const candidateIdQuery = searchParams.get("candidateId")
+
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
+  const [resolvingRequestId, setResolvingRequestId] = useState<string | null>(null)
+  const [responseTextMap, setResponseTextMap] = useState<Record<string, string>>({})
+  const [resolveError, setResolveError] = useState<Record<string, string>>({})
+
+  // Handle deep linking to a candidate via URL
+  useEffect(() => {
+    if (candidateIdQuery) {
+      const candidate = candidates.find(c => c.id === candidateIdQuery)
+      if (candidate) {
+        setSelectedCandidate(candidate)
+      }
+    }
+  }, [candidateIdQuery, candidates])
+
   useEffect(() => {
     if (selectedCandidate) {
       document.body.style.overflow = 'hidden'
@@ -72,6 +92,48 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
   const getStageIndex = (status: string) => {
     return STAGES.indexOf(status)
+  }
+
+  const handleResolveRequest = async (requestId: string) => {
+    const responseText = responseTextMap[requestId] || ""
+    if (!responseText.trim()) {
+      setResolveError(prev => ({ ...prev, [requestId]: "Please enter your update/response." }))
+      return
+    }
+
+    setResolvingRequestId(requestId)
+    setResolveError(prev => ({ ...prev, [requestId]: "" }))
+
+    try {
+      const res = await fetch(`/api/candidate-requests/${requestId}/resolve`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ responseText: responseText.trim() })
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to submit update.")
+      }
+
+      // Success
+      setResponseTextMap(prev => ({ ...prev, [requestId]: "" }))
+
+      // Update local state temporarily to hide the request, while waiting for router.refresh
+      if (selectedCandidate) {
+        const updatedCandidate = {
+          ...selectedCandidate,
+          updateRequests: selectedCandidate.updateRequests?.filter(req => req.id !== requestId) || []
+        }
+        setSelectedCandidate(updatedCandidate)
+      }
+
+      router.refresh()
+    } catch (err: any) {
+      setResolveError(prev => ({ ...prev, [requestId]: err.message || "An unexpected error occurred." }))
+    } finally {
+      setResolvingRequestId(null)
+    }
   }
 
   return (
@@ -186,8 +248,59 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-primary custom-scrollbar">
+            <div className="flex-1 overflow-y-auto bg-primary custom-scrollbar">
 
+              {/* Candidate Update Requests Section */}
+              {selectedCandidate.updateRequests && selectedCandidate.updateRequests.length > 0 && (
+                <div className="p-6 sm:p-8 bg-orange-900/5 border-b border-orange-900/20">
+                  <h3 className="text-lg font-bold text-orange-400 mb-4 flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5" />
+                    Pending Action Required
+                  </h3>
+                  <div className="space-y-4">
+                    {selectedCandidate.updateRequests.map((req) => (
+                      <div key={req.id} className="bg-primary-lighter rounded-lg border border-orange-900/30 p-5 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                        <div className="flex justify-between items-start mb-3 pl-2">
+                          <div>
+                            <span className="text-[10px] font-bold tracking-wider uppercase text-muted mb-1 block">Requested By {req.requestedBy?.name || 'Admin'}</span>
+                            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border ${req.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : 'bg-primary border-border text-muted'}`}>
+                              {req.priority === 'HIGH' ? 'High Priority' : 'Normal Priority'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-muted">{new Date(req.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-sm font-medium text-light mb-4 pl-2 whitespace-pre-wrap">{req.requestText}</p>
+
+                        <div className="mt-4 pt-4 border-t border-border/50 pl-2">
+                          {resolveError[req.id] && (
+                            <p className="text-xs text-red-400 mb-2 font-medium">{resolveError[req.id]}</p>
+                          )}
+                          <textarea
+                            value={responseTextMap[req.id] || ""}
+                            onChange={(e) => setResponseTextMap(prev => ({ ...prev, [req.id]: e.target.value }))}
+                            placeholder="Type your response/update here..."
+                            rows={3}
+                            disabled={resolvingRequestId === req.id}
+                            className="w-full bg-primary border border-border rounded-md px-3 py-2 text-sm text-light placeholder-muted/50 focus:border-accent focus:ring-1 focus:ring-accent transition-colors disabled:opacity-50"
+                          />
+                          <div className="mt-3 flex justify-end">
+                            <button
+                              onClick={() => handleResolveRequest(req.id)}
+                              disabled={resolvingRequestId === req.id || !(responseTextMap[req.id] || "").trim()}
+                              className="px-4 py-2 bg-accent text-primary text-xs font-bold rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50 shadow-[0_0_10px_rgba(170,255,0,0.15)]"
+                            >
+                              {resolvingRequestId === req.id ? "Submitting..." : "Confirm Update"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Left Column: Details */}
               <div className="space-y-8">
                 <div>
@@ -349,6 +462,7 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                   <p className="text-sm text-muted">No application data found.</p>
                 )}
               </div>
+              </div>
             </div>
 
             {/* Modal Footer */}
@@ -364,5 +478,13 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
         </div>
       )}
     </>
+  )
+}
+
+export default function CandidateListingClient({ candidates }: { candidates: Candidate[] }) {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-muted">Loading candidates...</div>}>
+      <CandidateListingInner candidates={candidates} />
+    </Suspense>
   )
 }

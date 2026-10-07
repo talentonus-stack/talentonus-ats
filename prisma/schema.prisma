@@ -346,6 +346,7 @@ model Notification {
   message     String
   type        NotificationType @default(NEUTRAL)
   isDismissed Boolean          @default(false)
+  actionUrl   String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 

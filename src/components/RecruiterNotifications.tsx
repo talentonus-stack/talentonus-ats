@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Bell, X, AlertCircle, CheckCircle, Info } from "lucide-react"
+import { Bell, X, AlertCircle, CheckCircle, Info, ExternalLink } from "lucide-react"
+import Link from "next/link"
 
 type NotificationType = "NEUTRAL" | "SUCCESS" | "ERROR"
 
@@ -11,6 +12,7 @@ interface Notification {
   type: NotificationType
   isDismissed: boolean
   createdAt: string
+  actionUrl?: string | null
 }
 
 export default function RecruiterNotifications() {
@@ -110,7 +112,7 @@ export default function RecruiterNotifications() {
                 return (
                   <div
                     key={notif.id}
-                    className={`relative p-4 pr-10 rounded-lg border group animate-fade-in ${
+                    className={`relative rounded-lg border group animate-fade-in ${
                       isError
                         ? 'bg-red-900/10 border-red-900/30 hover:border-red-500/50'
                         : isSuccess
@@ -118,34 +120,69 @@ export default function RecruiterNotifications() {
                           : 'bg-primary border-border hover:border-accent/50'
                     } transition-colors`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="shrink-0 mt-0.5">
-                        {isError ? (
-                          <AlertCircle className="w-4 h-4 text-red-500" />
-                        ) : isSuccess ? (
-                          <CheckCircle className="w-4 h-4 text-accent" />
-                        ) : (
-                          <Info className="w-4 h-4 text-blue-400" />
-                        )}
-                      </div>
-                      <div>
-                        <p className={`text-sm ${isError ? 'text-red-100' : 'text-light'}`}>
-                          {notif.message}
-                        </p>
-                        <p className="text-xs text-muted mt-1 opacity-70">
-                          {new Date(notif.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
+                    <div className="relative p-4 pr-10">
+                      {notif.actionUrl ? (
+                        <Link
+                          href={notif.actionUrl}
+                          className="block"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="shrink-0 mt-0.5">
+                              {isError ? (
+                                <AlertCircle className="w-4 h-4 text-red-500" />
+                              ) : isSuccess ? (
+                                <CheckCircle className="w-4 h-4 text-accent" />
+                              ) : (
+                                <Info className="w-4 h-4 text-blue-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 pr-2">
+                              <p className={`text-sm ${isError ? 'text-red-100' : 'text-light'} group-hover:text-accent transition-colors`}>
+                                {notif.message}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-xs text-muted opacity-70">
+                                  {new Date(notif.createdAt).toLocaleString()}
+                                </p>
+                                <span className="flex items-center gap-1 text-[10px] text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <ExternalLink className="w-3 h-3" /> View
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="flex items-start gap-3">
+                          <div className="shrink-0 mt-0.5">
+                            {isError ? (
+                              <AlertCircle className="w-4 h-4 text-red-500" />
+                            ) : isSuccess ? (
+                              <CheckCircle className="w-4 h-4 text-accent" />
+                            ) : (
+                              <Info className="w-4 h-4 text-blue-400" />
+                            )}
+                          </div>
+                          <div>
+                            <p className={`text-sm ${isError ? 'text-red-100' : 'text-light'}`}>
+                              {notif.message}
+                            </p>
+                            <p className="text-xs text-muted mt-1 opacity-70">
+                              {new Date(notif.createdAt).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                    {/* Dismiss Button */}
-                    <button
-                      onClick={(e) => dismissNotification(e, notif.id)}
-                      className="absolute top-3 right-3 p-1 rounded-md text-muted hover:text-light hover:bg-primary/50 transition-colors focus:outline-none"
-                      title="Dismiss"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                      {/* Dismiss Button */}
+                      <button
+                        onClick={(e) => dismissNotification(e, notif.id)}
+                        className="absolute top-3 right-3 p-1 rounded-md text-muted hover:text-light hover:bg-primary/50 transition-colors focus:outline-none z-10"
+                        title="Dismiss"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 )
               })

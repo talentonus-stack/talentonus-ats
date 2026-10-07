@@ -45,8 +45,11 @@ model User {
   placements Placement[]
   interviews Interview[]
 
-  resetRequests PasswordResetRequest[] @relation("UserResetRequests")
-  notifications Notification[]
+  resetRequests          PasswordResetRequest[]   @relation("UserResetRequests")
+  notifications          Notification[]
+  updateRequestsAssigned CandidateUpdateRequest[] @relation("RequestRecruiter")
+  updateRequestsCreated  CandidateUpdateRequest[] @relation("RequestCreator")
+  updateRequestsResolved CandidateUpdateRequest[] @relation("RequestResolver")
 
   // Commercial & Payment Terms (Recruiter)
   commissionPercentage    Float?    @default(0)
@@ -63,17 +66,17 @@ model User {
 }
 
 model BankDetails {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   accountName        String
   accountNumber      String
   bankName           String
   ifscCode           String
   cancelledChequeUrl String?
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum JobTiming {
@@ -178,11 +181,11 @@ model Job {
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  applications Application[]
-  placements   Placement[]
-  interviews   Interview[]
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  applications   Application[]
+  placements     Placement[]
+  interviews     Interview[]
 }
 
 model Candidate {
@@ -207,11 +210,12 @@ model Candidate {
   recruiterId String?
   recruiter   User?   @relation(fields: [recruiterId], references: [id])
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  applications Application[]
-  placements   Placement[]
-  interviews   Interview[]
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  applications           Application[]
+  placements             Placement[]
+  interviews             Interview[]
+  updateRequests         CandidateUpdateRequest[]
 }
 
 enum ApplicationStatus {
@@ -238,9 +242,9 @@ model Application {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
-  job       Job        @relation(fields: [jobId], references: [id])
-  candidate Candidate  @relation(fields: [candidateId], references: [id])
-  placement Placement?
+  job        Job         @relation(fields: [jobId], references: [id])
+  candidate  Candidate   @relation(fields: [candidateId], references: [id])
+  placement  Placement?
   interviews Interview[]
 }
 
@@ -297,16 +301,16 @@ enum PayoutStatus {
 }
 
 model OperationsPayout {
-  id                  String       @id @default(cuid())
-  placementId         String?      @unique
-  associatePartnerId  String
-  amount              Float
-  status              PayoutStatus @default(PENDING)
-  paidDate            DateTime?
+  id                 String       @id @default(cuid())
+  placementId        String?      @unique
+  associatePartnerId String
+  amount             Float
+  status             PayoutStatus @default(PENDING)
+  paidDate           DateTime?
 
   // Historical Snapshot Fields
-  candidateName       String
-  companyName         String
+  candidateName String
+  companyName   String
 
   placement        Placement? @relation(fields: [placementId], references: [id], onDelete: SetNull)
   associatePartner User       @relation(fields: [associatePartnerId], references: [id], onDelete: Restrict)
@@ -367,17 +371,17 @@ enum InterviewMode {
 }
 
 model Interview {
-  id            String          @id @default(cuid())
+  id String @id @default(cuid())
 
   applicationId String
   candidateId   String
   jobId         String
   recruiterId   String?
 
-  application   Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  candidate     Candidate       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
-  job           Job             @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  recruiter     User?           @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  candidate   Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job         Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  recruiter   User?       @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
 
   round         InterviewRound
   mode          InterviewMode
@@ -385,9 +389,43 @@ model Interview {
   meetingLink   String?
   status        InterviewStatus @default(SCHEDULED)
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([applicationId])
   @@index([recruiterId])
+}
+
+enum UpdateRequestStatus {
+  OPEN
+  RESOLVED
+}
+
+enum UpdateRequestPriority {
+  NORMAL
+  HIGH
+}
+
+model CandidateUpdateRequest {
+  id            String                @id @default(cuid())
+  candidateId   String
+  recruiterId   String // Targeted recruiter
+  requestedById String // Admin/AP who created it
+  requestText   String
+  responseText  String?
+  status        UpdateRequestStatus   @default(OPEN)
+  priority      UpdateRequestPriority @default(NORMAL)
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  resolvedAt   DateTime?
+  resolvedById String? // Which recruiter resolved it
+
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiter   User      @relation("RequestRecruiter", fields: [recruiterId], references: [id])
+  requestedBy User      @relation("RequestCreator", fields: [requestedById], references: [id])
+  resolvedBy  User?     @relation("RequestResolver", fields: [resolvedById], references: [id])
+
+  @@index([candidateId])
+  @@index([recruiterId, status])
 }

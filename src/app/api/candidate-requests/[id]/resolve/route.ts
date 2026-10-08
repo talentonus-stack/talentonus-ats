@@ -67,9 +67,10 @@ export async function PATCH(
       await tx.notification.create({
         data: {
           userId: existingRequest.requestedById,
-          message: `Update request for ${candidateName} has been resolved by ${resolverName}.`,
+          message: `Candidate update request resolved for ${candidateName}`,
           type: "NEUTRAL",
           isDismissed: false,
+          actionUrl: `/candidates/${existingRequest.candidateId}`,
         },
       });
 

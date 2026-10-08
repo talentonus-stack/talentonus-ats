@@ -24,7 +24,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <Sidebar onSupportClick={() => setShowSupport(true)} />
       <main className="flex-1 overflow-y-auto p-8 relative">
         {/* Recruiter Notifications Injection */}
-        {["RECRUITER", "ASSOCIATE_PARTNER"].includes(role) && (
+        {["ADMIN", "RECRUITER", "ASSOCIATE_PARTNER"].includes(role) && (
           <div className="absolute top-8 right-8 z-50">
             <RecruiterNotifications />
           </div>

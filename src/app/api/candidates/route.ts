@@ -110,6 +110,31 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    // Only notify Admin and AP if this is a new candidate creation
+    if (!candidateId) {
+      const candidateName = `${candidate.firstName} ${candidate.lastName || ''}`.trim()
+      const recruiterName = (session.user as any).name || 'A recruiter'
+
+      // Get all Admins and Associate Partners
+      const notifyUsers = await prisma.user.findMany({
+        where: { role: { in: ["ADMIN", "ASSOCIATE_PARTNER"] } },
+        select: { id: true }
+      })
+
+      if (notifyUsers.length > 0) {
+        const notificationsData = notifyUsers.map(user => ({
+          userId: user.id,
+          message: `New candidate submitted: ${candidateName} by ${recruiterName}`,
+          type: "NEUTRAL" as const,
+          actionUrl: `/candidates/${candidate.id}`
+        }))
+
+        await prisma.notification.createMany({
+          data: notificationsData
+        })
+      }
+    }
+
     return NextResponse.json({ success: true, id: candidate.id })
   } catch (error: any) {
     console.error("Candidate creation error:", error)

@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
+import CandidateUpdateRequestsClient from "./CandidateUpdateRequestsClient"
 
 export default async function CandidateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const formatSalary = (salary: string | null) => {
@@ -29,6 +30,14 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
       recruiter: true,
       applications: {
         include: { job: true },
+        orderBy: { createdAt: "desc" }
+      },
+      updateRequests: {
+        include: {
+          requestedBy: { select: { name: true } },
+          recruiter: { select: { name: true } },
+          resolvedBy: { select: { name: true } },
+        },
         orderBy: { createdAt: "desc" }
       }
     }
@@ -191,6 +200,13 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
             )}
           </div>
         </div>
+
+        {/* Candidate Update Requests */}
+        <CandidateUpdateRequestsClient
+          candidateId={candidate.id}
+          requests={candidate.updateRequests as any[]}
+        />
+
       </div>
     </div>
   )

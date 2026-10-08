@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2 } from "lucide-react"
+import { useState, useEffect, Suspense } from "react"
+import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2, AlertCircle } from "lucide-react"
+import { useSearchParams, useRouter } from "next/navigation"
 
 type Application = {
   id: string
@@ -33,6 +34,7 @@ type Candidate = {
   resumeFileName: string | null
   portfolioUrl: string | null
   applications: Application[]
+  updateRequests?: any[]
 }
 
 const STAGES = [
@@ -47,8 +49,26 @@ const STAGES = [
   "JOINED"
 ]
 
-export default function CandidateListingClient({ candidates }: { candidates: Candidate[] }) {
+function CandidateListingInner({ candidates }: { candidates: Candidate[] }) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const candidateIdQuery = searchParams.get("candidateId")
+
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
+  const [resolvingRequestId, setResolvingRequestId] = useState<string | null>(null)
+  const [responseTextMap, setResponseTextMap] = useState<Record<string, string>>({})
+  const [resolveError, setResolveError] = useState<Record<string, string>>({})
+
+  // Handle deep linking to a candidate via URL
+  useEffect(() => {
+    if (candidateIdQuery) {
+      const candidate = candidates.find(c => c.id === candidateIdQuery)
+      if (candidate) {
+        setSelectedCandidate(candidate)
+      }
+    }
+  }, [candidateIdQuery, candidates])
+
   useEffect(() => {
     if (selectedCandidate) {
       document.body.style.overflow = 'hidden'
@@ -72,6 +92,48 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
   const getStageIndex = (status: string) => {
     return STAGES.indexOf(status)
+  }
+
+  const handleResolveRequest = async (requestId: string) => {
+    const responseText = responseTextMap[requestId] || ""
+    if (!responseText.trim()) {
+      setResolveError(prev => ({ ...prev, [requestId]: "Please enter your update/response." }))
+      return
+    }
+
+    setResolvingRequestId(requestId)
+    setResolveError(prev => ({ ...prev, [requestId]: "" }))
+
+    try {
+      const res = await fetch(`/api/candidate-requests/${requestId}/resolve`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ responseText: responseText.trim() })
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to submit update.")
+      }
+
+      // Success
+      setResponseTextMap(prev => ({ ...prev, [requestId]: "" }))
+
+      // Update local state temporarily to hide the request, while waiting for router.refresh
+      if (selectedCandidate) {
+        const updatedCandidate = {
+          ...selectedCandidate,
+          updateRequests: selectedCandidate.updateRequests?.filter(req => req.id !== requestId) || []
+        }
+        setSelectedCandidate(updatedCandidate)
+      }
+
+      router.refresh()
+    } catch (err: any) {
+      setResolveError(prev => ({ ...prev, [requestId]: err.message || "An unexpected error occurred." }))
+    } finally {
+      setResolvingRequestId(null)
+    }
   }
 
   return (
@@ -161,18 +223,18 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
       {/* Candidate Details Modal */}
       {selectedCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-fade-in">
-          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-4xl flex flex-col relative overflow-hidden my-auto max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 pt-12 sm:pt-16 animate-fade-in">
+          <div className="bg-primary-lighter rounded-2xl shadow-2xl border border-border w-full max-w-3xl flex flex-col relative overflow-hidden max-h-[85vh]">
 
             {/* Modal Header */}
-            <div className="flex justify-between items-start p-6 sm:p-8 border-b border-border bg-primary/30 shrink-0">
+            <div className="flex justify-between items-start p-4 sm:p-6 border-b border-border bg-primary/30 shrink-0">
               <div className="flex gap-4 items-center">
-                <div className="h-16 w-16 rounded-full bg-accent/20 flex items-center justify-center border border-accent/30 shadow-[0_0_15px_rgba(170,255,0,0.15)]">
-                  <User className="h-8 w-8 text-accent" />
+                <div className="h-12 w-12 rounded-full bg-accent/20 flex items-center justify-center border border-accent/30 shadow-[0_0_10px_rgba(170,255,0,0.15)]">
+                  <User className="h-6 w-6 text-accent" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold text-light">{selectedCandidate.firstName} {selectedCandidate.lastName}</h2>
-                  <p className="text-sm text-muted mt-1 flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-light">{selectedCandidate.firstName} {selectedCandidate.lastName}</h2>
+                  <p className="text-xs text-muted mt-0.5 flex items-center gap-2">
                     {selectedCandidate.email} {selectedCandidate.phone && `• ${selectedCandidate.phone}`}
                   </p>
                 </div>
@@ -186,12 +248,64 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 bg-primary custom-scrollbar">
+            <div className="flex-1 overflow-y-auto bg-primary custom-scrollbar">
 
+              {/* Candidate Update Requests Section */}
+              {selectedCandidate.updateRequests && selectedCandidate.updateRequests.length > 0 && (
+                <div className="p-4 sm:p-6 bg-orange-900/5 border-b border-orange-900/20">
+                  <div className="inline-flex items-center gap-1.5 bg-orange-900/20 text-orange-400 border border-orange-800/30 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3">
+                    <AlertCircle className="h-3 w-3" />
+                    Pending Action Required
+                  </div>
+                  <div className="space-y-4">
+                    {selectedCandidate.updateRequests.map((req) => (
+                      <div key={req.id} className="bg-primary-lighter rounded-md border border-orange-900/30 p-4 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+                        <div className="flex justify-between items-start mb-2 pl-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-muted">Requested by {req.requestedBy?.name || 'Admin'}</span>
+                            <span className="text-[10px] text-muted">•</span>
+                            <span className={`text-[10px] font-bold tracking-wider uppercase ${req.priority === 'HIGH' ? 'text-red-400' : 'text-muted'}`}>
+                              {req.priority === 'HIGH' ? 'High' : 'Normal'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-muted">{new Date(req.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-sm text-light mb-3 pl-2 whitespace-pre-wrap">{req.requestText}</p>
+
+                        <div className="pl-2">
+                          {resolveError[req.id] && (
+                            <p className="text-xs text-red-400 mb-2 font-medium">{resolveError[req.id]}</p>
+                          )}
+                          <textarea
+                            value={responseTextMap[req.id] || ""}
+                            onChange={(e) => setResponseTextMap(prev => ({ ...prev, [req.id]: e.target.value }))}
+                            placeholder="Type your response/update here..."
+                            rows={2}
+                            disabled={resolvingRequestId === req.id}
+                            className="w-full bg-primary border border-border rounded-md px-3 py-2 text-sm text-light placeholder-muted/50 focus:border-accent focus:ring-1 focus:ring-accent transition-colors disabled:opacity-50"
+                          />
+                          <div className="mt-2 flex justify-end">
+                            <button
+                              onClick={() => handleResolveRequest(req.id)}
+                              disabled={resolvingRequestId === req.id || !(responseTextMap[req.id] || "").trim()}
+                              className="px-3 py-1.5 bg-accent text-primary text-xs font-bold rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50"
+                            >
+                              {resolvingRequestId === req.id ? "Submitting..." : "Confirm Update"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Left Column: Details */}
-              <div className="space-y-8">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-light mb-4 flex items-center gap-2 border-b border-border pb-2">
+                  <h3 className="text-base font-semibold text-light mb-3 flex items-center gap-2 border-b border-border pb-2">
                     <Briefcase className="h-5 w-5 text-accent" />
                     Professional Profile
                   </h3>
@@ -270,19 +384,19 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
 
               {/* Right Column: Timeline */}
               <div>
-                <h3 className="text-lg font-semibold text-light mb-4 flex items-center gap-2 border-b border-border pb-2">
+                <h3 className="text-base font-semibold text-light mb-3 flex items-center gap-2 border-b border-border pb-2">
                   <Clock className="h-5 w-5 text-accent" />
                   Application Status Timeline
                 </h3>
 
                 {selectedCandidate.applications.length > 0 ? (
-                  <div className="space-y-6 mt-4">
-                    <div className="mb-4">
-                      <span className="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Applied For</span>
-                      <p className="text-md font-medium text-accent">{selectedCandidate.applications[0].job.title}</p>
+                  <div className="space-y-4 mt-3">
+                    <div className="mb-3">
+                      <span className="block text-[10px] font-semibold text-muted uppercase tracking-wider mb-1">Applied For</span>
+                      <p className="text-sm font-medium text-accent">{selectedCandidate.applications[0].job.title}</p>
                     </div>
 
-                    <div className="relative border-l-2 border-border ml-3 mt-6">
+                    <div className="relative border-l border-border ml-2 mt-4">
                       {(() => {
                         const application = selectedCandidate.applications[0];
                         const currentStatus = application.status;
@@ -349,10 +463,11 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
                   <p className="text-sm text-muted">No application data found.</p>
                 )}
               </div>
+              </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-border bg-primary-lighter flex justify-end shrink-0">
+            <div className="p-4 sm:p-6 border-t border-border bg-primary-lighter flex justify-end shrink-0">
               <button
                 onClick={() => setSelectedCandidate(null)}
                 className="px-6 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
@@ -364,5 +479,13 @@ export default function CandidateListingClient({ candidates }: { candidates: Can
         </div>
       )}
     </>
+  )
+}
+
+export default function CandidateListingClient({ candidates }: { candidates: Candidate[] }) {
+  return (
+    <Suspense fallback={<div className="p-12 text-center text-muted">Loading candidates...</div>}>
+      <CandidateListingInner candidates={candidates} />
+    </Suspense>
   )
 }

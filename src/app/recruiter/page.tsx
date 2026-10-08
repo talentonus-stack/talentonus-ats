@@ -81,6 +81,9 @@ export default async function RecruiterDashboardPage() {
   const candidateFollowUpsPending = applications.filter(a => ['SCREENING', 'L1_CLEARED', 'L2_CLEARED'].includes(a.status)).length;
   const newApplicationsReceived = applications.filter(a => a.status === 'SUBMITTED').length;
   const offerAcceptancePending = applications.filter(a => a.status === 'SELECTED').length;
+  const updateRequestsPending = await prisma.candidateUpdateRequest.count({
+    where: { recruiterId, status: 'OPEN' }
+  });
 
   // Priority Tasks
   const priorityTasks = applications
@@ -228,6 +231,11 @@ export default async function RecruiterDashboardPage() {
                 <CheckCircle className="w-6 h-6 text-green-400 mb-2" />
                 <span className="text-2xl font-black text-light">{offerAcceptancePending}</span>
                 <span className="text-[10px] uppercase font-bold text-muted mt-1">Offer Acceptance Pending</span>
+              </div>
+              <div className="col-span-2 bg-primary border border-border rounded-xl p-4 flex flex-col justify-center items-center text-center hover:border-orange-500/50 transition-colors">
+                <AlertCircle className="w-6 h-6 text-orange-500 mb-2" />
+                <span className="text-2xl font-black text-light">{updateRequestsPending}</span>
+                <span className="text-[10px] uppercase font-bold text-muted mt-1">Candidate Updates Required</span>
               </div>
             </div>
           </div>

@@ -107,7 +107,14 @@ export default function JobListingClient({ initialJobs, isAdmin }: { initialJobs
                       className={`hover:bg-primary/50 transition-colors group cursor-pointer ${isExpanded ? 'bg-primary/30' : ''}`}
                     >
                       <td className="relative whitespace-nowrap px-6 py-4">
-                        <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
+                          {job.jobReference && (
+                            <span className="inline-flex items-center rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent border border-accent/20">
+                              {job.jobReference}
+                            </span>
+                          )}
+                        </div>
                         <div className="text-xs text-muted mt-1">{job.company?.name || 'No Company'}</div>
                         {renderIndicator(job.id)}
                       </td>

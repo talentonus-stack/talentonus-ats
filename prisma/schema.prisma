@@ -157,8 +157,14 @@ enum JobGender {
   BOTH
 }
 
+model JobSequence {
+  year       Int @id
+  lastNumber Int @default(0)
+}
+
 model Job {
   id          String    @id @default(cuid())
+  jobReference String    @unique
   title       String
   department  String
   location    String

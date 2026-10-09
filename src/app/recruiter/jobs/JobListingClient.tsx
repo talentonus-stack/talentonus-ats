@@ -6,6 +6,7 @@ import { MapPin, Briefcase, IndianRupee, X } from "lucide-react"
 
 type Job = {
   id: string
+  jobReference: string | null
   title: string
   department: string
   location: string
@@ -71,13 +72,18 @@ export default function JobListingClient({ jobs }: { jobs: Job[] }) {
           <div key={job.id} className="bg-primary-lighter rounded-lg shadow-sm border border-border p-5 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
               <div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <button
                     onClick={() => setSelectedJob(job)}
                     className="text-lg font-bold text-accent hover:text-accent-hover hover:underline text-left"
                   >
                     {job.title}
                   </button>
+                  {job.jobReference && (
+                    <span className="inline-flex items-center rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent border border-accent/20">
+                      {job.jobReference}
+                    </span>
+                  )}
                   {isNewJob(job.postedDate) && (
                     <span className="bg-accent text-primary px-2 py-0.5 rounded text-[10px] font-bold tracking-wider animate-pulse">
                       NEW

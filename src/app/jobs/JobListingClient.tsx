@@ -86,13 +86,13 @@ export default function JobListingClient({ initialJobs, isAdmin }: { initialJobs
           <table className="min-w-full divide-y divide-border">
             <thead className="bg-primary-lighter/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title / Company</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Location</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Posted</th>
-                <th className="px-6 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Title / Company</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Experience</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Location</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Priority</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                <th className="px-4 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Posted</th>
+                <th className="px-4 py-4 text-right text-xs font-semibold text-muted uppercase tracking-wider pr-6">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-primary-lighter">
@@ -106,43 +106,43 @@ export default function JobListingClient({ initialJobs, isAdmin }: { initialJobs
                       onClick={() => toggleExpand(job.id)}
                       className={`hover:bg-primary/50 transition-colors group cursor-pointer ${isExpanded ? 'bg-primary/30' : ''}`}
                     >
-                      <td className="relative whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="text-sm font-medium text-light group-hover:text-accent transition-colors">{job.title}</div>
+                      <td className="relative px-4 py-4 max-w-[200px]">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="text-sm font-medium text-light group-hover:text-accent transition-colors truncate" title={job.title}>{job.title}</div>
                           {job.jobReference && (
-                            <span className="inline-flex items-center rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent border border-accent/20">
+                            <span className="inline-flex items-center rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent border border-accent/20 shrink-0">
                               {job.jobReference}
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-muted mt-1">{job.company?.name || 'No Company'}</div>
+                        <div className="text-xs text-muted mt-1 truncate" title={job.company?.name || 'No Company'}>{job.company?.name || 'No Company'}</div>
                         {renderIndicator(job.id)}
                       </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-sm text-muted">
+                      <td className="relative whitespace-nowrap px-4 py-4 text-sm text-muted">
                         {job.experience || 'N/A'}
                         {renderIndicator(job.id)}
                       </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-sm text-muted">
+                      <td className="relative px-4 py-4 text-sm text-muted max-w-[120px] truncate" title={job.location}>
                         {job.location}
                         {renderIndicator(job.id)}
                       </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-sm">
+                      <td className="relative whitespace-nowrap px-4 py-4 text-sm">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.priority === 'HIGH' ? 'bg-red-900/20 text-red-400 border-red-800/30' : job.priority === 'MEDIUM' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-accent/10 text-accent border-accent/20'}`}>
                           {job.priority}
                         </span>
                         {renderIndicator(job.id)}
                       </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-sm">
+                      <td className="relative whitespace-nowrap px-4 py-4 text-sm">
                         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${job.status === 'OPEN' ? 'bg-accent/10 text-accent border-accent/20' : job.status === 'ON_HOLD' ? 'bg-orange-900/20 text-orange-400 border-orange-800/30' : 'bg-border text-muted border-border'}`}>
                           {job.status}
                         </span>
                         {renderIndicator(job.id)}
                       </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-sm text-muted">
+                      <td className="relative whitespace-nowrap px-4 py-4 text-sm text-muted">
                         {new Date(job.postedDate).toLocaleDateString()}
                         {renderIndicator(job.id)}
                       </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                      <td className="relative whitespace-nowrap px-4 py-4 text-right text-sm font-medium pr-6">
                         <div className="flex items-center justify-end gap-3" onClick={(e) => e.stopPropagation()}>
                           <Link href={`/jobs/${job.id}`} className="text-muted hover:text-accent transition-colors" title="View Job">
                             <Eye className="w-4 h-4" />

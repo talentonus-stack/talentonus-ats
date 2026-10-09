@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react"
 import { X, User, Briefcase, FileText, CheckCircle, Clock, Eye, Edit2, AlertCircle } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
+import ApplicationStatusBadge from "@/components/ApplicationStatusBadge"
 
 type Application = {
   id: string
@@ -179,9 +180,7 @@ function CandidateListingInner({ candidates }: { candidates: Candidate[] }) {
                     </td>
                     <td className="px-4 xl:px-6 py-4 overflow-hidden">
                       {latestApp ? (
-                        <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase leading-tight text-accent border border-accent/20 truncate">
-                          {latestApp.status === "L1_SCHEDULED" ? "L1 Schedule" : latestApp.status === "L2_SCHEDULED" ? "L2 Schedule" : latestApp.status === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : latestApp.status.replace(/_/g, ' ')}
-                        </span>
+                        <ApplicationStatusBadge status={latestApp.status} />
                       ) : <span className="text-sm text-muted">N/A</span>}
                     </td>
                     <td className="px-4 xl:px-6 py-4 text-sm font-medium text-light overflow-hidden">

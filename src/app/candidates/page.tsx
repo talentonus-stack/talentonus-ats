@@ -9,6 +9,7 @@ import PageHeader from "@/components/PageHeader"
 import { Users } from "lucide-react"
 import CandidateFilters from "@/components/CandidateFilters"
 import { Prisma } from "@prisma/client"
+import ApplicationStatusBadge from "@/components/ApplicationStatusBadge"
 
 export default async function CandidatesPage({
   searchParams,
@@ -228,9 +229,7 @@ export default async function CandidatesPage({
                         <div className="flex flex-col min-w-0">
                           <span className="font-medium truncate" title={latestApp.job.title}>{latestApp.job.title}</span>
                           <div className="mt-1 flex">
-                            <span className="inline-flex rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent border-accent/20 truncate" title={latestApp.status.replace(/_/g, ' ')}>
-                              {latestApp.status.replace(/_/g, ' ')}
-                            </span>
+                            <ApplicationStatusBadge status={latestApp.status} />
                           </div>
                         </div>
                       ) : (

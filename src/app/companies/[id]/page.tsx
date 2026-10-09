@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import { Briefcase, Calendar, CheckCircle, ExternalLink, Mail, Phone, User, Users, Clock, MapPin, Building, ShieldAlert, ShieldCheck , FileText } from "lucide-react"
+import ApplicationStatusBadge from "@/components/ApplicationStatusBadge"
 
 export default async function CompanyDashboardPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
@@ -347,9 +348,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
                     <p className="text-xs text-muted mt-0.5">{app.job?.title}</p>
                   </div>
                   <div className="text-right">
-                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase border bg-accent/10 text-accent border-accent/20">
-                      {displayStatus}
-                    </span>
+                    <ApplicationStatusBadge status={app.status} label={displayStatus} />
                     <p className="text-[10px] text-muted mt-1 uppercase tracking-wider">{new Date(app.updatedAt).toLocaleDateString()}</p>
                   </div>
                 </div>

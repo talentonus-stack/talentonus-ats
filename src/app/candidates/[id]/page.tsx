@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import CandidateUpdateRequestsClient from "./CandidateUpdateRequestsClient"
+import ApplicationStatusBadge from "@/components/ApplicationStatusBadge"
 
 export default async function CandidateDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const formatSalary = (salary: string | null) => {
@@ -133,9 +134,7 @@ export default async function CandidateDetailsPage({ params }: { params: Promise
               <span className="block text-xs font-semibold text-muted uppercase">Application Status</span>
               <p className="text-sm mt-1">
                 {latestApp ? (
-                  <span className="inline-flex rounded-full bg-accent px-3 py-1 font-semibold leading-5 text-primary">
-                    {latestApp.status.replace(/_/g, ' ')}
-                  </span>
+                  <ApplicationStatusBadge status={latestApp.status} className="px-3 py-1 text-xs" />
                 ) : 'N/A'}
               </p>
             </div>

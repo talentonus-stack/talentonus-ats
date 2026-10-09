@@ -7,6 +7,8 @@ import { authOptions } from "@/lib/auth"
 import CandidateActions from "./CandidateActions"
 import PageHeader from "@/components/PageHeader"
 import { Users } from "lucide-react"
+import CandidateFilters from "@/components/CandidateFilters"
+import { Prisma } from "@prisma/client"
 
 export default async function CandidatesPage({
   searchParams,
@@ -31,16 +33,80 @@ export default async function CandidatesPage({
     redirect("/recruiter")
   }
 
+
   const resolvedSearchParams = await searchParams;
   const pageParam = resolvedSearchParams?.page;
-  let requestedPage = 1;
+  const nameFilter = typeof resolvedSearchParams?.name === 'string' ? resolvedSearchParams.name : undefined;
+  const jobFilter = typeof resolvedSearchParams?.jobId === 'string' ? resolvedSearchParams.jobId : undefined;
+  const recruiterFilter = typeof resolvedSearchParams?.recruiterId === 'string' ? resolvedSearchParams.recruiterId : undefined;
 
+  let requestedPage = 1;
   if (typeof pageParam === 'string') {
     const parsed = parseInt(pageParam, 10);
     if (!isNaN(parsed) && parsed > 0) {
       requestedPage = parsed;
     }
   }
+
+  // Build where clause
+  const whereClause: Prisma.CandidateWhereInput = {
+    status: "ACTIVE"
+  };
+
+  if (nameFilter) {
+    const parts = nameFilter.trim().split(/\s+/);
+    if (parts.length === 1) {
+      whereClause.OR = [
+        { firstName: { contains: parts[0], mode: 'insensitive' } },
+        { lastName: { contains: parts[0], mode: 'insensitive' } }
+      ];
+    } else if (parts.length > 1) {
+      // Support for full names, e.g. "John Smith"
+      const first = parts[0];
+      const last = parts.slice(1).join(' ');
+
+      whereClause.OR = [
+        {
+          AND: [
+            { firstName: { contains: first, mode: 'insensitive' } },
+            { lastName: { contains: last, mode: 'insensitive' } }
+          ]
+        },
+        // Also just try searching the whole string against both just in case
+        { firstName: { contains: nameFilter.trim(), mode: 'insensitive' } },
+        { lastName: { contains: nameFilter.trim(), mode: 'insensitive' } }
+      ];
+    }
+  }
+
+  if (jobFilter) {
+    whereClause.applications = {
+      some: {
+        jobId: jobFilter
+      }
+    };
+  }
+
+  if (recruiterFilter) {
+    whereClause.recruiterId = recruiterFilter;
+  }
+
+
+
+  const [activeJobs, activeRecruiters] = await Promise.all([
+    prisma.job.findMany({ where: { status: "OPEN" }, select: { id: true, title: true }, orderBy: { postedDate: 'desc' } }),
+    prisma.user.findMany({ where: { status: "ACTIVE", role: { in: ["RECRUITER", "ASSOCIATE_PARTNER"] } }, select: { id: true, name: true }, orderBy: { name: 'asc' } })
+  ]);
+
+  const buildPageUrl = (page: number) => {
+    const params = new URLSearchParams();
+    if (nameFilter) params.set("name", nameFilter);
+    if (jobFilter) params.set("jobId", jobFilter);
+    if (recruiterFilter) params.set("recruiterId", recruiterFilter);
+    params.set("page", page.toString());
+    return `/candidates?${params.toString()}`;
+  };
+
 
   let candidates: any[] = []
   let totalCount = 0;
@@ -53,9 +119,9 @@ export default async function CandidatesPage({
     const skipAttempt = (requestedPage - 1) * take;
 
     const [fetchedCount, fetchedCandidates] = await Promise.all([
-      prisma.candidate.count({ where: { status: "ACTIVE" } }),
+      prisma.candidate.count({ where: whereClause }),
       prisma.candidate.findMany({
-        where: { status: "ACTIVE" },
+        where: whereClause,
         take,
         skip: skipAttempt,
         include: {
@@ -80,7 +146,7 @@ export default async function CandidatesPage({
         currentPage = totalPages;
         const actualSkip = (currentPage - 1) * take;
         candidates = await prisma.candidate.findMany({
-          where: { status: "ACTIVE" },
+          where: whereClause,
           take,
           skip: actualSkip,
           include: {
@@ -120,6 +186,7 @@ export default async function CandidatesPage({
         }
       />
 
+      <CandidateFilters jobs={activeJobs} recruiters={activeRecruiters} />
       <div className="overflow-hidden rounded-2xl border border-border bg-primary-lighter shadow-lg">
         <div className="overflow-x-auto">
           <table className="w-full table-fixed divide-y divide-border">
@@ -200,7 +267,7 @@ export default async function CandidatesPage({
             <div>
               <nav className="flex items-center gap-1.5" aria-label="Pagination">
                 <Link
-                  href={currentPage > 1 ? `/candidates?page=${currentPage - 1}` : '#'}
+                  href={currentPage > 1 ? buildPageUrl(currentPage - 1) : '#'}
                   className={`inline-flex items-center justify-center h-8 px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
                     currentPage <= 1
                       ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
@@ -226,7 +293,7 @@ export default async function CandidatesPage({
                           </span>
                         )}
                         <Link
-                          href={`/candidates?page=${p}`}
+                          href={buildPageUrl(p)}
                           className={`inline-flex items-center justify-center h-8 min-w-[32px] px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
                             isCurrent
                               ? 'border-accent/30 bg-accent/10 text-accent z-10'
@@ -241,7 +308,7 @@ export default async function CandidatesPage({
                   })}
 
                 <Link
-                  href={currentPage < totalPages ? `/candidates?page=${currentPage + 1}` : '#'}
+                  href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : '#'}
                   className={`inline-flex items-center justify-center h-8 px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
                     currentPage >= totalPages
                       ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
@@ -259,7 +326,7 @@ export default async function CandidatesPage({
           {/* Mobile pagination */}
           <div className="flex flex-1 justify-between sm:hidden items-center gap-2">
             <Link
-              href={currentPage > 1 ? `/candidates?page=${currentPage - 1}` : '#'}
+              href={currentPage > 1 ? buildPageUrl(currentPage - 1) : '#'}
               className={`inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border transition-colors ${
                 currentPage <= 1
                   ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
@@ -274,7 +341,7 @@ export default async function CandidatesPage({
               Page <span className="font-medium text-light mx-1">{currentPage}</span> of <span className="font-medium text-light mx-1">{totalPages}</span>
             </div>
             <Link
-              href={currentPage < totalPages ? `/candidates?page=${currentPage + 1}` : '#'}
+              href={currentPage < totalPages ? buildPageUrl(currentPage + 1) : '#'}
               className={`inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border transition-colors ${
                 currentPage >= totalPages
                   ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'

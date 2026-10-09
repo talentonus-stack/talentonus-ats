@@ -106,8 +106,8 @@ export default function JobListingClient({ initialJobs, isAdmin }: { initialJobs
                       onClick={() => toggleExpand(job.id)}
                       className={`hover:bg-primary/50 transition-colors group cursor-pointer ${isExpanded ? 'bg-primary/30' : ''}`}
                     >
-                      <td className="relative px-4 py-4 max-w-[200px]">
-                        <div className="flex items-center gap-2 flex-wrap">
+                      <td className="relative px-4 py-4 max-w-[300px]">
+                        <div className="flex items-center gap-2">
                           <div className="text-sm font-medium text-light group-hover:text-accent transition-colors truncate" title={job.title}>{job.title}</div>
                           {job.jobReference && (
                             <span className="inline-flex items-center rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent border border-accent/20 shrink-0">

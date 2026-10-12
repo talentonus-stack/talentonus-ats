@@ -116,6 +116,8 @@ export default async function DashboardPage() {
   const pipeline = {
     SUBMITTED: allApplications.filter(a => a.status === 'SUBMITTED').length,
     SCREENING: allApplications.filter(a => a.status === 'SCREENING').length,
+    SHORTLISTED: allApplications.filter(a => a.status === 'SHORTLISTED').length,
+    SUBMITTED_TO_CLIENT: allApplications.filter(a => a.status === 'SUBMITTED_TO_CLIENT').length,
     L1_SCHEDULED: allApplications.filter(a => a.status === 'L1_SCHEDULED').length,
     L2_SCHEDULED: allApplications.filter(a => a.status === 'L2_SCHEDULED').length,
     FINAL_ROUND_SCHEDULED: allApplications.filter(a => a.status === 'FINAL_ROUND_SCHEDULED').length,
@@ -130,6 +132,8 @@ export default async function DashboardPage() {
   const funnelStages = [
     { label: "Submitted", count: pipeline.SUBMITTED },
     { label: "Screening", count: pipeline.SCREENING },
+    { label: "Shortlisted", count: pipeline.SHORTLISTED },
+    { label: "Submitted to Client", count: pipeline.SUBMITTED_TO_CLIENT },
     { label: "L1 Schedule", count: pipeline.L1_SCHEDULED },
     { label: "L2 Schedule", count: pipeline.L2_SCHEDULED },
     { label: "Final Round Schedule", count: pipeline.FINAL_ROUND_SCHEDULED },

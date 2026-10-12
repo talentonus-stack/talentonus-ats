@@ -60,7 +60,7 @@ export default async function CompanyDashboardPage({ params }: { params: Promise
       }
 
       recruiterStats[recId].submitted++
-      if (['SCREENING', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].shortlisted++
+      if (['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].shortlisted++
       if (['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].interviews++
       if (['SELECTED', 'JOINED'].includes(app.status)) recruiterStats[recId].selected++
       if (app.status === 'JOINED') recruiterStats[recId].joined++

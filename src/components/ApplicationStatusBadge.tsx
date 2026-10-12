@@ -4,6 +4,8 @@ import { ApplicationStatus } from '@prisma/client';
 const statusColorMapping: Record<ApplicationStatus | string, string> = {
   SUBMITTED: 'bg-blue-500/15 text-blue-400 border border-blue-500/30',
   SCREENING: 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/30',
+  SHORTLISTED: 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30',
+  SUBMITTED_TO_CLIENT: 'bg-teal-500/15 text-teal-400 border border-teal-500/30',
   L1_SCHEDULED: 'bg-purple-500/15 text-purple-400 border border-purple-500/30',
   L1_CLEARED: 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30',
   L2_SCHEDULED: 'bg-purple-500/15 text-purple-400 border border-purple-500/30',
@@ -16,6 +18,8 @@ const statusColorMapping: Record<ApplicationStatus | string, string> = {
 };
 
 const formatStatus = (status: string) => {
+  if (status === 'SHORTLISTED') return 'SHORTLISTED';
+  if (status === 'SUBMITTED_TO_CLIENT') return 'SUBMITTED TO CLIENT';
   if (status === 'L1_SCHEDULED') return 'L1 SCHEDULED';
   if (status === 'L2_SCHEDULED') return 'L2 SCHEDULED';
   if (status === 'FINAL_ROUND_SCHEDULED') return 'FINAL ROUND SCHEDULED';

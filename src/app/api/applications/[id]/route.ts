@@ -351,6 +351,8 @@ export async function PATCH(
         else if (status === 'L1_CLEARED') formattedStatus = 'cleared L1'
         else if (status === 'L2_CLEARED') formattedStatus = 'cleared L2'
         else if (status === 'SCREENING') formattedStatus = 'the Screening stage'
+        else if (status === 'SHORTLISTED') formattedStatus = 'Shortlisted'
+        else if (status === 'SUBMITTED_TO_CLIENT') formattedStatus = 'Submitted to Client'
         else if (status === 'SUBMITTED') formattedStatus = 'Submitted'
         else if (status === 'REJECTED') formattedStatus = 'Rejected'
         else if (status === 'BACKED_OUT') formattedStatus = 'Backed Out'
@@ -374,6 +376,10 @@ export async function PATCH(
           message = `Candidate ${candidateName} has joined.`
         } else if (status === 'SCREENING') {
           message = `Candidate ${candidateName} is now in the Screening stage.`
+        } else if (status === 'SHORTLISTED') {
+          message = `Candidate ${candidateName} is now Shortlisted.`
+        } else if (status === 'SUBMITTED_TO_CLIENT') {
+          message = `Candidate ${candidateName} has been Submitted to Client.`
         } else if (status === 'L1_SCHEDULED') {
           message = `Candidate ${candidateName} is now in L1 Schedule.`
         } else if (status === 'L2_SCHEDULED') {

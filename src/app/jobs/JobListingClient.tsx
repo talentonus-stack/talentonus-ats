@@ -23,7 +23,7 @@ export default function JobListingClient({ initialJobs, isAdmin }: { initialJobs
     if (!applications) return { submitted, screening, interviews, selected, rejected, joined };
     applications.forEach(app => {
       if (app.status === 'SUBMITTED') submitted++;
-      else if (app.status === 'SCREENING') screening++;
+      else if (['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT'].includes(app.status)) screening++;
       else if (['L1_SCHEDULED', 'L1_CLEARED', 'L2_SCHEDULED', 'L2_CLEARED', 'FINAL_ROUND_SCHEDULED'].includes(app.status)) interviews++;
       else if (app.status === 'SELECTED') selected++;
       else if (app.status === 'REJECTED') rejected++;

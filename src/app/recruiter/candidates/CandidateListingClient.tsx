@@ -41,6 +41,8 @@ type Candidate = {
 const STAGES = [
   "SUBMITTED",
   "SCREENING",
+  "SHORTLISTED",
+  "SUBMITTED_TO_CLIENT",
   "L1_SCHEDULED",
   "L1_CLEARED",
   "L2_SCHEDULED",
@@ -440,7 +442,7 @@ function CandidateListingInner({ candidates }: { candidates: Candidate[] }) {
                                 {icon}
                               </span>
                               <h4 className={`text-sm tracking-wide ${textClass}`}>
-                                {stage === "L1_SCHEDULED" ? "L1 Schedule" : stage === "L2_SCHEDULED" ? "L2 Schedule" : stage === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : stage.replace(/_/g, ' ')}
+                                {stage === "L1_SCHEDULED" ? "L1 Schedule" : stage === "L2_SCHEDULED" ? "L2 Schedule" : stage === "FINAL_ROUND_SCHEDULED" ? "Final Round Schedule" : stage === "SUBMITTED_TO_CLIENT" ? "Submitted to Client" : stage.replace(/_/g, ' ')}
                               </h4>
                               {stage === 'SELECTED' && isCompleted && selectedCandidate.applications[0].placement?.expectedJoiningDate && (
                                 <p className="text-xs mt-1 text-muted">

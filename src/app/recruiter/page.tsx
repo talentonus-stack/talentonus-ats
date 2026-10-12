@@ -78,7 +78,7 @@ export default async function RecruiterDashboardPage() {
 
   // Action Center Stats
   const interviewFeedbackPending = applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(a.status)).length;
-  const candidateFollowUpsPending = applications.filter(a => ['SCREENING', 'L1_CLEARED', 'L2_CLEARED'].includes(a.status)).length;
+  const candidateFollowUpsPending = applications.filter(a => ['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_CLEARED', 'L2_CLEARED'].includes(a.status)).length;
   const newApplicationsReceived = applications.filter(a => a.status === 'SUBMITTED').length;
   const offerAcceptancePending = applications.filter(a => a.status === 'SELECTED').length;
   const updateRequestsPending = await prisma.candidateUpdateRequest.count({
@@ -87,19 +87,19 @@ export default async function RecruiterDashboardPage() {
 
   // Priority Tasks
   const priorityTasks = applications
-    .filter(a => ['SCREENING', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'SELECTED'].includes(a.status))
+    .filter(a => ['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'SELECTED'].includes(a.status))
     .map(app => {
       let action = "Check screening status"
       let priority = "LOW"
 
-      if (app.status === 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED') {
+      if (app.status === 'L1_SCHEDULED' || app.status === 'L2_SCHEDULED' || app.status === 'FINAL_ROUND_SCHEDULED') {
         action = "Get interview feedback"
         priority = "HIGH"
       } else if (app.status === 'SELECTED') {
         action = "Follow up on offer acceptance"
         priority = "HIGH"
-      } else if (app.status === 'SCREENING') {
-        action = "Follow up with client on screening"
+      } else if (app.status === 'SCREENING' || app.status === 'SHORTLISTED' || app.status === 'SUBMITTED_TO_CLIENT') {
+        action = "Follow up with client on progress"
         priority = "MEDIUM"
       }
 

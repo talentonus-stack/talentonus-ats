@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "ApplicationStatus" ADD VALUE 'SHORTLISTED';
+ALTER TYPE "ApplicationStatus" ADD VALUE 'SUBMITTED_TO_CLIENT';

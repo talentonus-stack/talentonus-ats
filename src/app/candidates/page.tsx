@@ -125,10 +125,22 @@ export default async function CandidatesPage({
         where: whereClause,
         take,
         skip: skipAttempt,
-        include: {
-          recruiter: true,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          experience: true,
+          currentSalary: true,
+          expectedSalary: true,
+          noticePeriod: true,
+          recruiter: { select: { name: true } },
           applications: {
-            include: { job: true },
+            select: {
+              status: true,
+              job: { select: { title: true } }
+            },
             orderBy: { createdAt: "desc" },
             take: 1
           }
@@ -150,10 +162,22 @@ export default async function CandidatesPage({
           where: whereClause,
           take,
           skip: actualSkip,
-          include: {
-            recruiter: true,
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
+            experience: true,
+            currentSalary: true,
+            expectedSalary: true,
+            noticePeriod: true,
+            recruiter: { select: { name: true } },
             applications: {
-              include: { job: true },
+              select: {
+                status: true,
+                job: { select: { title: true } }
+              },
               orderBy: { createdAt: "desc" },
               take: 1
             }

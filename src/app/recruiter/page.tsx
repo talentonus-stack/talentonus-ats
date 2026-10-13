@@ -25,28 +25,49 @@ export default async function RecruiterDashboardPage() {
     where: { id: recruiterId }
   });
 
-  // 1. Fetch raw data to calculate everything efficiently
-  const applications = await prisma.application.findMany({
-    where: { candidate: { recruiterId } },
-    include: {
-      candidate: true,
-      job: {
-        include: { company: true }
-      },
-      placement: true
+  // 1. Fetch ONLY the data needed for priority tasks
+  const priorityTasksData = await prisma.application.findMany({
+    where: {
+      candidate: { recruiterId },
+      status: { in: ['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'SELECTED'] }
+    },
+    select: {
+      id: true,
+      status: true,
+      candidate: { select: { firstName: true, lastName: true } },
+      job: { select: { title: true } }
     },
     orderBy: { updatedAt: 'desc' }
   })
 
-  const totalOpenJobs = await prisma.job.count({
-    where: { status: 'OPEN' }
-  })
+  // 2. Fetch grouped counts from database instead of full applications
+  const [groupedAppCounts, totalOpenJobs, updateRequestsPending] = await Promise.all([
+    prisma.application.groupBy({
+      by: ['status'],
+      where: { candidate: { recruiterId } },
+      _count: { _all: true }
+    }),
+    prisma.job.count({
+      where: { status: 'OPEN' }
+    }),
+    prisma.candidateUpdateRequest.count({
+      where: { recruiterId, status: 'OPEN' }
+    })
+  ])
+
+  // Convert grouped counts to a map for O(1) lookup
+  const statusCounts = groupedAppCounts.reduce((acc, curr) => {
+    acc[curr.status] = curr._count._all;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const getCount = (...statuses: string[]) => statuses.reduce((sum, status) => sum + (statusCounts[status] || 0), 0);
+  const totalSubmitted = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
 
   // Calculate Performance Metrics
-  const totalSubmitted = applications.length
-  const interviewScheduled = applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(a.status)).length
-  const selected = applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length
-  const rejected = applications.filter(a => a.status === 'REJECTED').length
+  const interviewScheduled = getCount('L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED')
+  const selected = getCount('SELECTED', 'JOINED')
+  const rejected = getCount('REJECTED')
   const selectionRatio = totalSubmitted > 0 ? Math.round((selected / totalSubmitted) * 100) : 0
 
   const performanceStats = [
@@ -60,11 +81,11 @@ export default async function RecruiterDashboardPage() {
 
   // Calculate Pipeline Funnel
   const pipeline = {
-    SUBMITTED: applications.length,
-    SCREENING: applications.filter(a => !['REJECTED'].includes(a.status)).length,
-    INTERVIEW: applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'].includes(a.status)).length,
-    SELECTED: applications.filter(a => ['SELECTED', 'JOINED'].includes(a.status)).length,
-    JOINED: applications.filter(a => a.status === 'JOINED').length,
+    SUBMITTED: totalSubmitted,
+    SCREENING: totalSubmitted - getCount('REJECTED'),
+    INTERVIEW: getCount('L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'L1_CLEARED', 'L2_CLEARED', 'SELECTED', 'JOINED'),
+    SELECTED: selected,
+    JOINED: getCount('JOINED'),
   }
 
   const funnelStages = [
@@ -77,17 +98,13 @@ export default async function RecruiterDashboardPage() {
   const maxFunnel = pipeline.SUBMITTED > 0 ? pipeline.SUBMITTED : 1
 
   // Action Center Stats
-  const interviewFeedbackPending = applications.filter(a => ['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(a.status)).length;
-  const candidateFollowUpsPending = applications.filter(a => ['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_CLEARED', 'L2_CLEARED'].includes(a.status)).length;
-  const newApplicationsReceived = applications.filter(a => a.status === 'SUBMITTED').length;
-  const offerAcceptancePending = applications.filter(a => a.status === 'SELECTED').length;
-  const updateRequestsPending = await prisma.candidateUpdateRequest.count({
-    where: { recruiterId, status: 'OPEN' }
-  });
+  const interviewFeedbackPending = getCount('L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED')
+  const candidateFollowUpsPending = getCount('SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_CLEARED', 'L2_CLEARED')
+  const newApplicationsReceived = getCount('SUBMITTED')
+  const offerAcceptancePending = getCount('SELECTED')
 
   // Priority Tasks
-  const priorityTasks = applications
-    .filter(a => ['SCREENING', 'SHORTLISTED', 'SUBMITTED_TO_CLIENT', 'L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED', 'SELECTED'].includes(a.status))
+  const priorityTasks = priorityTasksData
     .map(app => {
       let action = "Check screening status"
       let priority = "LOW"
@@ -113,21 +130,33 @@ export default async function RecruiterDashboardPage() {
     }).slice(0, 6)
 
   // Assigned Jobs (Active Jobs recruiter has submitted candidates to)
-  const jobMap = new Map()
-  applications.forEach(app => {
-    if (!jobMap.has(app.jobId)) {
-      const companyName = (app.job as any).company?.isConfidential ? "Confidential Client" : ((app.job as any).company?.name || "Unknown Company");
-      jobMap.set(app.jobId, {
-        id: app.jobId,
-        title: app.job.title,
-        companyName: companyName, // recruiter view logic
-        openPositions: (app.job as any).vacancies || 1, // Fallback to 1 if no vacancies field
-        submitted: 0,
-      })
+  const assignedJobsData = await prisma.job.findMany({
+    where: {
+      status: 'OPEN',
+      applications: { some: { candidate: { recruiterId } } }
+    },
+    select: {
+      id: true,
+      title: true,
+      vacancies: true,
+      company: { select: { name: true, isConfidential: true } },
+      applications: {
+        where: { candidate: { recruiterId } },
+        select: { id: true }
+      }
     }
-    jobMap.get(app.jobId).submitted += 1
   })
-  const assignedJobs = Array.from(jobMap.values())
+
+  const assignedJobs = assignedJobsData.map(job => {
+    const companyName = job.company?.isConfidential ? "Confidential Client" : (job.company?.name || "Unknown Company");
+    return {
+      id: job.id,
+      title: job.title,
+      companyName: companyName, // recruiter view logic
+      openPositions: job.vacancies || 1, // Fallback to 1 if no vacancies field
+      submitted: job.applications.length,
+    }
+  })
 
   const firstName = session.user?.name?.split(' ')[0] || 'User'
 

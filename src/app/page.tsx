@@ -55,7 +55,11 @@ export default async function DashboardPage() {
     prisma.application.count({ where: { status: { in: ["L1_SCHEDULED", "L2_SCHEDULED", "FINAL_ROUND_SCHEDULED"] }, candidate: { status: "ACTIVE" } } }),
     prisma.company.count(),
     prisma.company.count({ where: { status: "ACTIVE" } }),
-    prisma.application.findMany({ where: { candidate: { status: "ACTIVE" } }, select: { status: true } }),
+    prisma.application.groupBy({
+      by: ['status'],
+      where: { candidate: { status: "ACTIVE" } },
+      _count: { _all: true }
+    }),
     prisma.user.findMany({
       where: { role: "RECRUITER" },
       include: {
@@ -112,21 +116,27 @@ export default async function DashboardPage() {
 
   const firstName = session.user?.name?.split(' ')[0] || 'User'
 
+  // Convert grouped counts to a map for O(1) lookup
+  const statusCounts = allApplications.reduce((acc, curr) => {
+    acc[curr.status] = curr._count._all;
+    return acc;
+  }, {} as Record<string, number>);
+
   // Funnel Data Calculations
   const pipeline = {
-    SUBMITTED: allApplications.filter(a => a.status === 'SUBMITTED').length,
-    SCREENING: allApplications.filter(a => a.status === 'SCREENING').length,
-    SHORTLISTED: allApplications.filter(a => a.status === 'SHORTLISTED').length,
-    SUBMITTED_TO_CLIENT: allApplications.filter(a => a.status === 'SUBMITTED_TO_CLIENT').length,
-    L1_SCHEDULED: allApplications.filter(a => a.status === 'L1_SCHEDULED').length,
-    L2_SCHEDULED: allApplications.filter(a => a.status === 'L2_SCHEDULED').length,
-    FINAL_ROUND_SCHEDULED: allApplications.filter(a => a.status === 'FINAL_ROUND_SCHEDULED').length,
-    L1_CLEARED: allApplications.filter(a => a.status === 'L1_CLEARED').length,
-    L2_CLEARED: allApplications.filter(a => a.status === 'L2_CLEARED').length,
-    SELECTED: allApplications.filter(a => a.status === 'SELECTED').length,
-    REJECTED: allApplications.filter(a => a.status === 'REJECTED').length,
-    JOINED: allApplications.filter(a => a.status === 'JOINED').length,
-    BACKED_OUT: allApplications.filter(a => a.status === 'BACKED_OUT').length,
+    SUBMITTED: statusCounts['SUBMITTED'] || 0,
+    SCREENING: statusCounts['SCREENING'] || 0,
+    SHORTLISTED: statusCounts['SHORTLISTED'] || 0,
+    SUBMITTED_TO_CLIENT: statusCounts['SUBMITTED_TO_CLIENT'] || 0,
+    L1_SCHEDULED: statusCounts['L1_SCHEDULED'] || 0,
+    L2_SCHEDULED: statusCounts['L2_SCHEDULED'] || 0,
+    FINAL_ROUND_SCHEDULED: statusCounts['FINAL_ROUND_SCHEDULED'] || 0,
+    L1_CLEARED: statusCounts['L1_CLEARED'] || 0,
+    L2_CLEARED: statusCounts['L2_CLEARED'] || 0,
+    SELECTED: statusCounts['SELECTED'] || 0,
+    REJECTED: statusCounts['REJECTED'] || 0,
+    JOINED: statusCounts['JOINED'] || 0,
+    BACKED_OUT: statusCounts['BACKED_OUT'] || 0,
   }
 
   const funnelStages = [

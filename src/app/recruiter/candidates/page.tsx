@@ -19,42 +19,11 @@ export default async function RecruiterCandidatesPage() {
   try {
     candidates = await prisma.candidate.findMany({
       where: { recruiterId, status: "ACTIVE" },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        phone: true,
-        createdAt: true,
-        currentLocation: true,
-        experience: true,
-        currentSalary: true,
-        expectedSalary: true,
-        noticePeriod: true,
-        skills: true,
-        remarks: true,
-        resumeUrl: true,
-        resumeFileName: true,
-        portfolioUrl: true,
-        applications: {
-          select: {
-            id: true,
-            status: true,
-            statusChangeReason: true,
-            job: { select: { title: true } },
-            placement: { select: { expectedJoiningDate: true } }
-          }
-        },
+      include: {
+        applications: { include: { job: true, placement: true } },
         updateRequests: {
           where: { status: "OPEN" },
-          select: {
-            id: true,
-            status: true,
-            priority: true,
-            requestText: true,
-            createdAt: true,
-            requestedBy: { select: { name: true } }
-          },
+          include: { requestedBy: { select: { name: true } } },
           orderBy: { createdAt: "desc" }
         }
       },

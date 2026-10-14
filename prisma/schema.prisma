@@ -149,8 +149,6 @@ model Company {
   clientAgreementSigned    Boolean?  @default(false)
   agreementExpiryDate      DateTime?
   commercialRemarks        String?
-
-  @@index([status])
 }
 
 enum JobGender {
@@ -165,13 +163,13 @@ model JobSequence {
 }
 
 model Job {
-  id           String    @id @default(cuid())
+  id          String    @id @default(cuid())
   jobReference String    @unique
-  title        String
-  department   String
-  location     String
-  status       JobStatus @default(OPEN)
-  description  String?
+  title       String
+  department  String
+  location    String
+  status      JobStatus @default(OPEN)
+  description String?
 
   postedDate   DateTime    @default(now())
   experience   String?
@@ -189,14 +187,11 @@ model Job {
   companyId String?
   company   Company? @relation(fields: [companyId], references: [id])
 
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  applications Application[]
-  placements   Placement[]
-  interviews   Interview[]
-
-  @@index([status])
-  @@index([postedDate])
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  applications   Application[]
+  placements     Placement[]
+  interviews     Interview[]
 }
 
 model Candidate {
@@ -221,15 +216,12 @@ model Candidate {
   recruiterId String?
   recruiter   User?   @relation(fields: [recruiterId], references: [id])
 
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
-  applications   Application[]
-  placements     Placement[]
-  interviews     Interview[]
-  updateRequests CandidateUpdateRequest[]
-
-  @@index([status])
-  @@index([recruiterId])
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  applications           Application[]
+  placements             Placement[]
+  interviews             Interview[]
+  updateRequests         CandidateUpdateRequest[]
 }
 
 enum ApplicationStatus {
@@ -262,11 +254,6 @@ model Application {
   candidate  Candidate   @relation(fields: [candidateId], references: [id])
   placement  Placement?
   interviews Interview[]
-
-  @@index([status])
-  @@index([candidateId])
-  @@index([jobId])
-  @@index([updatedAt])
 }
 
 enum PlacementStatus {
@@ -314,9 +301,6 @@ model Placement {
   updatedAt DateTime @updatedAt
 
   operationsPayout OperationsPayout?
-
-  @@index([recruiterId])
-  @@index([createdAt])
 }
 
 enum PayoutStatus {

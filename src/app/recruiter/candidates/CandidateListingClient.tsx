@@ -52,19 +52,10 @@ const STAGES = [
   "JOINED"
 ]
 
-import React from "react"
-import Link from "next/link"
-
-function CandidateListingInner({ candidates, pagination }: { candidates: Candidate[], pagination: { totalCount: number, totalPages: number, currentPage: number, take: number } }) {
+function CandidateListingInner({ candidates }: { candidates: Candidate[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const candidateIdQuery = searchParams.get("candidateId")
-
-  const buildPageUrl = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    return `/recruiter/candidates?${params.toString()}`;
-  };
 
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
   const [resolvingRequestId, setResolvingRequestId] = useState<string | null>(null)
@@ -230,106 +221,6 @@ function CandidateListingInner({ candidates, pagination }: { candidates: Candida
           </table>
         </div>
       </div>
-
-      {pagination.totalCount > pagination.take && (
-        <div className="flex items-center justify-between border-t border-border bg-primary-lighter px-4 py-2.5 rounded-b-2xl border-x border-b">
-          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs text-muted">
-                Showing <span className="font-medium text-light">{(pagination.currentPage - 1) * pagination.take + 1}</span>&ndash;<span className="font-medium text-light">{Math.min(pagination.currentPage * pagination.take, pagination.totalCount)}</span> of <span className="font-medium text-light">{pagination.totalCount}</span> candidates
-              </p>
-            </div>
-            <div>
-              <nav className="flex items-center gap-1.5" aria-label="Pagination">
-                <Link
-                  href={pagination.currentPage > 1 ? buildPageUrl(pagination.currentPage - 1) : '#'}
-                  className={`inline-flex items-center justify-center h-8 px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
-                    pagination.currentPage <= 1
-                      ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
-                      : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
-                  }`}
-                  aria-disabled={pagination.currentPage <= 1}
-                  {...(pagination.currentPage <= 1 ? { tabIndex: -1 } : {})}
-                >
-                  Previous
-                </Link>
-
-                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                  .filter((p) => p === 1 || p === pagination.totalPages || Math.abs(p - pagination.currentPage) <= 2)
-                  .map((p, i, arr) => {
-                    const isCurrent = p === pagination.currentPage;
-                    const showEllipsisBefore = i > 0 && arr[i - 1] !== p - 1;
-
-                    return (
-                      <React.Fragment key={p}>
-                        {showEllipsisBefore && (
-                          <span className="inline-flex items-center justify-center h-8 px-2 text-xs font-medium text-muted">
-                            ...
-                          </span>
-                        )}
-                        <Link
-                          href={buildPageUrl(p)}
-                          className={`inline-flex items-center justify-center h-8 min-w-[32px] px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
-                            isCurrent
-                              ? 'border-accent/30 bg-accent/10 text-accent z-10'
-                              : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
-                          }`}
-                          aria-current={isCurrent ? 'page' : undefined}
-                        >
-                          {p}
-                        </Link>
-                      </React.Fragment>
-                    );
-                  })}
-
-                <Link
-                  href={pagination.currentPage < pagination.totalPages ? buildPageUrl(pagination.currentPage + 1) : '#'}
-                  className={`inline-flex items-center justify-center h-8 px-2.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-primary-lighter ${
-                    pagination.currentPage >= pagination.totalPages
-                      ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
-                      : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
-                  }`}
-                  aria-disabled={pagination.currentPage >= pagination.totalPages}
-                  {...(pagination.currentPage >= pagination.totalPages ? { tabIndex: -1 } : {})}
-                >
-                  Next
-                </Link>
-              </nav>
-            </div>
-          </div>
-
-          {/* Mobile pagination */}
-          <div className="flex flex-1 justify-between sm:hidden items-center gap-2">
-            <Link
-              href={pagination.currentPage > 1 ? buildPageUrl(pagination.currentPage - 1) : '#'}
-              className={`inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border transition-colors ${
-                pagination.currentPage <= 1
-                  ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
-                  : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
-              }`}
-              aria-disabled={pagination.currentPage <= 1}
-              {...(pagination.currentPage <= 1 ? { tabIndex: -1 } : {})}
-            >
-              Previous
-            </Link>
-            <div className="flex items-center text-xs text-muted">
-              Page <span className="font-medium text-light mx-1">{pagination.currentPage}</span> of <span className="font-medium text-light mx-1">{pagination.totalPages}</span>
-            </div>
-            <Link
-              href={pagination.currentPage < pagination.totalPages ? buildPageUrl(pagination.currentPage + 1) : '#'}
-              className={`inline-flex items-center justify-center h-8 px-3 text-xs font-medium rounded-md border transition-colors ${
-                pagination.currentPage >= pagination.totalPages
-                  ? 'border-border/50 text-gray-600 cursor-not-allowed bg-primary-lighter/50'
-                  : 'border-border text-muted hover:border-gray-500 hover:text-light bg-transparent'
-              }`}
-              aria-disabled={pagination.currentPage >= pagination.totalPages}
-              {...(pagination.currentPage >= pagination.totalPages ? { tabIndex: -1 } : {})}
-            >
-              Next
-            </Link>
-          </div>
-        </div>
-      )}
 
       {/* Candidate Details Modal */}
       {selectedCandidate && (
@@ -592,10 +483,10 @@ function CandidateListingInner({ candidates, pagination }: { candidates: Candida
   )
 }
 
-export default function CandidateListingClient({ candidates, pagination }: { candidates: Candidate[], pagination: { totalCount: number, totalPages: number, currentPage: number, take: number } }) {
+export default function CandidateListingClient({ candidates }: { candidates: Candidate[] }) {
   return (
     <Suspense fallback={<div className="p-12 text-center text-muted">Loading candidates...</div>}>
-      <CandidateListingInner candidates={candidates} pagination={pagination} />
+      <CandidateListingInner candidates={candidates} />
     </Suspense>
   )
 }

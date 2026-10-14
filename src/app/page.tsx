@@ -230,13 +230,13 @@ export default async function DashboardPage() {
             <TrendingUp className="w-4 h-4 text-accent" />
             Recruitment Funnel
           </h2>
-          <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-11 gap-3">
+          <div className="flex gap-2 lg:gap-3 overflow-x-auto pb-4 hide-scrollbar">
             {funnelStages.map((stage) => (
-              <div key={stage.label} className="flex flex-col items-center">
+              <div key={stage.label} className="flex-1 min-w-[76px] flex flex-col items-center">
                 <div className="bg-primary border border-border/50 rounded-xl w-full h-24 flex flex-col items-center justify-center shadow-sm hover:border-accent/30 hover:bg-primary-lighter transition-all group">
                   <span className="text-3xl font-black text-light group-hover:text-white transition-colors leading-none">{stage.count}</span>
                 </div>
-                <span className="text-[10px] font-bold text-muted uppercase tracking-wider text-center mt-3 leading-tight px-1">
+                <span className="text-[10px] font-bold text-muted uppercase tracking-wider text-center mt-3 leading-tight px-1 break-words">
                   {stage.label}
                 </span>
               </div>

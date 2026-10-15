@@ -20,7 +20,7 @@ export async function PATCH(
   const { id } = await context.params;
 
   try {
-    let { status, offeredCTC, expectedJoiningDate, statusChangeReason, interviewData } = await request.json()
+    let { status, offeredCTC, expectedJoiningDate, statusChangeReason, interviewData, interviewOutcome } = await request.json()
 
     // Validate statusChangeReason logic
     if (status === 'REJECTED' || status === 'BACKED_OUT') {
@@ -129,6 +129,34 @@ export async function PATCH(
           },
         })
 
+        // Handle explicit interview outcome if transitioning out of L1 or L2 scheduled stages
+        if (interviewOutcome && (previousApplication.status === 'L1_SCHEDULED' || previousApplication.status === 'L2_SCHEDULED')) {
+           if (!['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(interviewOutcome)) {
+             throw new Error("Invalid interview outcome provided.");
+           }
+           const roundToUpdate = previousApplication.status === 'L1_SCHEDULED' ? 'L1' : 'L2';
+           const scheduledInterviews = await tx.interview.findMany({
+             where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' }
+           });
+
+           if (scheduledInterviews.length > 0) {
+             await tx.interview.updateMany({
+               where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' },
+               data: { status: interviewOutcome }
+             });
+           }
+        }
+
+
+        // Clean up FINAL_ROUND_SCHEDULED if moving out of it, as it doesn't have explicit outcomes in the UI
+        if (previousApplication.status === 'FINAL_ROUND_SCHEDULED' && status !== 'FINAL_ROUND_SCHEDULED') {
+            await tx.interview.updateMany({
+               where: { applicationId: id, round: 'FINAL_ROUND', status: 'SCHEDULED' },
+               data: { status: 'CANCELLED' }
+            });
+        }
+
+
         const placement = await tx.placement.upsert({
           where: { applicationId: id },
           update: {
@@ -208,16 +236,34 @@ export async function PATCH(
       }
 
       finalUpdatedApplication = await prisma.$transaction(async (tx) => {
-        // Cancel any pending SCHEDULED interviews BEFORE creating the new one
-        await tx.interview.updateMany({
-          where: {
-            applicationId: id,
-            status: 'SCHEDULED'
-          },
-          data: {
-            status: 'CANCELLED'
-          }
-        });
+
+        // Handle explicit interview outcome if transitioning out of L1 or L2 scheduled stages
+        if (interviewOutcome && (previousApplication.status === 'L1_SCHEDULED' || previousApplication.status === 'L2_SCHEDULED')) {
+           if (!['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(interviewOutcome)) {
+             throw new Error("Invalid interview outcome provided.");
+           }
+           const roundToUpdate = previousApplication.status === 'L1_SCHEDULED' ? 'L1' : 'L2';
+           const scheduledInterviews = await tx.interview.findMany({
+             where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' }
+           });
+
+           if (scheduledInterviews.length > 0) {
+             await tx.interview.updateMany({
+               where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' },
+               data: { status: interviewOutcome }
+             });
+           }
+        }
+
+
+        // Clean up FINAL_ROUND_SCHEDULED if moving out of it, as it doesn't have explicit outcomes in the UI
+        if (previousApplication.status === 'FINAL_ROUND_SCHEDULED' && status !== 'FINAL_ROUND_SCHEDULED') {
+            await tx.interview.updateMany({
+               where: { applicationId: id, round: 'FINAL_ROUND', status: 'SCHEDULED' },
+               data: { status: 'CANCELLED' }
+            });
+        }
+
 
         // Create the new Interview record
         await tx.interview.create({
@@ -271,6 +317,34 @@ export async function PATCH(
           },
         })
 
+        // Handle explicit interview outcome if transitioning out of L1 or L2 scheduled stages
+        if (interviewOutcome && (previousApplication.status === 'L1_SCHEDULED' || previousApplication.status === 'L2_SCHEDULED')) {
+           if (!['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(interviewOutcome)) {
+             throw new Error("Invalid interview outcome provided.");
+           }
+           const roundToUpdate = previousApplication.status === 'L1_SCHEDULED' ? 'L1' : 'L2';
+           const scheduledInterviews = await tx.interview.findMany({
+             where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' }
+           });
+
+           if (scheduledInterviews.length > 0) {
+             await tx.interview.updateMany({
+               where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' },
+               data: { status: interviewOutcome }
+             });
+           }
+        }
+
+
+        // Clean up FINAL_ROUND_SCHEDULED if moving out of it, as it doesn't have explicit outcomes in the UI
+        if (previousApplication.status === 'FINAL_ROUND_SCHEDULED' && status !== 'FINAL_ROUND_SCHEDULED') {
+            await tx.interview.updateMany({
+               where: { applicationId: id, round: 'FINAL_ROUND', status: 'SCHEDULED' },
+               data: { status: 'CANCELLED' }
+            });
+        }
+
+
         await tx.placement.updateMany({
           where: { applicationId: id },
           data: {
@@ -294,19 +368,35 @@ export async function PATCH(
           },
         })
 
-        // If moving completely OUT of interview stages (e.g. BACKED_OUT, REJECTED, SCREENING),
-        // cancel any pending scheduled interviews. Do not delete them.
-        if (!['L1_SCHEDULED', 'L2_SCHEDULED', 'FINAL_ROUND_SCHEDULED'].includes(status)) {
-          await tx.interview.updateMany({
-            where: {
-              applicationId: id,
-              status: 'SCHEDULED'
-            },
-            data: {
-              status: 'CANCELLED'
-            }
-          });
+        // Handle explicit interview outcome if transitioning out of L1 or L2 scheduled stages
+        if (interviewOutcome && (previousApplication.status === 'L1_SCHEDULED' || previousApplication.status === 'L2_SCHEDULED')) {
+           if (!['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(interviewOutcome)) {
+             throw new Error("Invalid interview outcome provided.");
+           }
+           const roundToUpdate = previousApplication.status === 'L1_SCHEDULED' ? 'L1' : 'L2';
+           const scheduledInterviews = await tx.interview.findMany({
+             where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' }
+           });
+
+           if (scheduledInterviews.length > 0) {
+             await tx.interview.updateMany({
+               where: { applicationId: id, round: roundToUpdate, status: 'SCHEDULED' },
+               data: { status: interviewOutcome }
+             });
+           }
         }
+
+
+        // Clean up FINAL_ROUND_SCHEDULED if moving out of it, as it doesn't have explicit outcomes in the UI
+        if (previousApplication.status === 'FINAL_ROUND_SCHEDULED' && status !== 'FINAL_ROUND_SCHEDULED') {
+            await tx.interview.updateMany({
+               where: { applicationId: id, round: 'FINAL_ROUND', status: 'SCHEDULED' },
+               data: { status: 'CANCELLED' }
+            });
+        }
+
+
+
 
         // If moving FROM Selected TO any other status (e.g., BACKED_OUT, REJECTED), remove placement
         const placement = await tx.placement.findUnique({ where: { applicationId: id } });

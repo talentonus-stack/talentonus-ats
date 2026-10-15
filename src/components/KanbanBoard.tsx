@@ -29,14 +29,18 @@ type Application = {
 export default function KanbanBoard({ initialApplications }: { initialApplications: Application[] }) {
   const [applications, setApplications] = useState(initialApplications)
   const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null)
-  const [selectedModalState, setSelectedModalState] = useState<{ appId: string, show: boolean }>({ appId: '', show: false })
-  const [modalForm, setModalForm] = useState({ offeredCTC: '', expectedJoiningDate: '' })
+  const [selectedModalState, setSelectedModalState] = useState<{ appId: string, show: boolean, requiresOutcome: boolean, round: string, candidateName: string }>({ appId: '', show: false, requiresOutcome: false, round: '', candidateName: '' })
+  const [modalForm, setModalForm] = useState({ offeredCTC: '', expectedJoiningDate: '', outcome: '' })
 
-  const [reasonModalState, setReasonModalState] = useState<{ appId: string, show: boolean, status: 'REJECTED' | 'BACKED_OUT', candidateName: string }>({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
-  const [reasonForm, setReasonForm] = useState({ reason: '' })
+  const [reasonModalState, setReasonModalState] = useState<{ appId: string, show: boolean, status: 'REJECTED' | 'BACKED_OUT', candidateName: string, requiresOutcome: boolean, round: string }>({ appId: '', show: false, status: 'REJECTED', candidateName: '', requiresOutcome: false, round: '' })
+  const [reasonForm, setReasonForm] = useState({ reason: '', outcome: '' })
 
-  const [interviewModalState, setInterviewModalState] = useState<{ appId: string, show: boolean, status: string, candidateName: string }>({ appId: '', show: false, status: '', candidateName: '' })
-  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', mode: 'ONLINE', round: 'L1', meetingLink: '' })
+  const [interviewModalState, setInterviewModalState] = useState<{ appId: string, show: boolean, status: string, candidateName: string, requiresOutcome: boolean, round: string }>({ appId: '', show: false, status: '', candidateName: '', requiresOutcome: false, round: '' })
+  const [interviewForm, setInterviewForm] = useState({ date: '', time: '', mode: 'ONLINE', round: 'L1', meetingLink: '', outcome: '' })
+
+  const [outcomeModalState, setOutcomeModalState] = useState<{ appId: string, show: boolean, newStatus: string, candidateName: string, round: string }>({ appId: '', show: false, newStatus: '', candidateName: '', round: '' })
+  const [outcomeForm, setOutcomeForm] = useState({ outcome: '' })
+
 
   const router = useRouter()
 
@@ -49,15 +53,19 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     const app = applications.find(a => a.id === appId);
     if (!app) return;
 
+    const requiresOutcome = app.status === 'L1_SCHEDULED' || app.status === 'L2_SCHEDULED';
+    const round = app.status === 'L1_SCHEDULED' ? 'L1' : app.status === 'L2_SCHEDULED' ? 'L2' : '';
+    const candidateName = `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim();
+
     if (newStatus === 'SELECTED') {
-      setSelectedModalState({ appId, show: true })
-      setModalForm({ offeredCTC: '', expectedJoiningDate: '' })
+      setSelectedModalState({ appId, show: true, requiresOutcome, round, candidateName })
+      setModalForm({ offeredCTC: '', expectedJoiningDate: '', outcome: '' })
       return
     }
 
     if (newStatus === 'REJECTED' || newStatus === 'BACKED_OUT') {
-      setReasonModalState({ appId, show: true, status: newStatus as 'REJECTED' | 'BACKED_OUT', candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim() })
-      setReasonForm({ reason: '' })
+      setReasonModalState({ appId, show: true, status: newStatus as 'REJECTED' | 'BACKED_OUT', candidateName, requiresOutcome, round })
+      setReasonForm({ reason: '', outcome: '' })
       return
     }
 
@@ -67,16 +75,23 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
         time: '',
         mode: 'ONLINE',
         round: newStatus === 'L1_SCHEDULED' ? 'L1' : newStatus === 'L2_SCHEDULED' ? 'L2' : 'FINAL_ROUND',
-        meetingLink: ''
+        meetingLink: '',
+        outcome: ''
       })
-      setInterviewModalState({ appId, show: true, status: newStatus, candidateName: `${app.candidate.firstName} ${app.candidate.lastName || ''}`.trim() })
+      setInterviewModalState({ appId, show: true, status: newStatus, candidateName, requiresOutcome, round })
+      return
+    }
+
+    if (requiresOutcome) {
+      setOutcomeModalState({ appId, show: true, newStatus, candidateName, round })
+      setOutcomeForm({ outcome: '' })
       return
     }
 
     await performStatusUpdate(appId, newStatus)
   }
 
-  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string, statusChangeReason?: string, interviewData?: any }) => {
+  const performStatusUpdate = async (appId: string, newStatus: string, payload?: { offeredCTC?: number, expectedJoiningDate?: string, statusChangeReason?: string, interviewData?: any, interviewOutcome?: string }) => {
     // Save previous state for rollback
     const previousApplications = [...applications]
 
@@ -117,15 +132,16 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     }
 
     const { appId } = selectedModalState
-    setSelectedModalState({ appId: '', show: false })
+    setSelectedModalState({ appId: '', show: false , requiresOutcome: false, round: '', candidateName: '' })
     await performStatusUpdate(appId, 'SELECTED', {
       offeredCTC,
-      expectedJoiningDate: new Date(modalForm.expectedJoiningDate).toISOString()
+      expectedJoiningDate: new Date(modalForm.expectedJoiningDate).toISOString(),
+      ...(selectedModalState.requiresOutcome ? { interviewOutcome: modalForm.outcome } : {})
     })
   }
 
   const handleModalCancel = () => {
-    setSelectedModalState({ appId: '', show: false })
+    setSelectedModalState({ appId: '', show: false, requiresOutcome: false, round: '', candidateName: '' })
     setApplications([...applications])
   }
 
@@ -139,13 +155,13 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     }
 
     const { appId, status } = reasonModalState
-    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' , requiresOutcome: false, round: '' })
 
-    await performStatusUpdate(appId, status, { statusChangeReason: reason })
+    await performStatusUpdate(appId, status, { statusChangeReason: reason, ...(reasonModalState.requiresOutcome ? { interviewOutcome: reasonForm.outcome } : {}) })
   }
 
   const handleReasonModalCancel = () => {
-    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '' })
+    setReasonModalState({ appId: '', show: false, status: 'REJECTED', candidateName: '', requiresOutcome: false, round: '' })
     setApplications([...applications])
   }
 
@@ -158,7 +174,7 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
     }
 
     const { appId, status } = interviewModalState
-    setInterviewModalState({ appId: '', show: false, status: '', candidateName: '' })
+    setInterviewModalState({ appId: '', show: false, status: '', candidateName: '' , requiresOutcome: false, round: '' })
 
     const combinedDate = new Date(`${interviewForm.date}T${interviewForm.time}`)
 
@@ -173,7 +189,20 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
   }
 
   const handleInterviewModalCancel = () => {
-    setInterviewModalState({ appId: '', show: false, status: '', candidateName: '' })
+    setInterviewModalState({ appId: '', show: false, status: '', candidateName: '', requiresOutcome: false, round: '' })
+    setApplications([...applications])
+  }
+
+
+  const handleOutcomeModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const { appId, newStatus } = outcomeModalState
+    setOutcomeModalState({ appId: '', show: false, newStatus: '', candidateName: '', round: '' })
+    await performStatusUpdate(appId, newStatus, { interviewOutcome: outcomeForm.outcome })
+  }
+
+  const handleOutcomeModalCancel = () => {
+    setOutcomeModalState({ appId: '', show: false, newStatus: '', candidateName: '', round: '' })
     setApplications([...applications])
   }
 
@@ -220,6 +249,31 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                       className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
                     />
                   </div>
+                  {selectedModalState.requiresOutcome && (
+                    <div className="mt-4 p-4 border border-accent/30 rounded-lg bg-accent/5">
+                      <label className="block text-sm font-medium text-light mb-2 flex items-center gap-2">
+                        <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        What happened in the {selectedModalState.round} Interview? <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        required
+                        value={modalForm.outcome}
+                        onChange={(e) => setModalForm(prev => ({ ...prev, outcome: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="" disabled>Select an outcome...</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        <option value="NO_SHOW">No Show</option>
+                      </select>
+                      <p className="text-xs text-muted mt-2">
+                        The candidate is currently in an interview stage. You must select the outcome of the interview before changing their status.
+                      </p>
+                    </div>
+                  )}
+
                 </form>
               </div>
               <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
@@ -314,6 +368,31 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                       placeholder="https://meet.google.com/..."
                     />
                   </div>
+                  {interviewModalState.requiresOutcome && (
+                    <div className="mt-4 p-4 border border-accent/30 rounded-lg bg-accent/5">
+                      <label className="block text-sm font-medium text-light mb-2 flex items-center gap-2">
+                        <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        What happened in the {interviewModalState.round} Interview? <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        required
+                        value={interviewForm.outcome}
+                        onChange={(e) => setInterviewForm(prev => ({ ...prev, outcome: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="" disabled>Select an outcome...</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        <option value="NO_SHOW">No Show</option>
+                      </select>
+                      <p className="text-xs text-muted mt-2">
+                        The candidate is currently in an interview stage. You must select the outcome of the interview before changing their status.
+                      </p>
+                    </div>
+                  )}
+
                 </form>
               </div>
               <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
@@ -350,11 +429,36 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                     <textarea
                       required
                       value={reasonForm.reason}
-                      onChange={(e) => setReasonForm({ reason: e.target.value })}
+                      onChange={(e) => setReasonForm(prev => ({ ...prev, reason: e.target.value }))}
                       className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 min-h-[100px] resize-y custom-scrollbar"
                       placeholder={`Enter ${reasonModalState.status === 'REJECTED' ? 'rejection' : 'back out'} reason...`}
                     />
                   </div>
+                  {reasonModalState.requiresOutcome && (
+                    <div className="mt-4 p-4 border border-accent/30 rounded-lg bg-accent/5">
+                      <label className="block text-sm font-medium text-light mb-2 flex items-center gap-2">
+                        <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        What happened in the {reasonModalState.round} Interview? <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        required
+                        value={reasonForm.outcome}
+                        onChange={(e) => setReasonForm(prev => ({ ...prev, outcome: e.target.value }))}
+                        className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                      >
+                        <option value="" disabled>Select an outcome...</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        <option value="NO_SHOW">No Show</option>
+                      </select>
+                      <p className="text-xs text-muted mt-2">
+                        The candidate is currently in an interview stage. You must select the outcome of the interview before changing their status.
+                      </p>
+                    </div>
+                  )}
+
                 </form>
               </div>
               <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
@@ -371,6 +475,60 @@ export default function KanbanBoard({ initialApplications }: { initialApplicatio
                   className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-bold hover:bg-red-700 transition-colors"
                 >
                   {reasonModalState.status === 'REJECTED' ? 'Reject Candidate' : 'Back Out Candidate'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+        {outcomeModalState.show && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-12 p-4 bg-black/50" style={{ backdropFilter: 'blur(4px)' }}>
+            <div className="bg-primary border border-border rounded-xl shadow-2xl w-full max-w-md flex flex-col max-h-[calc(100vh-96px)]">
+              <div className="p-6 border-b border-border shrink-0">
+                <h3 className="text-xl font-bold text-light">Interview Outcome Required</h3>
+                <p className="text-sm text-accent font-medium mt-2">{outcomeModalState.candidateName}</p>
+              </div>
+              <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <form id="outcome-form" onSubmit={handleOutcomeModalSubmit} className="space-y-4">
+                  <div className="p-4 border border-accent/30 rounded-lg bg-accent/5">
+                    <label className="block text-sm font-medium text-light mb-2 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      What happened in the {outcomeModalState.round} Interview? <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      required
+                      value={outcomeForm.outcome}
+                      onChange={(e) => setOutcomeForm(prev => ({ ...prev, outcome: e.target.value }))}
+                      className="w-full rounded-md border border-border bg-primary-lighter px-3 py-2 text-sm text-light focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    >
+                      <option value="" disabled>Select an outcome...</option>
+                      <option value="COMPLETED">Completed</option>
+                      <option value="CANCELLED">Cancelled</option>
+                      <option value="NO_SHOW">No Show</option>
+                    </select>
+                    <p className="text-xs text-muted mt-2">
+                      The candidate is currently in an interview stage. You must select the outcome of the interview before changing their status to {outcomeModalState.newStatus.replace(/_/g, ' ')}.
+                    </p>
+                  </div>
+                </form>
+              </div>
+              <div className="p-6 border-t border-border bg-primary-lighter flex justify-end gap-3 shrink-0 rounded-b-xl">
+                <button
+                  type="button"
+                  onClick={handleOutcomeModalCancel}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-light bg-primary hover:bg-border transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="outcome-form"
+                  className="px-4 py-2 bg-accent text-primary rounded-md text-sm font-bold hover:bg-accent-hover transition-colors"
+                >
+                  Continue Move
                 </button>
               </div>
             </div>

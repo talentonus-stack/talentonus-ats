@@ -39,6 +39,7 @@ export default async function CandidatesPage({
   const pageParam = resolvedSearchParams?.page;
   const nameFilter = typeof resolvedSearchParams?.name === 'string' ? resolvedSearchParams.name : undefined;
   const jobFilter = typeof resolvedSearchParams?.jobId === 'string' ? resolvedSearchParams.jobId : undefined;
+  const stageFilter = typeof resolvedSearchParams?.stage === 'string' ? resolvedSearchParams.stage : undefined;
   const recruiterFilter = typeof resolvedSearchParams?.recruiterId === 'string' ? resolvedSearchParams.recruiterId : undefined;
 
   let requestedPage = 1;
@@ -80,12 +81,33 @@ export default async function CandidatesPage({
     }
   }
 
-  if (jobFilter) {
-    whereClause.applications = {
-      some: {
-        jobId: jobFilter
-      }
-    };
+  if (jobFilter || stageFilter) {
+    try {
+      // 1. Identify the latest application for each candidate using a parameterized raw SQL CTE.
+      // We partition by "candidateId", order by "createdAt" DESC, and id DESC to resolve ties.
+      // Then we filter out only those where row number = 1 (the latest),
+      // and match the requested jobId and/or status if they were provided.
+      const latestAppMatches: { candidateId: string }[] = await prisma.$queryRaw`
+        WITH RankedApps AS (
+          SELECT "candidateId", "jobId", "status",
+                 ROW_NUMBER() OVER(PARTITION BY "candidateId" ORDER BY "createdAt" DESC, "id" DESC) as rn
+          FROM "Application"
+        )
+        SELECT "candidateId"
+        FROM RankedApps
+        WHERE rn = 1
+          ${jobFilter ? Prisma.sql`AND "jobId" = ${jobFilter}` : Prisma.empty}
+          ${stageFilter ? Prisma.sql`AND "status" = ${stageFilter}::"ApplicationStatus"` : Prisma.empty}
+      `;
+
+      const candidateIds = latestAppMatches.map(m => m.candidateId);
+
+      // If no candidates matched the CTE filter, pass an impossible ID to ensure count/findMany return 0 correctly
+      whereClause.id = { in: candidateIds.length > 0 ? candidateIds : ['__NO_MATCH__'] };
+    } catch (err) {
+      console.error("Error executing raw query for application filtering:", err);
+      whereClause.id = { in: ['__ERROR__'] };
+    }
   }
 
   if (recruiterFilter) {
@@ -103,6 +125,7 @@ export default async function CandidatesPage({
     const params = new URLSearchParams();
     if (nameFilter) params.set("name", nameFilter);
     if (jobFilter) params.set("jobId", jobFilter);
+    if (stageFilter) params.set("stage", stageFilter);
     if (recruiterFilter) params.set("recruiterId", recruiterFilter);
     params.set("page", page.toString());
     return `/candidates?${params.toString()}`;

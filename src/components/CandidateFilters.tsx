@@ -20,18 +20,21 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
 
   const [name, setName] = useState(searchParams.get("name") || "")
   const [jobId, setJobId] = useState(searchParams.get("jobId") || "")
+  const [stage, setStage] = useState(searchParams.get("stage") || "")
   const [recruiterId, setRecruiterId] = useState(searchParams.get("recruiterId") || "")
 
   // Sync state with URL params
   useEffect(() => {
     const pName = searchParams.get("name") || "";
     const pJob = searchParams.get("jobId") || "";
+    const pStage = searchParams.get("stage") || "";
     const pRec = searchParams.get("recruiterId") || "";
 
     // Using a timeout to avoid synchronous setState inside useEffect warning during hydration
     const timer = setTimeout(() => {
       if (name !== pName) setName(pName);
       if (jobId !== pJob) setJobId(pJob);
+      if (stage !== pStage) setStage(pStage);
       if (recruiterId !== pRec) setRecruiterId(pRec);
     }, 0);
 
@@ -40,7 +43,7 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
   }, [searchParams])
 
   // Helper to push to router
-  const updateUrl = useCallback((newName: string, newJobId: string, newRecruiterId: string) => {
+  const updateUrl = useCallback((newName: string, newJobId: string, newStage: string, newRecruiterId: string) => {
     const params = new URLSearchParams(searchParams.toString())
 
     // Always reset to page 1 when filters change
@@ -51,6 +54,9 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
 
     if (newJobId) params.set("jobId", newJobId)
     else params.delete("jobId")
+
+    if (newStage) params.set("stage", newStage)
+    else params.delete("stage")
 
     if (newRecruiterId) params.set("recruiterId", newRecruiterId)
     else params.delete("recruiterId")
@@ -63,11 +69,11 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
     const pName = searchParams.get("name") || "";
     if (name !== pName) {
       const timer = setTimeout(() => {
-        updateUrl(name, jobId, recruiterId);
+        updateUrl(name, jobId, stage, recruiterId);
       }, 400); // 400ms debounce
       return () => clearTimeout(timer);
     }
-  }, [name, jobId, recruiterId, searchParams, updateUrl]);
+  }, [name, jobId, stage, recruiterId, searchParams, updateUrl]);
 
   return (
     <div className="bg-primary-lighter rounded-2xl border border-border p-6 mb-6 shadow-sm">
@@ -92,7 +98,7 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
             onChange={(e) => {
               const newVal = e.target.value;
               setJobId(newVal);
-              updateUrl(name, newVal, recruiterId);
+              updateUrl(name, newVal, stage, recruiterId);
             }}
             className="block w-full rounded-lg border-0 py-2.5 px-3.5 text-light bg-primary shadow-sm ring-1 ring-inset ring-border focus:ring-2 focus:ring-inset focus:ring-accent sm:text-sm sm:leading-6 [&>option]:bg-primary"
           >
@@ -104,6 +110,35 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
         </div>
 
         <div className="flex-1">
+          <label htmlFor="filter-stage" className="block text-xs font-semibold text-muted mb-2 uppercase tracking-wider">Application Stage</label>
+          <select
+            id="filter-stage"
+            value={stage}
+            onChange={(e) => {
+              const newVal = e.target.value;
+              setStage(newVal);
+              updateUrl(name, jobId, newVal, recruiterId);
+            }}
+            className="block w-full rounded-lg border-0 py-2.5 px-3.5 text-light bg-primary shadow-sm ring-1 ring-inset ring-border focus:ring-2 focus:ring-inset focus:ring-accent sm:text-sm sm:leading-6 [&>option]:bg-primary"
+          >
+            <option value="">All Stages</option>
+            <option value="SUBMITTED">Submitted</option>
+            <option value="SCREENING">Screening</option>
+            <option value="SHORTLISTED">Shortlisted</option>
+            <option value="SUBMITTED_TO_CLIENT">Submitted to Client</option>
+            <option value="L1_SCHEDULED">L1 Scheduled</option>
+            <option value="L1_CLEARED">L1 Cleared</option>
+            <option value="L2_SCHEDULED">L2 Scheduled</option>
+            <option value="L2_CLEARED">L2 Cleared</option>
+            <option value="FINAL_ROUND_SCHEDULED">Final Round Scheduled</option>
+            <option value="SELECTED">Selected</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="JOINED">Joined</option>
+            <option value="BACKED_OUT">Backed Out</option>
+          </select>
+        </div>
+
+        <div className="flex-1">
           <label htmlFor="filter-recruiter" className="block text-xs font-semibold text-muted mb-2 uppercase tracking-wider">Recruiter Name</label>
           <select
             id="filter-recruiter"
@@ -111,7 +146,7 @@ function FiltersInner({ jobs, recruiters }: { jobs: JobOption[], recruiters: Rec
             onChange={(e) => {
               const newVal = e.target.value;
               setRecruiterId(newVal);
-              updateUrl(name, jobId, newVal);
+              updateUrl(name, jobId, stage, newVal);
             }}
             className="block w-full rounded-lg border-0 py-2.5 px-3.5 text-light bg-primary shadow-sm ring-1 ring-inset ring-border focus:ring-2 focus:ring-inset focus:ring-accent sm:text-sm sm:leading-6 [&>option]:bg-primary"
           >

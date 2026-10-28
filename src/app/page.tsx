@@ -57,7 +57,7 @@ export default async function DashboardPage() {
     prisma.company.count({ where: { status: "ACTIVE" } }),
     prisma.application.findMany({ where: { candidate: { status: "ACTIVE" } }, select: { status: true } }),
     prisma.user.findMany({
-      where: { role: "RECRUITER" },
+      where: { role: { in: ["RECRUITER", "ASSOCIATE_PARTNER"] } },
       include: {
         candidates: {
           where: { status: "ACTIVE" }, include: { applications: { select: { status: true } } }
@@ -162,6 +162,7 @@ export default async function DashboardPage() {
     return {
       id: recruiter.id,
       name: recruiter.name || recruiter.email,
+      role: recruiter.role,
       submitted: recruiter.candidates.length,
       applications: totalApps,
       selected: selected + joined,
@@ -259,7 +260,8 @@ export default async function DashboardPage() {
                 <thead>
                   <tr>
                     <th className="pb-3 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Rank</th>
-                    <th className="pb-3 px-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Recruiter</th>
+                    <th className="pb-3 px-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Name</th>
+                    <th className="pb-3 px-2 text-left text-[10px] font-bold text-muted uppercase tracking-wider">Role</th>
                     <th className="pb-3 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Submissions</th>
                     <th className="pb-3 px-2 text-center text-[10px] font-bold text-muted uppercase tracking-wider">Selected</th>
                     <th className="pb-3 text-right text-[10px] font-bold text-muted uppercase tracking-wider">Activity</th>
@@ -269,6 +271,7 @@ export default async function DashboardPage() {
                   {topRecruiters.map((recruiter, idx) => {
                     const widthPercent = (recruiter.submitted / maxSubmitted) * 100;
                     const isTop = idx === 0;
+                    const roleLabel = recruiter.role === "ASSOCIATE_PARTNER" ? "Associate Partner" : "Recruiter";
                     return (
                       <tr key={recruiter.id} className="group hover:bg-primary/20 transition-colors">
                         <td className="py-3">
@@ -279,6 +282,7 @@ export default async function DashboardPage() {
                         <td className="px-2 py-3 whitespace-nowrap">
                           <div className="text-sm font-semibold text-light group-hover:text-white transition-colors">{recruiter.name}</div>
                         </td>
+                        <td className="px-2 py-3 whitespace-nowrap text-sm text-muted">{roleLabel}</td>
                         <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-light font-bold">{recruiter.submitted}</td>
                         <td className="px-2 py-3 text-center whitespace-nowrap text-sm text-accent font-bold">{recruiter.selected}</td>
                         <td className="py-3 whitespace-nowrap w-1/4">
@@ -293,7 +297,7 @@ export default async function DashboardPage() {
                   })}
                   {topRecruiters.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-sm text-muted">No recruiter data available.</td>
+                      <td colSpan={6} className="py-8 text-center text-sm text-muted">No recruiter data available.</td>
                     </tr>
                   )}
                 </tbody>
